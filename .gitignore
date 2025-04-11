@@ -1,2 +1,4 @@
+# .gitignore
+backend/venv/
 .env
-/backend/.venv
+__pycache__/
