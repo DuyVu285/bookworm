@@ -1,9 +1,15 @@
-from sqlmodel import Field, SQLModel
+from typing import List
+from sqlmodel import BigInteger, Column, Field, Relationship, SQLModel
+
+from backend.app.models.order_model import Order
 
 
 class User(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    username: str = Field(nullable=False, unique=True)
-    email: str = Field(nullable=False, unique=True)
-    hashed_password: str = Field(nullable=False)
-    is_active: bool = Field(default=True)
+    id: int = Field(default=None, primary_key=True, sa_column=Column(BigInteger))
+    first_name: str = Field(max_length=50)
+    last_name: str = Field(max_length=50)
+    email: str = Field(max_length=70, unique=True)
+    password: str = Field(max_length=255)
+    admin: bool = Field(default=False)
+
+    orders: List["Order"] = Relationship(back_populates="user")
