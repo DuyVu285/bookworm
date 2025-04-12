@@ -1,6 +1,7 @@
 from app.core.config import settings
 from sqlmodel import SQLModel, create_engine, Session
 
+from app.models.order_model import Order
 
 DATABASE_URL = settings.DATABASE_URL
 
@@ -14,3 +15,4 @@ def get_session():
 
 def init_db():
     SQLModel.metadata.create_all(engine)
+    
