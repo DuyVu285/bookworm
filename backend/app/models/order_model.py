@@ -2,8 +2,8 @@ import datetime
 from typing import List
 from sqlmodel import BigInteger, Column, Field, Numeric, Relationship, SQLModel
 
-from backend.app.models.order_item_model import OrderItem
-from backend.models.user_model import User
+from app.models.order_item_model import OrderItem
+from app.models.user_model import User
 
 
 class Order(SQLModel, table=True):
