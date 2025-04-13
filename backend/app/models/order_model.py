@@ -1,5 +1,3 @@
-
-=======
 from typing import List, TYPE_CHECKING, Optional
 from sqlmodel import Column, Field, Numeric, Relationship, SQLModel
 from datetime import datetime
@@ -7,7 +5,6 @@ from datetime import datetime
 if TYPE_CHECKING:
     from app.models.user_model import User
     from app.models.order_item_model import OrderItem
-
 
 class Order(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
@@ -17,4 +14,4 @@ class Order(SQLModel, table=True):
 
     user: Optional["User"] = Relationship(back_populates="orders")
     order_items: List["OrderItem"] = Relationship(back_populates="order")
->>>>>>> feat/models
+ 
