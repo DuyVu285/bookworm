@@ -1,5 +1,5 @@
 from sqlmodel import Numeric, SQLModel, Field, Column, Relationship
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from datetime import datetime, timezone
 
 if TYPE_CHECKING:
@@ -17,4 +17,4 @@ class Discount(SQLModel, table=True):
     )
     discount_price: float = Field(sa_column=Column(Numeric(5, 2)))
 
-    books: List["Book"] = Relationship(back_populates="category")
+    books: Optional["Book"] = Relationship(back_populates="category")

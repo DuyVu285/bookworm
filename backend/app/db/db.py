@@ -8,6 +8,7 @@ from app.models.book_model import Book
 from app.models.category_model import Category
 from app.models.author import Author
 from app.models.discount_model import Discount
+from app.models.review_model import Review
 
 DATABASE_URL = settings.DATABASE_URL
 
