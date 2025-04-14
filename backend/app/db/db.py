@@ -7,6 +7,7 @@ from app.models.order_item_model import OrderItem
 from app.models.book_model import Book
 from app.models.category_model import Category
 from app.models.author import Author
+from app.models.discount_model import Discount
 
 DATABASE_URL = settings.DATABASE_URL
 
