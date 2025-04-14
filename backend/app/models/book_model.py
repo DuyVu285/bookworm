@@ -4,7 +4,7 @@ from sqlmodel import Column, Field, Numeric, Relationship, SQLModel
 if TYPE_CHECKING:
     from app.models.order_item_model import OrderItem
     from app.models.category_model import Category
-    from app.models.author import Author
+    from backend.app.models.author_model import Author
     from app.models.discount_model import Discount
     from app.models.review_model import Review
 
