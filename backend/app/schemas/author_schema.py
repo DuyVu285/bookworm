@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class AuthorBase(BaseModel):
@@ -17,5 +17,5 @@ class AuthorUpdate(AuthorBase):
 class AuthorRead(AuthorBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+

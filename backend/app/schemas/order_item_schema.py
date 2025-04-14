@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class OrderItemBase(BaseModel):
@@ -18,5 +18,5 @@ class OrderItemUpdate(OrderItemBase):
 class OrderItemRead(OrderItemBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
