@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import pytest
@@ -16,11 +17,11 @@ from app.models.author_model import Author
 from app.models.discount_model import Discount
 from app.models.review_model import Review
 from app.db.db import get_session
-from sqlmodel import select
-
-
 def generate_random_email():
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=10)) + "@example.com"
+    return (
+        "".join(random.choices(string.ascii_lowercase + string.digits, k=10))
+        + "@example.com"
+    )
 
 
 @pytest.fixture
@@ -33,7 +34,7 @@ def test_full_book_flow(session):
     # Create Category
     category = Category(
         category_name="Science Fiction",
-        category_description="Books based on futuristic concepts."
+        category_description="Books based on futuristic concepts.",
     )
     session.add(category)
     session.commit()
@@ -42,7 +43,7 @@ def test_full_book_flow(session):
     # Create Author
     author = Author(
         author_name="Isaac Asimov",
-        author_bio="Famous for his works in science fiction."
+        author_bio="Famous for his works in science fiction.",
     )
     session.add(author)
     session.commit()
@@ -55,7 +56,7 @@ def test_full_book_flow(session):
         book_title="Foundation",
         book_summary="A complex saga of humans scattered on planets.",
         book_price=19.99,
-        book_cover_photo="foundation.jpg"
+        book_cover_photo="foundation.jpg",
     )
     session.add(book)
     session.commit()
@@ -66,7 +67,7 @@ def test_full_book_flow(session):
         book_id=book.id,
         discount_price=14.99,
         discount_start_date=datetime.now(timezone.utc),
-        discount_end_date=datetime.now(timezone.utc) + timedelta(days=7)
+        discount_end_date=datetime.now(timezone.utc) + timedelta(days=7),
     )
     session.add(discount)
 
@@ -87,7 +88,7 @@ def test_full_book_flow(session):
         first_name="Jane",
         last_name="Doe",
         email=generate_random_email(),
-        password="securepassword"
+        password="securepassword",
     )
     session.add(user)
     session.commit()
@@ -95,9 +96,7 @@ def test_full_book_flow(session):
 
     # Create Order
     order = Order(
-        user_id=user.id,
-        order_amount=book.book_price,
-        order_date=datetime.now()
+        user_id=user.id, order_amount=book.book_price, order_date=datetime.now()
     )
     session.add(order)
     session.commit()
@@ -105,10 +104,7 @@ def test_full_book_flow(session):
 
     # Create Order Item
     order_item = OrderItem(
-        order_id=order.id,
-        book_id=book.id,
-        quantity=1,
-        price=book.book_price
+        order_id=order.id, book_id=book.id, quantity=1, price=book.book_price
     )
     session.add(order_item)
     session.commit()
