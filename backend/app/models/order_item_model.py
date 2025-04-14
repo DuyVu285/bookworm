@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Optional
-from sqlmodel import SQLModel, Field, Column, Numeric, ForeignKey, Relationship
+from sqlmodel import SQLModel, Field, Column, Numeric, Relationship
 
 if TYPE_CHECKING:
     from app.models.order_model import Order

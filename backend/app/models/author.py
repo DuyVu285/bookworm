@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from sqlmodel import SQLModel, Field, Column, Relationship
 
 if TYPE_CHECKING:
@@ -10,4 +10,4 @@ class Author(SQLModel, table=True):
     author_name: str = Field(max_length=255)
     author_bio: str
 
-    books: list["Book"] = Relationship(back_populates="author")
+    books: List["Book"] = Relationship(back_populates="author")
