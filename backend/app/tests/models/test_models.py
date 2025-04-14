@@ -97,9 +97,22 @@ def test_create_book(session):
 
 
 def test_create_discount(session):
+    # Ensure the category and author are created first
+    category = Category(
+        category_name="Science Fiction",
+        category_description="Books based on futuristic concepts.",
+    )
+    author = Author(
+        author_name="Isaac Asimov",
+        author_bio="Famous for his works in science fiction.",
+    )
+    session.add(category)
+    session.add(author)
+    session.commit()  # Ensure both are committed before using them
+
     book = Book(
-        category_id=1,
-        author_id=1,
+        category_id=category.id,
+        author_id=author.id,
         book_title="Foundation",
         book_summary="A complex saga of humans scattered on planets.",
         book_price=19.99,
@@ -123,13 +136,28 @@ def test_create_discount(session):
     # Cleanup
     session.delete(discount)
     session.delete(book)
+    session.delete(author)
+    session.delete(category)
     session.commit()
 
 
 def test_create_review(session):
+    # Ensure the category and author are created first
+    category = Category(
+        category_name="Science Fiction",
+        category_description="Books based on futuristic concepts.",
+    )
+    author = Author(
+        author_name="Isaac Asimov",
+        author_bio="Famous for his works in science fiction.",
+    )
+    session.add(category)
+    session.add(author)
+    session.commit()  # Ensure both are committed before using them
+
     book = Book(
-        category_id=1,
-        author_id=1,
+        category_id=category.id,
+        author_id=author.id,
         book_title="Foundation",
         book_summary="A complex saga of humans scattered on planets.",
         book_price=19.99,
@@ -153,46 +181,43 @@ def test_create_review(session):
     # Cleanup
     session.delete(review)
     session.delete(book)
-    session.commit()
-
-
-def test_create_user(session):
-    user = User(
-        first_name="Jane",
-        last_name="Doe",
-        email=generate_random_email(),
-        password="securepassword",
-    )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-
-    assert user.id is not None
-
-    # Cleanup
-    session.delete(user)
+    session.delete(author)
+    session.delete(category)
     session.commit()
 
 
 def test_create_order(session):
-    user = User(
-        first_name="Jane",
-        last_name="Doe",
-        email=generate_random_email(),
-        password="securepassword",
+    # Ensure the category and author are created first
+    category = Category(
+        category_name="Science Fiction",
+        category_description="Books based on futuristic concepts.",
     )
-    session.add(user)
-    session.commit()
+    author = Author(
+        author_name="Isaac Asimov",
+        author_bio="Famous for his works in science fiction.",
+    )
+    session.add(category)
+    session.add(author)
+    session.commit()  # Ensure both are committed before using them
 
     book = Book(
-        category_id=1,
-        author_id=1,
+        category_id=category.id,
+        author_id=author.id,
         book_title="Foundation",
         book_summary="A complex saga of humans scattered on planets.",
         book_price=19.99,
         book_cover_photo="foundation.jpg",
     )
     session.add(book)
+    session.commit()
+
+    user = User(
+        first_name="Jane",
+        last_name="Doe",
+        email=generate_random_email(),
+        password="securepassword",
+    )
+    session.add(user)
     session.commit()
 
     order = Order(
@@ -208,25 +233,28 @@ def test_create_order(session):
     session.delete(order)
     session.delete(book)
     session.delete(user)
+    session.delete(author)
+    session.delete(category)
     session.commit()
 
 
 def test_create_order_item(session):
-    # Create User
-    user = User(
-        first_name="Jane",
-        last_name="Doe",
-        email=generate_random_email(),
-        password="securepassword",
+    # Ensure the category and author are created first
+    category = Category(
+        category_name="Science Fiction",
+        category_description="Books based on futuristic concepts.",
     )
-    session.add(user)
-    session.commit()  # Commit to save the user and generate the user ID
-    session.refresh(user)  # Refresh to get the user ID from the DB
+    author = Author(
+        author_name="Isaac Asimov",
+        author_bio="Famous for his works in science fiction.",
+    )
+    session.add(category)
+    session.add(author)
+    session.commit()  # Ensure both are committed before using them
 
-    # Create Book
     book = Book(
-        category_id=1,  # Assuming category exists in the DB
-        author_id=1,  # Assuming author exists in the DB
+        category_id=category.id,
+        author_id=author.id,
         book_title="Foundation",
         book_summary="A complex saga of humans scattered on planets.",
         book_price=19.99,
@@ -235,15 +263,21 @@ def test_create_order_item(session):
     session.add(book)
     session.commit()
 
-    # Create Order
+    user = User(
+        first_name="Jane",
+        last_name="Doe",
+        email=generate_random_email(),
+        password="securepassword",
+    )
+    session.add(user)
+    session.commit()
+
     order = Order(
         user_id=user.id, order_amount=book.book_price, order_date=datetime.now()
     )
     session.add(order)
     session.commit()
-    session.refresh(order)
 
-    # Create Order Item
     order_item = OrderItem(
         order_id=order.id, book_id=book.id, quantity=1, price=book.book_price
     )
@@ -258,4 +292,6 @@ def test_create_order_item(session):
     session.delete(order)
     session.delete(book)
     session.delete(user)
+    session.delete(author)
+    session.delete(category)
     session.commit()
