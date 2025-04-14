@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Field, Column, Relationship
+from sqlmodel import SQLModel, Field, Relationship
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:

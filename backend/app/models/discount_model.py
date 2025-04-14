@@ -17,4 +17,4 @@ class Discount(SQLModel, table=True):
     )
     discount_price: float = Field(sa_column=Column(Numeric(5, 2)))
 
-    book: Optional["Book"] = Relationship(back_populates="category")
+    book: Optional["Book"] = Relationship(back_populates="discounts")

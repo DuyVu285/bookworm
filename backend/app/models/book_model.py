@@ -20,5 +20,5 @@ class Book(SQLModel, table=True):
     category: Optional["Category"] = Relationship(back_populates="books")
     author: Optional["Author"] = Relationship(back_populates="books")
     order_items: List["OrderItem"] = Relationship(back_populates="book")
-    discounts: List["Discount"] = Relationship(back_populates="books")
+    discounts: List["Discount"] = Relationship(back_populates="book")
     reviews: List["Review"] = Relationship(back_populates="book")
