@@ -10,6 +10,8 @@ from app.models.order_item_model import OrderItem
 from app.models.book_model import Book
 from app.models.category_model import Category
 
+from app.api.main_route import router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,6 +22,7 @@ async def lifespan(app: FastAPI):
     print("Shutting down...")
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(router)
 
 @app.get("/")
 def read_root():
