@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 class Book(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     category_id: int = Field(foreign_key="category.id")
+    book_id: int = Field(foreign_key="order_item.book_id")
     book_title: str = Field(max_length=255)
     book_summary: str
     book_price: float = Field(sa_column=Column(Numeric(5, 2)))
