@@ -11,6 +11,6 @@ class Review(SQLModel, table=True):
     review_title: str = Field(max_length=120)
     review_details: str
     review_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    rating_start: str = Field(max_length=255)
+    rating_star: str = Field(max_length=255)
     
     book: Optional["Book"] = Relationship(back_populates="reviews")

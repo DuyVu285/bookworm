@@ -76,7 +76,7 @@ def test_full_book_flow(session):
         book_id=book.id,
         review_title="Amazing Read!",
         review_details="Couldn't put it down. Fantastic storytelling.",
-        rating_start="5",
+        rating_star="5",
     )
     session.add(review)
     session.commit()
