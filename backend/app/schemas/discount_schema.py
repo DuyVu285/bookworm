@@ -1,9 +1,9 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, model_validator, root_validator, ValidationError
-
+from pydantic import BaseModel, Field, ConfigDict, model_validator
+from typing import Optional
 
 class DiscountBase(BaseModel):
-    discount_start_date: datetime
+    discount_start_date: datetime 
     discount_end_date: datetime
     discount_price: float
 
@@ -16,16 +16,15 @@ class DiscountBase(BaseModel):
             raise ValueError("Discount start date must be before discount end date.")
         return values
 
-
 class DiscountCreate(DiscountBase):
     book_id: int
-
 
 class DiscountUpdate(DiscountBase):
     pass
 
-
 class DiscountRead(DiscountBase):
     id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)

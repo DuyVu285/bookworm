@@ -1,40 +1,51 @@
+from typing import Optional
+from fastapi import HTTPException, status
 from sqlmodel import Session, select
+from app.repositories.book_repository import BookRepository
 from app.models.book_model import Book
 
 
-def get_all_books(session: Session):
-    return session.exec(select(Book)).all()
+class BookService:
+    def __init__(self, session: Session):
+        self.book_repository = BookRepository(session)
 
+    def get_all_books(self) -> list[Book]:
+        books = self.book_repository.get_all_books()
+        if not books:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
+            )
+        return books
 
-def get_book_by_id(session: Session, book_id: int):
-    stmt = select(Book).where(Book.id == book_id)
-    return session.exec(stmt).one_or_none()
+    def get_book_by_id(self, book_id: int) -> Optional[Book]:
+        book = self.book_repository.get_book_by_id(book_id)
+        if not book:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+            )
+        return book
 
+    def create_book(self, book: Book) -> Book:
+        existing_book = self.book_repository.get_book_by_title(book.book_title)
+        if existing_book:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Book already exists"
+            )
+        return self.book_repository.create_book(book)
 
-def create_book(session: Session, book: Book):
-    session.add(book)
-    session.commit()
-    session.refresh(book)
-    return book
+    def update_book(self, book_id: int, book: Book) -> Book:
+        existing_book = self.book_repository.get_book_by_id(book_id)
+        if not existing_book:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+            )
+        book.id = book_id
+        return self.book_repository.update_book(book)
 
-
-def update_book(session: Session, book_id: int, book: Book):
-    book = get_book_by_id(session, book_id)
-    if book:
-        update_data = book.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(book, key, value)
-        session.add(book)
-        session.commit()
-        session.refresh(book)
-    return book
-
-
-def delete_book(session: Session, book_id: int):
-    stmt = select(Book).where(Book.id == book_id)
-    book = session.exec(stmt).one_or_none()
-    if not book:
-        return None
-    session.delete(book)
-    session.commit()
-    return book
+    def delete_book(self, book_id: int) -> Book:
+        existing_book = self.book_repository.get_book_by_id(book_id)
+        if not existing_book:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+            )
+        return self.book_repository.delete_book(book_id)
