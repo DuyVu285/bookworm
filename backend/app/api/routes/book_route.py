@@ -4,6 +4,13 @@ from sqlmodel import Session, select
 from app.db.db import get_session
 from app.models.book_model import Book
 from app.schemas.book_schema import BookBase, BookCreate, BookUpdate, BookRead
+from app.services.book_service import (
+    get_all_books,
+    get_book_by_id,
+    create_book,
+    update_book,
+    delete_book,
+)
 
 router = APIRouter(
     prefix="/books", tags=["books"], responses={404: {"description": "Not found"}}
@@ -12,8 +19,7 @@ router = APIRouter(
 
 @router.get("/", response_model=list[BookBase], status_code=status.HTTP_200_OK)
 async def get_books(session: Session = Depends(get_session)):
-    stmt = select(Book)
-    books = session.exec(stmt).all()
+    books = get_all_books(session)
     if not books:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
@@ -23,7 +29,7 @@ async def get_books(session: Session = Depends(get_session)):
 
 @router.get("/{book_id}", response_model=BookRead, status_code=status.HTTP_200_OK)
 async def get_book(book_id: int, session: Session = Depends(get_session)):
-    book = session.get(Book, book_id)
+    book = get_book_by_id(session, book_id)
     if not book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
@@ -32,11 +38,8 @@ async def get_book(book_id: int, session: Session = Depends(get_session)):
 
 
 @router.post("/", response_model=BookCreate, status_code=status.HTTP_201_CREATED)
-async def create_book(book: BookBase, session: Session = Depends(get_session)):
-    new_book = Book.model_validate(book)
-    session.add(new_book)
-    session.commit()
-    session.refresh(new_book)
+async def create_book(book: BookCreate, session: Session = Depends(get_session)):
+    new_book = create_book(session, book)
     return new_book
 
 
@@ -44,18 +47,12 @@ async def create_book(book: BookBase, session: Session = Depends(get_session)):
 async def update_book(
     book_id: int, book: BookUpdate, session: Session = Depends(get_session)
 ):
-    db_book = session.get(Book, book_id)
-    if not db_book:
+    updated_book = update_book(session, book_id, book)
+    if not updated_book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
         )
-    update_data = book.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_book, key, value)
-    session.add(db_book)
-    session.commit()
-    session.refresh(db_book)
-    return db_book
+    return updated_book
 
 
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
