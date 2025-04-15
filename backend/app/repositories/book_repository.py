@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import math
-from typing import List
+from typing import List, Optional
 from sqlmodel import Session, desc, select
 from sqlalchemy import func, label, Subquery
 from app.models.book_model import Book
@@ -14,9 +14,6 @@ class BookRepository:
     def __init__(self, session: Session):
         self.valid_limits = [5, 15, 20, 25]
         self.session = session
-
-    def get_all_books(self) -> list[Book]:
-        return self.session.exec(select(Book)).all()
 
     def get_book_by_id(self, book_id: int) -> Book:
         stmt = select(Book).where(Book.id == book_id)
@@ -47,69 +44,76 @@ class BookRepository:
         self.session.delete(book)
         self.session.commit()
 
-    def get_all_books_by_pagination(
-        self, page: int = 1, limit: int = 20, sort: str = "on sale"
+    def get_books(
+        self,
+        page: int = 1,
+        limit: int = 20,
+        sort: str = "on sale",
+        category_id: Optional[int] = None,
+        author_id: Optional[int] = None,
+        min_rating: Optional[float] = None,
     ) -> dict:
         now = datetime.now(timezone.utc)
         page = max(page, 1)
-
         if limit not in self.valid_limits:
             limit = self.valid_limits[2]
 
         offset = (page - 1) * limit
+
         sub_price = label("sub_price", Book.book_price - Discount.discount_price)
+        review_count = label("review_count", func.count(Review.id))
+        avg_rating = label("avg_rating", func.avg(Review.rating_star))
 
         sort_column_map = {
             "on sale": sub_price,
-            "popularity": desc(func.count(Review.id)),
             "price_asc": Book.book_price,
             "price_desc": desc(Book.book_price),
+            "popularity": desc(review_count),
+            "avg_rating": desc(avg_rating),
         }
-
         sort_expr = sort_column_map.get(sort, sub_price)
 
-        count_stmt = (
-            select(func.count())
-            .select_from(Book)
-            .join(Discount, Discount.book_id == Book.id)
-            .where(
-                Discount.discount_start_date <= now,
-                Discount.discount_end_date >= now,
-            )
-        )
-        total_items = self.session.exec(count_stmt).one()
-
         stmt = (
-            select(Book, sub_price)
+            select(Book, sub_price, review_count, avg_rating)
             .join(Discount, Discount.book_id == Book.id)
+            .outerjoin(Review, Review.book_id == Book.id)
             .where(
                 Discount.discount_start_date <= now,
                 Discount.discount_end_date >= now,
             )
-            .group_by(Book.id)
-            .order_by(sort_expr)
-            .offset(offset)
-            .limit(limit)
         )
 
-        # Special handling for "popularity" since it requires joining Review
-        review_count = label("review_count", func.count(Review.id))
-        if sort == "popularity":
-            stmt = (
-                select(Book, sub_price, review_count)
-                .join(Discount, Discount.book_id == Book.id)
-                .join(Review, Review.book_id == Book.id)
-                .where(
-                    Discount.discount_start_date <= now,
-                    Discount.discount_end_date >= now,
-                )
-                .group_by(Book.id)
-                .order_by(desc(review_count))
-                .offset(offset)
-                .limit(limit)
-            )
+        if category_id is not None:
+            stmt = stmt.where(Book.category_id == category_id)
+
+        if author_id is not None:
+            stmt = stmt.where(Book.author_id == author_id)
+
+        if min_rating is not None:
+            stmt = stmt.having(func.avg(Review.rating_star) >= min_rating)
+
+        stmt = stmt.group_by(Book.id)
+
+        stmt = stmt.order_by(sort_expr).offset(offset).limit(limit)
 
         results = self.session.exec(stmt).all()
+
+        count_stmt = (
+            select(func.count(Book.id))
+            .join(Discount, Discount.book_id == Book.id)
+            .where(
+                Discount.discount_start_date <= now,
+                Discount.discount_end_date >= now,
+            )
+        )
+
+        if category_id is not None:
+            count_stmt = count_stmt.where(Book.category_id == category_id)
+
+        if author_id is not None:
+            count_stmt = count_stmt.where(Book.author_id == author_id)
+
+        total_items = self.session.exec(count_stmt).one()
         start_item = offset + 1 if total_items > 0 else 0
         end_item = min(offset + limit, total_items)
 
