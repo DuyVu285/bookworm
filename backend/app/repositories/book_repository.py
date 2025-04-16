@@ -21,8 +21,8 @@ class BookRepository:
         return self.session.exec(stmt).one_or_none()
 
     def get_book_by_title(self, book_title: str) -> Book:
-        stmt = select(Book).where(Book.book_title == book_title)
-        return self.session.exec(stmt).one_or_none()
+        stmt = select(Book).where(Book.book_title.ilike(f"%{book_title}%"))
+        return self.session.exec(stmt).all()
 
     def create_book(self, book: Book) -> Book:
         self.session.add(book)
@@ -68,13 +68,30 @@ class BookRepository:
 
         results = self.session.exec(stmt).all()
 
+        data = []
+        for row in results:
+            book, sub_price, review_count, avg_rating = row  # unpack the tuple
+
+            data.append({
+                "id": book.id,
+                "book_title": book.book_title,
+                "author_id": book.author_id,
+                "category_id": book.category_id,
+                "book_price": book.book_price,
+                "book_summary": book.book_summary,
+                "book_cover_photo": book.book_cover_photo,
+                "sub_price": sub_price,
+                "review_count": review_count,
+                "avg_rating": avg_rating,
+            })
+
         total_items = self._get_total_items(category_id, author_id, min_rating)
 
         start_item = offset + 1 if total_items > 0 else 0
         end_item = min(offset + limit, total_items)
 
         return {
-            "data": results,
+            "data": data,
             "page": page,
             "limit": limit,
             "total_pages": math.ceil(total_items / limit),

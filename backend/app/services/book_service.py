@@ -9,7 +9,7 @@ class BookService:
     def __init__(self, session: Session):
         self.book_repository = BookRepository(session)
 
-    def get_book_by_id(self, book_id: int) -> Optional[Book]:
+    def get_book_by_id(self, book_id: int) -> Book:
         book = self.book_repository.get_book_by_id(book_id)
         if not book:
             raise HTTPException(
@@ -17,7 +17,7 @@ class BookService:
             )
         return book
 
-    def get_book_by_title(self, book_title: str) -> Optional[Book]:
+    def get_book_by_title(self, book_title: str) -> list[Book]:
         book = self.book_repository.get_book_by_title(book_title)
         if not book:
             raise HTTPException(
@@ -58,7 +58,7 @@ class BookService:
         category_id: Optional[int] = None,
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
-    ) -> list[Book]:
+    ) -> dict:
         books = self.book_repository.get_books(
             page, limit, sort, category_id, author_id, min_rating
         )

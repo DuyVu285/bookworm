@@ -1,26 +1,47 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
-from datetime import datetime
 
 
 class BookBase(BaseModel):
-    book_title: str = Field(..., min_length=1, max_length=255)
-    book_summary: str = Field(..., max_length=1000)
-    book_price: float = Field(..., ge=0)
-    book_cover_photo: str = Field(..., max_length=500)
+    book_title: str
+    book_summary: str
+    book_price: float
+    book_cover_photo: str
 
 
 class BookCreate(BookBase):
-    category_id: int = Field(..., gt=0)
-    author_id: int = Field(..., gt=0)
+    category_id: int
+    author_id: int
 
 
 class BookUpdate(BookBase):
     pass
 
+
 class BookRead(BookBase):
     id: int
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class BookReturn(BookBase):
+    id: int
+    category_id: int
+    author_id: int
+
+
+class BookPaginatedReturn(BookReturn):
+    sub_price: float
+    review_count: int
+    avg_rating: float
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BooksDetailsReturn(BaseModel):
+    data: list[BookPaginatedReturn]
+    page: int
+    limit: int
+    total_pages: int
+    total_items: int
+    start_item: int
+    end_item: int

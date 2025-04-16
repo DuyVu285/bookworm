@@ -13,13 +13,13 @@ from sqlmodel import delete
 
 @pytest.fixture(autouse=True)
 def clean_database(session):
-    session.exec(delete(Review))
-    session.exec(delete(Discount))
-    session.exec(delete(Book))
-    session.exec(delete(Category))
-    session.exec(delete(Author))
-    session.commit()
-
+    #session.exec(delete(Review))
+    #session.exec(delete(Discount))
+    #session.exec(delete(Book))
+    #session.exec(delete(Category))
+    #session.exec(delete(Author))
+    #session.commit()
+    pass
 
 @pytest.fixture
 def session():
