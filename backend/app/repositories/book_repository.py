@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 import math
 from typing import List, Optional
-from sqlmodel import Session, desc, select
-from sqlalchemy import func, label, Subquery
+from sqlmodel import Session, and_, desc, or_, select
+from sqlalchemy import func, label
 from app.models.book_model import Book
 from app.models.category_model import Category
 from app.models.author_model import Author
@@ -75,11 +75,16 @@ class BookRepository:
 
         stmt = (
             select(Book, sub_price, review_count, avg_rating)
-            .join(Discount, Discount.book_id == Book.id)
+            .outerjoin(Discount, Discount.book_id == Book.id)
             .outerjoin(Review, Review.book_id == Book.id)
             .where(
-                Discount.discount_start_date <= now,
-                Discount.discount_end_date >= now,
+                or_(
+                    and_(
+                        Discount.discount_start_date <= now,
+                        Discount.discount_end_date >= now,
+                    ),
+                    Discount.id == None,
+                )
             )
         )
 
@@ -151,9 +156,12 @@ class BookRepository:
         sub_price = label("sub_price", Book.book_price - Discount.discount_price)
         book_id = label("book_id", Book.id)
 
+        recommended = label("recommended", func.avg(Review.rating_star))
+        popularity = label("popularity", func.count(Review.id))
+
         sort_strategies = {
-            "recommended": label("metric", func.avg(Review.rating_star)),
-            "popularity": label("metric", func.count(Review.id)),
+            "recommended": recommended,
+            "popularity": popularity,
         }
 
         metric_label = sort_strategies.get(sort, sort_strategies["recommended"])
