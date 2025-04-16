@@ -3,7 +3,6 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-import pytest
 import random
 import string
 from datetime import datetime, timedelta, timezone
@@ -16,20 +15,12 @@ from app.models.category_model import Category
 from app.models.author_model import Author
 from app.models.discount_model import Discount
 from app.models.review_model import Review
-from app.db.db import get_session
-
 
 def generate_random_email():
     return (
         "".join(random.choices(string.ascii_lowercase + string.digits, k=10))
         + "@example.com"
     )
-
-
-@pytest.fixture
-def session():
-    with next(get_session()) as s:
-        yield s
 
 
 def test_full_book_flow(session):

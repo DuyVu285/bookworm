@@ -1,18 +1,19 @@
 from datetime import datetime, timezone
 import math
 from typing import List, Optional
-from sqlmodel import Session, and_, desc, or_, select
-from sqlalchemy import func, label
+from sqlmodel import Session, and_, desc, or_, select, func, cast, Float
+from sqlalchemy import label
 from app.models.book_model import Book
-from app.models.category_model import Category
-from app.models.author_model import Author
 from app.models.discount_model import Discount
 from app.models.review_model import Review
 
+from app.helpers.book_query_helper import BookQueryHelper
+
 
 class BookRepository:
+    valid_limits = [5, 15, 20, 25]
+
     def __init__(self, session: Session):
-        self.valid_limits = [5, 15, 20, 25]
         self.session = session
 
     def get_book_by_id(self, book_id: int) -> Book:
@@ -53,72 +54,22 @@ class BookRepository:
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
     ) -> dict:
+
         now = datetime.now(timezone.utc)
         page = max(page, 1)
-        if limit not in self.valid_limits:
-            limit = self.valid_limits[2]
+
+        limit = self._adjust_limit(limit)
 
         offset = (page - 1) * limit
 
-        sub_price = label("sub_price", Book.book_price - Discount.discount_price)
-        review_count = label("review_count", func.count(Review.id))
-        avg_rating = label("avg_rating", func.avg(Review.rating_star))
-
-        sort_column_map = {
-            "on sale": sub_price,
-            "price_asc": Book.book_price,
-            "price_desc": desc(Book.book_price),
-            "popularity": desc(review_count),
-            "avg_rating": desc(avg_rating),
-        }
-        sort_expr = sort_column_map.get(sort, sub_price)
-
-        stmt = (
-            select(Book, sub_price, review_count, avg_rating)
-            .outerjoin(Discount, Discount.book_id == Book.id)
-            .outerjoin(Review, Review.book_id == Book.id)
-            .where(
-                or_(
-                    and_(
-                        Discount.discount_start_date <= now,
-                        Discount.discount_end_date >= now,
-                    ),
-                    Discount.id == None,
-                )
-            )
-        )
-
-        if category_id is not None:
-            stmt = stmt.where(Book.category_id == category_id)
-
-        if author_id is not None:
-            stmt = stmt.where(Book.author_id == author_id)
-
-        if min_rating is not None:
-            stmt = stmt.having(func.avg(Review.rating_star) >= min_rating)
-
-        stmt = stmt.group_by(Book.id)
-
+        sort_expr = BookQueryHelper.build_sort_expr(sort)
+        stmt = BookQueryHelper.build_base_query(now, category_id, author_id, min_rating)
         stmt = stmt.order_by(sort_expr).offset(offset).limit(limit)
 
         results = self.session.exec(stmt).all()
 
-        count_stmt = (
-            select(func.count(Book.id))
-            .join(Discount, Discount.book_id == Book.id)
-            .where(
-                Discount.discount_start_date <= now,
-                Discount.discount_end_date >= now,
-            )
-        )
+        total_items = self._get_total_items(category_id, author_id, min_rating)
 
-        if category_id is not None:
-            count_stmt = count_stmt.where(Book.category_id == category_id)
-
-        if author_id is not None:
-            count_stmt = count_stmt.where(Book.author_id == author_id)
-
-        total_items = self.session.exec(count_stmt).one()
         start_item = offset + 1 if total_items > 0 else 0
         end_item = min(offset + limit, total_items)
 
@@ -131,6 +82,50 @@ class BookRepository:
             "start_item": start_item,
             "end_item": end_item,
         }
+
+    def _get_total_items(self, category_id, author_id, min_rating):
+        """
+        Helper function to build and execute the count query.
+        """
+        count_stmt = self._build_count_stmt(category_id, author_id, min_rating)
+        total_items = self.session.exec(count_stmt).one()
+        return total_items
+
+    def _build_count_stmt(self, category_id=None, author_id=None, min_rating=None):
+        filters = {
+            "category": lambda: select(Book.id).where(Book.category_id == category_id),
+            "author": lambda: select(Book.id).where(Book.author_id == author_id),
+            "rating": lambda: (
+                select(Book.id)
+                .join(Review, Review.book_id == Book.id)
+                .group_by(Book.id)
+                .having(func.avg(cast(Review.rating_star, Float)) >= min_rating)
+            ),
+        }
+
+        active_filters = [
+            ("category", category_id),
+            ("author", author_id),
+            ("rating", min_rating),
+        ]
+
+        # Only pick the first active filter
+        for key, value in active_filters:
+            if value is not None:
+                stmt = filters[key]()
+                break
+        else:
+            stmt = select(Book.id)
+
+        return select(func.count()).select_from(stmt.subquery())
+
+    def _adjust_limit(self, limit):
+        """
+        Ensures the limit is within the valid_limits range.
+        """
+        if limit not in self.valid_limits:
+            limit = min(self.valid_limits, key=lambda x: abs(x - limit))
+        return limit
 
     def get_top_10_most_discounted_books(self) -> List[Book]:
         now = datetime.now(timezone.utc)
@@ -156,7 +151,7 @@ class BookRepository:
         sub_price = label("sub_price", Book.book_price - Discount.discount_price)
         book_id = label("book_id", Book.id)
 
-        recommended = label("recommended", func.avg(Review.rating_star))
+        recommended = label("recommended", func.avg(cast(Review.rating_star, Float)))
         popularity = label("popularity", func.count(Review.id))
 
         sort_strategies = {
@@ -173,9 +168,15 @@ class BookRepository:
                 sub_price,
             )
             .join(Review, Review.book_id == Book.id)
-            .join(Discount, Discount.book_id == Book.id)
+            .outerjoin(Discount, Discount.book_id == Book.id)
             .where(
-                Discount.discount_start_date <= now, Discount.discount_end_date >= now
+                or_(
+                    and_(
+                        Discount.discount_start_date <= now,
+                        Discount.discount_end_date >= now,
+                    ),
+                    Discount.id == None,
+                )
             )
             .group_by(Book.id)
             .subquery()

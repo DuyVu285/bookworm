@@ -9,14 +9,6 @@ class BookService:
     def __init__(self, session: Session):
         self.book_repository = BookRepository(session)
 
-    def get_all_books(self) -> list[Book]:
-        books = self.book_repository.get_all_books()
-        if not books:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
-            )
-        return books
-
     def get_book_by_id(self, book_id: int) -> Optional[Book]:
         book = self.book_repository.get_book_by_id(book_id)
         if not book:
