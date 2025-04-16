@@ -95,6 +95,7 @@ def sample_data(session):
 def test_get_book_by_id(session, sample_data):
     book = sample_data["books"][0]
     found = session.get(Book, book.id)
+    print(found)
     assert found is not None
     assert found.book_title == "Book 1"
 
@@ -175,4 +176,15 @@ def test_get_books_with_filters_and_sorting(session, sample_data):
     assert result["end_item"] == 2
     assert result["total_pages"] == 1
 
+def test_get_top_10_most_discounted_books(session, sample_data):
+    book_repository = BookRepository(session)
+    result = book_repository.get_top_10_most_discounted_books()
+    assert len(result) == 2
+
+def test_get_top_8_books(session, sample_data):
+    book_repository = BookRepository(session)
+    result = book_repository.get_top_8_books("recommended")
+    assert len(result) == 2
     
+    result = book_repository.get_top_8_books("popularity")
+    assert len(result) == 2

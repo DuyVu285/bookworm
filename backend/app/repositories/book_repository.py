@@ -159,7 +159,8 @@ class BookRepository:
             "popularity": popularity,
         }
 
-        metric_label = sort_strategies.get(sort, sort_strategies["recommended"])
+        metric_label = sort_strategies.get(sort, recommended)
+        metric_column_name = metric_label.name
 
         subquery = (
             select(
@@ -178,14 +179,16 @@ class BookRepository:
                     Discount.id == None,
                 )
             )
-            .group_by(Book.id)
+            .group_by(Book.id, Discount.discount_price)
             .subquery()
         )
 
         stmt = (
             select(Book)
             .join(subquery, Book.id == subquery.c.book_id)
-            .order_by(desc(subquery.c.metric), subquery.c.sub_price)
+            .order_by(
+                desc(getattr(subquery.c, metric_column_name)), subquery.c.sub_price
+            )
             .limit(8)
         )
 
