@@ -1,8 +1,3 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-
 from app.models.author_model import Author
 from app.models.book_model import Book
 from app.models.category_model import Category

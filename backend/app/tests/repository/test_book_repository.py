@@ -1,11 +1,4 @@
-import sys
-import os
-
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
-
 import pytest
-import math
 from datetime import datetime, timedelta, timezone
 from app.models.book_model import Book
 from app.models.discount_model import Discount
