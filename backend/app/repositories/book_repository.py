@@ -84,9 +84,6 @@ class BookRepository:
         }
 
     def _get_total_items(self, category_id, author_id, min_rating):
-        """
-        Helper function to build and execute the count query.
-        """
         count_stmt = self._build_count_stmt(category_id, author_id, min_rating)
         total_items = self.session.exec(count_stmt).one()
         return total_items
