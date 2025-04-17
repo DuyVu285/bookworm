@@ -41,7 +41,7 @@ class BookService:
             )
         return self.book_repository.update_book(book_id, book)
 
-    def delete_book(self, book_id: int) -> Book:
+    def delete_book(self, book_id: int) -> None:
         existing_book = self.book_repository.get_book_by_id(book_id)
         if not existing_book:
             raise HTTPException(

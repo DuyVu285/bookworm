@@ -55,52 +55,52 @@ class TestBookQueryHelper:
 
     def test_build_base_query_minimal(self, now):
         """Test base query construction with no filters"""
-        stmt = BookQueryHelper.build_base_query(now)
+        query = BookQueryHelper.build_base_query(now)
 
         # Verify basic structure
-        assert isinstance(stmt, Select)
+        assert isinstance(query, Select)
 
         # Check joins
-        joins = [str(j) for j in stmt.get_final_froms()]
+        joins = [str(j) for j in query.get_final_froms()]
         assert any("discount" in j.lower() for j in joins)
         assert any("review" in j.lower() for j in joins)
 
         # Check where clause
-        where_clause = stmt.whereclause
+        where_clause = query.whereclause
         assert isinstance(where_clause, BooleanClauseList)
 
         # Check group by
-        group_by_strs = [str(g).lower() for g in stmt._group_by_clause]
+        group_by_strs = [str(g).lower() for g in query._group_by_clause]
 
         assert any("book.id" in g for g in group_by_strs)
         assert any("discount.discount_price" in g for g in group_by_strs)
 
     def test_build_base_query_with_category(self, now):
-        stmt = BookQueryHelper.build_base_query(now, category_id=1)
-        where_clauses = self.extract_conditions(stmt.whereclause)
+        query = BookQueryHelper.build_base_query(now, category_id=1)
+        where_clauses = self.extract_conditions(query.whereclause)
         print("CATEGORY WHERE:", [str(c) for c in where_clauses])
         assert any("book.category_id" in str(c) for c in where_clauses)
 
     def test_build_base_query_with_author(self, now):
-        stmt = BookQueryHelper.build_base_query(now, author_id=1)
-        where_clauses = self.extract_conditions(stmt.whereclause)
+        query = BookQueryHelper.build_base_query(now, author_id=1)
+        where_clauses = self.extract_conditions(query.whereclause)
         print("AUTHOR WHERE:", [str(c) for c in where_clauses])
         assert any("book.author_id" in str(c) for c in where_clauses)
 
     def test_build_base_query_with_min_rating(self, now):
-        stmt = BookQueryHelper.build_base_query(now, min_rating=4.0)
-        having = stmt._having_criteria[0]
+        query = BookQueryHelper.build_base_query(now, min_rating=4.0)
+        having = query._having_criteria[0]
         assert "avg(CAST(review.rating_star AS FLOAT))" in str(having)
 
     def test_build_base_query_with_all_filters(self, now):
-        stmt = BookQueryHelper.build_base_query(
+        query = BookQueryHelper.build_base_query(
             now, category_id=1, author_id=2, min_rating=3.5
         )
-        where_clauses = self.extract_conditions(stmt.whereclause)
+        where_clauses = self.extract_conditions(query.whereclause)
         print("ALL FILTERS WHERE:", [str(c) for c in where_clauses])
         assert any("book.category_id" in str(c) for c in where_clauses)
         assert any("book.author_id" in str(c) for c in where_clauses)
-        having = stmt._having_criteria[0]
+        having = query._having_criteria[0]
         assert "avg(CAST(review.rating_star AS FLOAT))" in str(having)
 
     def extract_conditions(self, expr):

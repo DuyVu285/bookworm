@@ -11,8 +11,8 @@ router = APIRouter(
 
 @router.get("/", response_model=list[UserBase], status_code=status.HTTP_200_OK)
 async def get_users(session: Session = Depends(get_session)):
-    stmt = select(User)
-    users = session.exec(stmt).all()
+    query = select(User)
+    users = session.exec(query).all()
     if not users:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Users not found"

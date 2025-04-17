@@ -7,6 +7,7 @@ from app.models.book_model import Book
 from app.models.discount_model import Discount
 from app.models.review_model import Review
 
+from app.repositories.discount_repository import DiscountRepository
 from app.utils.book_query_helper import BookQueryHelper
 
 
@@ -17,12 +18,12 @@ class BookRepository:
         self.session = session
 
     def get_book_by_id(self, book_id: int) -> Book:
-        stmt = select(Book).where(Book.id == book_id)
-        return self.session.exec(stmt).one_or_none()
+        query = select(Book).where(Book.id == book_id)
+        return self.session.exec(query).one_or_none()
 
     def get_book_by_title(self, book_title: str) -> Book:
-        stmt = select(Book).where(Book.book_title.ilike(f"%{book_title}%"))
-        return self.session.exec(stmt).all()
+        query = select(Book).where(Book.book_title.ilike(f"%{book_title}%"))
+        return self.session.exec(query).all()
 
     def create_book(self, book: Book) -> Book:
         book = Book(**book.model_dump())
@@ -62,10 +63,10 @@ class BookRepository:
         offset = (page - 1) * limit
 
         sort_expr = BookQueryHelper.build_sort_expr(sort)
-        stmt = BookQueryHelper.build_base_query(now, category_id, author_id, min_rating)
-        stmt = stmt.order_by(sort_expr).offset(offset).limit(limit)
-
-        results = self.session.exec(stmt).all()
+        query = BookQueryHelper.build_base_query(now, category_id, author_id, min_rating)
+        query = query.order_by(sort_expr).offset(offset).limit(limit)
+        #book_discount_price = DiscountRepository.get_discount_price_by_book_id(book_id)
+        results = self.session.exec(query).all()
 
         data = []
         for row in results:
@@ -101,61 +102,20 @@ class BookRepository:
             "end_item": end_item,
         }
 
-    def _get_total_items(self, category_id, author_id, min_rating):
-        count_stmt = self._build_count_stmt(category_id, author_id, min_rating)
-        total_items = self.session.exec(count_stmt).one()
-        return total_items
-
-    def _build_count_stmt(self, category_id=None, author_id=None, min_rating=None):
-        filters = {
-            "category": lambda: select(Book.id).where(Book.category_id == category_id),
-            "author": lambda: select(Book.id).where(Book.author_id == author_id),
-            "rating": lambda: (
-                select(Book.id)
-                .join(Review, Review.book_id == Book.id)
-                .group_by(Book.id)
-                .having(func.avg(cast(Review.rating_star, Float)) >= min_rating)
-            ),
-        }
-
-        active_filters = [
-            ("category", category_id),
-            ("author", author_id),
-            ("rating", min_rating),
-        ]
-
-        # Only pick the first active filter
-        for key, value in active_filters:
-            if value is not None:
-                stmt = filters[key]()
-                break
-        else:
-            stmt = select(Book.id)
-
-        return select(func.count()).select_from(stmt.subquery())
-
-    def _adjust_limit(self, limit):
-        """
-        Ensures the limit is within the valid_limits range.
-        """
-        if limit not in self.valid_limits:
-            limit = min(self.valid_limits, key=lambda x: abs(x - limit))
-        return limit
-
     def get_top_10_most_discounted_books(self) -> List[Book]:
         sub_price = label("sub_price", (Book.book_price - Discount.discount_price))
 
-        stmt = (
+        query = (
             select(
                 Book,
                 sub_price,
             )
             .join(Discount, Discount.book_id == Book.id)
-            .where(self.get_active_discounts)
+            .where(BookQueryHelper.get_active_discounts)
             .order_by(desc(sub_price))
             .limit(10)
         )
-        return self.session.exec(stmt).all()
+        return self.session.exec(query).all()
 
     def get_top_8_books(self, sort: str = "recommended") -> List[Book]:
         sub_price = label("sub_price", Book.book_price - Discount.discount_price)
@@ -182,7 +142,7 @@ class BookRepository:
             .outerjoin(Discount, Discount.book_id == Book.id)
             .where(
                 or_(
-                    self.get_active_discounts(),
+                    BookQueryHelper.get_active_discounts(),
                     Discount.id == None,
                 )
             )
@@ -190,7 +150,7 @@ class BookRepository:
             .subquery()
         )
 
-        stmt = (
+        query = (
             select(Book)
             .join(subquery, Book.id == subquery.c.book_id)
             .order_by(
@@ -199,11 +159,15 @@ class BookRepository:
             .limit(8)
         )
 
-        return self.session.exec(stmt).all()
+        return self.session.exec(query).all()
 
-    def get_active_discounts(self):
-        now = datetime.now(timezone.utc)
-        return and_(
-            Discount.discount_start_date <= now,
-            Discount.discount_end_date >= now,
+    def _get_total_items(self, category_id, author_id, min_rating):
+        count_query = BookQueryHelper.build_count_query(
+            category_id, author_id, min_rating
         )
+        return self.session.exec(count_query).one()
+
+    def _adjust_limit(self, limit):
+        if limit not in self.valid_limits:
+            limit = min(self.valid_limits, key=lambda x: abs(x - limit))
+        return limit
