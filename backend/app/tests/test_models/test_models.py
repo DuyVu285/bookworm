@@ -284,3 +284,21 @@ def test_create_order_item(session):
     session.delete(author)
     session.delete(category)
     session.commit()
+
+
+def test_create_user(session):
+    user = User(
+        first_name="Jane",
+        last_name="Doe",
+        email=generate_random_email(),
+        password="securepassword",
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    assert user.id is not None
+
+    # Cleanup
+    session.delete(user)
+    session.commit()

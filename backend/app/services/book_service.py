@@ -39,8 +39,7 @@ class BookService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
             )
-        book.id = book_id
-        return self.book_repository.update_book(book)
+        return self.book_repository.update_book(book_id, book)
 
     def delete_book(self, book_id: int) -> Book:
         existing_book = self.book_repository.get_book_by_id(book_id)

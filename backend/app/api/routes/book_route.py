@@ -42,7 +42,7 @@ async def get_book_by_title(book_title: str, session: Session = Depends(get_sess
 @router.post("/", response_model=BookCreate, status_code=status.HTTP_201_CREATED)
 async def create_book(book: BookCreate, session: Session = Depends(get_session)):
     service = BookService(session)
-    return service.create_book(session, book)
+    return service.create_book(book)
 
 
 @router.put("/{book_id}", response_model=BookUpdate, status_code=status.HTTP_200_OK)

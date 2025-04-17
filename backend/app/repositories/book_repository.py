@@ -7,7 +7,8 @@ from app.models.book_model import Book
 from app.models.discount_model import Discount
 from app.models.review_model import Review
 
-from app.helpers.book_query_helper import BookQueryHelper
+from app.utils.book_query_helper import BookQueryHelper
+from app.schemas.book_schema import BookUpdate
 
 
 class BookRepository:
@@ -25,18 +26,17 @@ class BookRepository:
         return self.session.exec(stmt).all()
 
     def create_book(self, book: Book) -> Book:
+        book = Book(**book.model_dump())
         self.session.add(book)
         self.session.commit()
         self.session.refresh(book)
         return book
 
-    def update_book(self, book_id: int, updated_data: dict) -> Book | None:
+    def update_book(self, book_id: int, updated_data: BookUpdate) -> Book | None:
         book = self.get_book_by_id(book_id)
-        if not book:
-            return None
-        for key, value in updated_data.items():
+        data = updated_data.model_dump(exclude_unset=True)
+        for key, value in data:
             setattr(book, key, value)
-        self.session.add(book)
         self.session.commit()
         self.session.refresh(book)
         return book
@@ -70,20 +70,22 @@ class BookRepository:
 
         data = []
         for row in results:
-            book, sub_price, review_count, avg_rating = row  # unpack the tuple
+            book, sub_price, review_count, avg_rating = row
 
-            data.append({
-                "id": book.id,
-                "book_title": book.book_title,
-                "author_id": book.author_id,
-                "category_id": book.category_id,
-                "book_price": book.book_price,
-                "book_summary": book.book_summary,
-                "book_cover_photo": book.book_cover_photo,
-                "sub_price": sub_price,
-                "review_count": review_count,
-                "avg_rating": avg_rating,
-            })
+            data.append(
+                {
+                    "id": book.id,
+                    "book_title": book.book_title,
+                    "author_id": book.author_id,
+                    "category_id": book.category_id,
+                    "book_price": book.book_price,
+                    "book_summary": book.book_summary,
+                    "book_cover_photo": book.book_cover_photo,
+                    "sub_price": sub_price,
+                    "review_count": review_count,
+                    "avg_rating": avg_rating,
+                }
+            )
 
         total_items = self._get_total_items(category_id, author_id, min_rating)
 

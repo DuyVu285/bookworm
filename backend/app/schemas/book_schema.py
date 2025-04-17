@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
 
 class BookBase(BaseModel):
@@ -14,7 +15,8 @@ class BookCreate(BookBase):
 
 
 class BookUpdate(BookBase):
-    pass
+    category_id: Optional[int]
+    author_id: Optional[int]
 
 
 class BookRead(BookBase):
