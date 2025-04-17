@@ -15,8 +15,7 @@ class BookCreate(BookBase):
 
 
 class BookUpdate(BookBase):
-    category_id: Optional[int]
-    author_id: Optional[int]
+    pass
 
 
 class BookRead(BookBase):

@@ -8,7 +8,6 @@ from app.models.discount_model import Discount
 from app.models.review_model import Review
 
 from app.utils.book_query_helper import BookQueryHelper
-from app.schemas.book_schema import BookUpdate
 
 
 class BookRepository:
@@ -32,17 +31,17 @@ class BookRepository:
         self.session.refresh(book)
         return book
 
-    def update_book(self, book_id: int, updated_data: BookUpdate) -> Book | None:
+    def update_book(self, book_id: int, updated_data: Book) -> Book | None:
         book = self.get_book_by_id(book_id)
         data = updated_data.model_dump(exclude_unset=True)
-        for key, value in data:
+        for key, value in data.items():
             setattr(book, key, value)
         self.session.commit()
         self.session.refresh(book)
         return book
 
-    def delete_book(self, book: Book) -> None:
-        self.session.delete(book)
+    def delete_book(self, book_id: int) -> None:
+        self.session.delete(self.get_book_by_id(book_id))
         self.session.commit()
 
     def get_books(
@@ -144,8 +143,6 @@ class BookRepository:
         return limit
 
     def get_top_10_most_discounted_books(self) -> List[Book]:
-        now = datetime.now(timezone.utc)
-
         sub_price = label("sub_price", (Book.book_price - Discount.discount_price))
 
         stmt = (
@@ -154,16 +151,13 @@ class BookRepository:
                 sub_price,
             )
             .join(Discount, Discount.book_id == Book.id)
-            .where(
-                Discount.discount_start_date <= now, Discount.discount_end_date >= now
-            )
+            .where(self.get_active_discounts)
             .order_by(desc(sub_price))
             .limit(10)
         )
         return self.session.exec(stmt).all()
 
     def get_top_8_books(self, sort: str = "recommended") -> List[Book]:
-        now = datetime.now(timezone.utc)
         sub_price = label("sub_price", Book.book_price - Discount.discount_price)
         book_id = label("book_id", Book.id)
 
@@ -188,10 +182,7 @@ class BookRepository:
             .outerjoin(Discount, Discount.book_id == Book.id)
             .where(
                 or_(
-                    and_(
-                        Discount.discount_start_date <= now,
-                        Discount.discount_end_date >= now,
-                    ),
+                    self.get_active_discounts(),
                     Discount.id == None,
                 )
             )
@@ -209,3 +200,10 @@ class BookRepository:
         )
 
         return self.session.exec(stmt).all()
+
+    def get_active_discounts(self):
+        now = datetime.now(timezone.utc)
+        return and_(
+            Discount.discount_start_date <= now,
+            Discount.discount_end_date >= now,
+        )
