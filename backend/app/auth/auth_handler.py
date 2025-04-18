@@ -1,6 +1,7 @@
 from jose import jwt, JWTError, ExpiredSignatureError
 from datetime import datetime, timedelta, timezone
 from app.core.config import settings
+from fastapi import HTTPException
 
 
 class AuthHandler:
@@ -18,6 +19,6 @@ class AuthHandler:
             )
             return payload
         except ExpiredSignatureError:
-            return None
+            raise HTTPException(status_code=401, detail="Token expired")
         except JWTError:
-            return None
+            return HTTPException(status_code=401, detail="Invalid token")

@@ -11,9 +11,11 @@ class UserRepository:
 
     def get_user_by_email(self, email: str):
         query = select(User).where(User.email == email)
+        
         return self.session.exec(query).one_or_none()
 
     def create_user(self, user: User):
+        user = User(**user.model_dump())
         self.session.add(user)
         self.session.commit()
         self.session.refresh(user)

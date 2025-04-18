@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.db.db import get_session
 from app.models.user_model import User
-from app.schemas.user_schema import UserBase, UserRead
+from app.schemas.user_schema import UserRead, UserCreate, UserCreateResponse
 from app.schemas.token_schema import Token
 from app.services.user_service import UserService
 from app.auth.auth_handler import AuthHandler
@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[UserBase], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=list[UserRead], status_code=status.HTTP_200_OK)
 async def get_users(session: Session = Depends(get_session)):
     query = select(User)
     users = session.exec(query).all()
@@ -38,12 +38,14 @@ async def get_user(user_id: int, session: Session = Depends(get_session)):
 
 
 @router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
-async def long_for_access_token(
+async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: Session = Depends(get_session),
 ):
+    service = UserService(session)
     email = form_data.username
     password = form_data.password
-    user = UserService().authenticate_user(email, password)
+    user = service.authenticate_user(email, password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
@@ -58,3 +60,9 @@ async def read_users_me(current_user: User = Depends(AuthBearer().get_current_us
 
 
 # This route is for future development
+@router.post(
+    "/register", response_model=UserCreateResponse, status_code=status.HTTP_201_CREATED
+)
+async def register_user(user: UserCreate, session: Session = Depends(get_session)):
+    service = UserService(session)
+    return service.create_user(user)
