@@ -65,7 +65,6 @@ class BookRepository:
         sort_expr = BookQueryHelper.build_sort_expr(sort)
         query = BookQueryHelper.build_base_query(now, category_id, author_id, min_rating)
         query = query.order_by(sort_expr).offset(offset).limit(limit)
-        #book_discount_price = DiscountRepository.get_discount_price_by_book_id(book_id)
         results = self.session.exec(query).all()
 
         data = []

@@ -25,6 +25,14 @@ class AuthorService:
             )
         return author
 
+    def get_all_authors(self) -> list[Author]:
+        authors = self.author_repository.get_all_authors()
+        if not authors:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Authors not found"
+            )
+        return authors
+
     def create_author(self, author: Author) -> Author:
         existing_author = self.author_repository.get_author_by_id(author.id)
         if existing_author:
