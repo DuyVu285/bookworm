@@ -23,9 +23,9 @@ const Nav = () => {
         {/* Desktop Menu */}
         <div className="hidden lg:flex">
           <div>
-            <ul className="menu menu-horizontal px-1">
+            <ul className="menu menu-horizontal px-1 mr-10">
               <li>
-                <a>Home</a>
+                <a href="/">Home</a>
               </li>
               <li>
                 <a>Shop</a>
