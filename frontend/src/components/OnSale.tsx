@@ -1,33 +1,43 @@
+import { useRef } from "react";
+
 const OnSale = () => {
   const images = [
     "https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp",
     "https://img.daisyui.com/images/stock/photo-1609621838510-5ad474b7d25d.webp",
     "https://img.daisyui.com/images/stock/photo-1414694762283-acccc27bca85.webp",
     "https://img.daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.webp",
+    "https://img.daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.webp",
+    "https://img.daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.webp",
+    "https://img.daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.webp",
   ];
 
-  const createSlides = () => {
-    const slideCount = Math.ceil(images.length / 4);
-    let slides = [];
+  const carouselRef = useRef<HTMLDivElement>(null);
 
-    for (let i = 0; i < slideCount; i++) {
-      const slideImages = images.slice(i * 4, (i + 1) * 4);
-
-      slides.push(
-        <div
-          key={i}
-          id={`slide${i + 1}`}
-          className="carousel-item relative w-full"
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {slideImages.map((img, index) => (
-              <img key={index} src={img} className="w-full" />
-            ))}
-          </div>
-        </div>
-      );
+  const scrollBySlide = (direction: "left" | "right") => {
+    if (carouselRef.current) {
+      const width = carouselRef.current.clientWidth;
+      carouselRef.current.scrollBy({
+        left: direction === "right" ? width : -width,
+        behavior: "smooth",
+      });
     }
-    return slides;
+  };
+
+  const createSlides = () => {
+    const groups: string[][] = [];
+    for (let i = 0; i < images.length; i += 4) {
+      groups.push(images.slice(i, i + 4));
+    }
+
+    return groups.map((group, i) => (
+      <div key={i} className="carousel-item w-full shrink-0 snap-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full px-2">
+          {group.map((img, idx) => (
+            <img key={idx} src={img} className="w-full" />
+          ))}
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -52,12 +62,24 @@ const OnSale = () => {
           </svg>
         </button>
       </div>
-      <div className="border border-gray-400 relative flex flex-row items-center">
+
+      <div className="border border-gray-400 relative flex items-center p-4">
         {/* Left Button */}
-        <button className="btn btn-circle">❮</button>
-        <div className="carousel w-full p-4">{createSlides()}</div>
+        <button className="btn btn-circle z-10" onClick={() => scrollBySlide("left")}>
+          ❮
+        </button>
+
+        <div
+          ref={carouselRef}
+          className="carousel carousel-center space-x-4 w-full overflow-x-auto scroll-smooth snap-x snap-mandatory"
+        >
+          {createSlides()}
+        </div>
+
         {/* Right Button */}
-        <button className="btn btn-circle">❯</button>
+        <button className="btn btn-circle z-10" onClick={() => scrollBySlide("right")}>
+          ❯
+        </button>
       </div>
     </section>
   );
