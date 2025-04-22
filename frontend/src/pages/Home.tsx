@@ -1,10 +1,14 @@
+import FeaturedBooks from "../components/FeaturedBooks";
 import OnSale from "../components/OnSale";
 
-const Home = () => {
+const HomePage = () => {
   return (
     /* On Sale */
-    <OnSale />
+    <div>
+      <OnSale />
+      <FeaturedBooks />
+    </div>
   );
 };
 
-export default Home;
+export default HomePage;
