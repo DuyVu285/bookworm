@@ -18,10 +18,12 @@ const ShopPage = () => {
   return (
     <main>
       {/* Breadcrumbs */}
-      <Breadcrumbs selectedFilter={activeFilter} />
+      <div className="py-6 border-b border-gray-300 mx-18">
+        <Breadcrumbs selectedFilter={activeFilter} />
+      </div>
 
       {/* Main Layout */}
-      <div className="flex flex-col lg:flex-row pt-4 border-t border-gray-300 mx-18">
+      <div className="flex flex-col lg:flex-row mx-18">
         {/* Aside Filters */}
         <aside className="w-full lg:w-1/4">
           <Filters onFilterChange={handleFilterChange} />

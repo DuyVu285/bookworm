@@ -10,7 +10,7 @@ const Breadcrumbs = ({
   }
 
   return (
-    <section className="mx-18 my-6">
+    <section>
       <div className="breadcrumbs text-2xl ">
         <ul>
           <li>

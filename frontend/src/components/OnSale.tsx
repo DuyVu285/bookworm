@@ -55,7 +55,7 @@ const OnSale = () => {
         </a>
       </div>
 
-      <div className="relative flex items-center justify-between py-4 px-8 border border-gray-400">
+      <div className="relative flex items-center justify-between py-4 px-8 border border-gray-300">
         {/* Left Button */}
         <button
           className="btn btn-circle"

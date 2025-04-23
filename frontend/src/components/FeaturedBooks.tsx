@@ -50,7 +50,7 @@ const FeaturedBooks = () => {
         </div>
       </div>
 
-      <div className="relative flex items-center justify-between py-4 px-8 border border-gray-400">
+      <div className="relative flex items-center justify-between py-4 px-8 border border-gray-300">
         <div className="w-full overflow-x-auto scroll-smooth snap-x snap-mandatory grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-18">
           {createBooksGrid(selectedTab)}
         </div>
