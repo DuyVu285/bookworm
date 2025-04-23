@@ -3,11 +3,10 @@ import OnSale from "../components/OnSale";
 
 const HomePage = () => {
   return (
-    /* On Sale */
-    <div>
+    <main>
       <OnSale />
       <FeaturedBooks />
-    </div>
+    </main>
   );
 };
 

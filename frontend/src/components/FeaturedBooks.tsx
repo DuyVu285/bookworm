@@ -7,7 +7,7 @@ const FeaturedBooks = () => {
   );
 
   const createBooksGrid = (type: "recommended" | "popular") => {
-    const numberOfBooks = 8;
+    const numberOfBooks = 8; 
 
     const cards = Array.from({ length: numberOfBooks }, (_, i) => (
       <BookCard key={`${type}-${i}`} />
@@ -21,7 +21,7 @@ const FeaturedBooks = () => {
   };
 
   return (
-    <section className="mx-14 my-8">
+    <section className="mx-18 my-8">
       <div className="flex flex-col items-center pb-2 px-2">
         <h2 className="text-3xl font-semibold text-center">Featured Books</h2>
         <div className="pt-2 w-full flex justify-center">

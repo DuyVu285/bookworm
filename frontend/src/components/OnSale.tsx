@@ -32,10 +32,10 @@ const OnSale = () => {
   };
 
   return (
-    <section className="mx-14 my-6">
+    <section className="mx-18 my-6">
       <div className="flex justify-between items-center pb-2 px-2">
         <h2 className="text-3xl font-semibold">On Sale</h2>
-        <button className="btn btn-lg text-white text-xl bg-gray-500">
+        <a href="/Shop" className="btn btn-lg text-white text-xl bg-gray-500 ">
           View All
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -51,7 +51,7 @@ const OnSale = () => {
               d="m8.25 4.5 7.5 7.5-7.5 7.5"
             />
           </svg>
-        </button>
+        </a>
       </div>
 
       <div className="relative flex items-center justify-between py-4 px-8 border border-gray-400">
