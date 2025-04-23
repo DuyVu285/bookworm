@@ -1,5 +1,3 @@
-import { NavLink } from "react-router-dom";
-
 const Nav = () => {
   return (
     <div className="navbar bg-base-100 shadow-sm fixed top-0  left-0 w-full z-50">
@@ -26,7 +24,7 @@ const Nav = () => {
         {/* Desktop Menu */}
         <div className="hidden lg:flex">
           <div>
-            <ul className="menu menu-horizontal px-1 mr-10">
+            <ul className="menu menu-horizontal px-1 mr-18">
               <li>
                 <a href="/" className="underline-offset-auto">
                   Home

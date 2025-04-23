@@ -15,7 +15,8 @@ const OnSale = () => {
   };
 
   const createSlides = () => {
-    const cards = Array.from({ length: 7 }, (_, i) => <BookCard key={i} />);
+    const numberOfBooks = 11;
+    const cards = Array.from({ length: numberOfBooks }, (_, i) => <BookCard key={i} />);
 
     const groups = [];
     for (let i = 0; i < cards.length; i += 4) {
