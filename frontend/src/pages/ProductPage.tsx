@@ -1,6 +1,7 @@
 import AddtoCart from "../components/AddToCart";
 import BookDetails from "../components/BookDetails";
 import CustomerReviews from "../components/CustomerReviews";
+import WriteAReview from "../components/WriteAReview";
 
 const ProductPage = () => {
   return (
@@ -21,13 +22,13 @@ const ProductPage = () => {
       </div>
       <div className="flex flex-col lg:flex-row mx-18 gap-8 mt-8">
         {/* Book Details */}
-        <div className="w-full lg:w-7/10">
+        <div className="w-full lg:w-7/10 mb-6">
           <CustomerReviews></CustomerReviews>
         </div>
 
         {/* Add To Cart */}
         <aside className="w-full lg:w-3/10">
-          <AddtoCart></AddtoCart>
+          <WriteAReview></WriteAReview>
         </aside>
       </div>
     </>

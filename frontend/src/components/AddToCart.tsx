@@ -12,7 +12,7 @@ const AddtoCart = () => {
   return (
     <section>
       <div className="border border-gray-300">
-        <div className="bg-gray-100 text-2xl font-medium rounded-b-lg p-4 ">
+        <div className="bg-gray-100 text-2xl font-medium p-4 ">
           <span className="line-through text-gray-500 p-2">$49.99</span>
           <span className="text-3xl font-bold">$12.99</span>
         </div>
