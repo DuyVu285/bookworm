@@ -10,14 +10,14 @@ const BookDetails = () => {
             alt="Book"
             className="h-60 w-full object-cover"
           />
-          <span className="flex justify-end">By Author</span>
+          <span className="flex justify-end p-2">By Author</span>
         </aside>
 
         {/* Book Details */}
         <div className="w-full lg:w-2/3 p-4">
           <h2 className="text-2xl font-semibold">Book Title</h2>
           <span>Book Description</span> <br />
-          <text>
+          <p>
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry. Lorem Ipsum has been the industry's standard dummy text
             ever since the 1500s, when an unknown printer took a galley of type
@@ -33,7 +33,7 @@ const BookDetails = () => {
             Finibus Bonorum et Malorum" by Cicero are also reproduced in their
             exact original form, accompanied by English versions from the 1914
             translation by H. Rackham.
-          </text>
+          </p>
         </div>
       </div>
     </section>

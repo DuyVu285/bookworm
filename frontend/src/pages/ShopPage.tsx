@@ -3,18 +3,25 @@ import BooksGrid from "../components/BooksGrid";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Filters from "../components/Filters";
 
-const ShopPage = () => {
-  const [activeFilter, setActiveFilter] = useState<{
-    type: string | null;
-    value: string | null;
-  }>({
-    type: null,
-    value: null,
-  });
+type FilterType = "Books";
+type FilterValue = string | number;
 
-  const handleFilterChange = (type: string | null, value: string | null) => {
-    setActiveFilter({ type, value });
+interface ActiveFilter {
+  type: FilterType;
+  value: FilterValue;
+}
+
+const ShopPage = () => {
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter | undefined>(undefined);
+
+  const handleFilterChange = (type?: FilterType, value?: FilterValue) => {
+    if (type && value !== undefined) {
+      setActiveFilter({ type, value });
+    } else {
+      setActiveFilter(undefined);
+    }
   };
+
   return (
     <main>
       {/* Breadcrumbs */}
