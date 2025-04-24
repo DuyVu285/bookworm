@@ -1,4 +1,5 @@
 import CartTable from "../components/CartTable";
+import CartTotals from "../components/CartTotals";
 
 const CartPage = () => {
   return (
@@ -13,7 +14,9 @@ const CartPage = () => {
         </div>
 
         {/* Cart Totals */}
-        <aside className="w-full lg:w-3/10"></aside>
+        <aside className="w-full lg:w-3/10">
+          <CartTotals></CartTotals>
+        </aside>
       </div>
     </>
   );

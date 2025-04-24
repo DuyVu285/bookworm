@@ -10,8 +10,8 @@ const AddtoCart = () => {
     quantity.value = (parseInt(quantity.value) + 1).toString();
   };
   return (
-    <section>
-      <div className="border border-gray-300">
+    <>
+      <div className="rounded-box border border-gray-300 ">
         <div className="bg-gray-100 text-2xl font-medium p-4 ">
           <span className="line-through text-gray-500 p-2">$49.99</span>
           <span className="text-3xl font-bold">$12.99</span>
@@ -36,7 +36,7 @@ const AddtoCart = () => {
           <button className="btn w-[80%] mt-8 text-2xl font-semibold">Add to cart</button>
         </div>
       </div>
-    </section>
+    </>
   );
 };
 

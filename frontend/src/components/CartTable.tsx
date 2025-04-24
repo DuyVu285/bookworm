@@ -19,7 +19,7 @@ const CartTable = () => {
     <div className="overflow-x-auto rounded-box border border-gray-400 bg-base-300">
       <table className="table table-zebra w-full">
         <thead>
-          <tr className="border-b border-gray-400 text-sm sm:text-base">
+          <tr className="border-b border-gray-400 text-xl sm:text-base">
             <th>Product</th>
             <th>Price</th>
             <th>Quantity</th>
