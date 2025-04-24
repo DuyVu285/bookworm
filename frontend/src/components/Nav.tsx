@@ -37,7 +37,7 @@ const Nav = () => {
                 <a>About</a>
               </li>
               <li>
-                <a>Cart (0)</a>
+                <a href="/Cart">Cart (0)</a>
               </li>
               <li>
                 <a>Sign In</a>
