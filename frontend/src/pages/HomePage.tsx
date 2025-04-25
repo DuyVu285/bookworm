@@ -1,12 +1,13 @@
 import FeaturedBooks from "../components/FeaturedBooks";
+import MainLayout from "../components/layout/MainLayout";
 import OnSale from "../components/OnSale";
 
 const HomePage = () => {
   return (
-    <main>
+    <MainLayout>
       <OnSale />
       <FeaturedBooks />
-    </main>
+    </MainLayout>
   );
 };
 
