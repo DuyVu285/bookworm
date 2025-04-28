@@ -1,39 +1,51 @@
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import BookCard from "./BookCard";
+import bookService from "../services/bookService";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper-bundle.css";
+import { Navigation } from "swiper/modules";
+
+type Book = {
+  id: number;
+  book_title: string;
+  book_price: number;
+  book_cover_photo: string;
+  author_name: string;
+  sub_price: number;
+};
 
 const OnSale = () => {
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const scrollBySlide = (direction: "left" | "right") => {
-    if (carouselRef.current) {
-      const width = carouselRef.current.clientWidth;
-      carouselRef.current.scrollBy({
-        left: direction === "right" ? width : -width,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const createSlides = () => {
-    const numberOfBooks = 11;
-    const cards = Array.from({ length: numberOfBooks }, (_, i) => <BookCard key={i} />);
-
-    const groups = [];
-    for (let i = 0; i < cards.length; i += 4) {
-      groups.push(cards.slice(i, i + 4));
+  useEffect(() => {
+    async function fetchTop10Books() {
+      try {
+        const response = await bookService.getTop10MostDiscountedBooks();
+        setBooks(response);
+      } catch (error) {
+        console.error("Failed to fetch books", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    return groups.map((group, index) => (
-      <div key={index} className="carousel-item w-full shrink-0 justify-center">
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {group}
-        </div>
+    fetchTop10Books();
+  }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <span className="loading loading-spinner loading-xl">
+          Loading<span className="loading loading-dots loading-xl"></span>
+        </span>
       </div>
-    ));
-  };
+    );
+  }
 
   return (
-    <section className="mx-18 my-6">
+    <>
       <div className="flex justify-between items-center pb-2 px-2">
         <h2 className="text-3xl font-semibold">On Sale</h2>
         <a href="/Shop" className="btn btn-lg text-white text-xl bg-gray-500 ">
@@ -55,31 +67,42 @@ const OnSale = () => {
         </a>
       </div>
 
-      <div className="relative flex items-center justify-between py-4 px-8 border border-gray-300">
+      <div className="border p-8 relative flex items-center ">
         {/* Left Button */}
-        <button
-          className="btn btn-circle"
-          onClick={() => scrollBySlide("left")}
-        >
-          ❮
-        </button>
-
-        <div
-          ref={carouselRef}
-          className="carousel w-full overflow-x-auto scroll-smooth snap-x snap-mandatory"
-        >
-          {createSlides()}
+        <div className="cursor-pointer custom-next-button p-2 text-4xl mr-4 hidden sm:block">
+          ◀
         </div>
 
-        {/* Right Button */}
-        <button
-          className="btn btn-circle"
-          onClick={() => scrollBySlide("right")}
+        {/* Swiper */}
+        <Swiper
+          modules={[Navigation]}
+          navigation={{
+            prevEl: ".custom-prev-button",
+            nextEl: ".custom-next-button",
+          }}
+          loop={true}
+          spaceBetween={20}
+          slidesPerView={"auto"}
+          breakpoints={{
+            320: { slidesPerView: 1, spaceBetween: 10 },
+            640: { slidesPerView: 2, spaceBetween: 20 },
+            1024: { slidesPerView: 4, spaceBetween: 50 },
+          }}
+          className="flex"
         >
-          ❯
-        </button>
+          {books.map((book) => (
+            <SwiperSlide key={book.id}>
+              <BookCard {...book} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        {/* Right Button */}
+        <div className="cursor-pointer custom-next-button p-2 text-4xl ml-4 hidden sm:block">
+          ▶
+        </div>
       </div>
-    </section>
+    </>
   );
 };
 

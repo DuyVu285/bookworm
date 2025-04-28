@@ -5,8 +5,12 @@ import OnSale from "../components/OnSale";
 const HomePage = () => {
   return (
     <MainLayout>
-      <OnSale />
-      <FeaturedBooks />
+      <div className="mx-24 my-8">
+        <OnSale />
+      </div>
+      <div className="mx-24 my-8">
+        <FeaturedBooks />
+      </div>
     </MainLayout>
   );
 };
