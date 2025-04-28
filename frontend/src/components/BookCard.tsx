@@ -21,11 +21,11 @@ const BookCard: React.FC<BookCardProps> = ({
     e.currentTarget.src = "https://placehold.co/480x640";
   };
   return (
-    <div className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[20rem]">
+    <div  className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[20rem]">
       {/* Image section - fixed aspect ratio */}
       <figure className="relative pt-[100%] overflow-hidden rounded-t-lg">
         <img
-          src={book_cover_photo || "https://placehold.co/480x640"}
+          src={"https://placehold.co/480x640"} /* Fix the images problem with faker */
           alt={book_title}
           className="absolute top-0 left-0 w-full h-full object-cover"
           onError={handleError}

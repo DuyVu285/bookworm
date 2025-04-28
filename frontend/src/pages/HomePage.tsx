@@ -1,6 +1,6 @@
-import FeaturedBooks from "../components/FeaturedBooks";
+import FeaturedBooks from "../sections/HomeSection/FeaturedBooks";
 import MainLayout from "../components/layout/MainLayout";
-import OnSale from "../components/OnSale";
+import OnSale from "../sections/HomeSection/OnSale";
 
 const HomePage = () => {
   return (

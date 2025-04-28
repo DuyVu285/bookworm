@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BookCard from "./BookCard";
+import BookCard from "../../components/BookCard";
 
 const FeaturedBooks = () => {
   const [selectedTab, setSelectedTab] = useState<"recommended" | "popular">(
