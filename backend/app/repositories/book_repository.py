@@ -128,14 +128,17 @@ class BookRepository:
         result = self.session.exec(statement).all()
         return result
 
-    def get_top_8_books(self, sort: str = "recommended", limit: int = 8) -> list[dict]:
+    def get_top_8_books(self, sort: str, limit: int = 8) -> list[dict]:
         metric = self._get_sort_metric(sort)
 
         subquery = (
             select(
                 label("book_id", Book.id),
-                metric,
-                label("sub_price", (Book.book_price - Discount.discount_price)),
+                label("metric", metric),
+                label(
+                    "sub_price",
+                    func.coalesce(Book.book_price - Discount.discount_price, 0.0),
+                ),
             )
             .join(Review, Review.book_id == Book.id)
             .outerjoin(Discount, Discount.book_id == Book.id)
@@ -171,7 +174,7 @@ class BookRepository:
             "recommended": func.avg(cast(Review.rating_star, Float)),
             "popularity": func.count(Review.id),
         }
-        return metrics.get(sort, label("recommended", metrics["recommended"]))
+        return metrics.get(sort, metrics["recommended"])
 
     def _get_total_items(self, category_id, author_id, min_rating):
         count_query = BookQueryHelper.build_count_query(

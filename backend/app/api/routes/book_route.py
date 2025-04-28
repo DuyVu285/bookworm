@@ -7,7 +7,7 @@ from app.schemas.book_schema import (
     BookCreate,
     BookUpdate,
     BookRead,
-    Top10BooksDiscountsReturn,
+    TopBooksReturn,
     BooksDetailsReturn,
 )
 from app.services.book_service import BookService
@@ -34,7 +34,7 @@ async def get_books(
 
 @router.get(
     "/top_10_most_discounted",
-    response_model=Top10BooksDiscountsReturn,
+    response_model=TopBooksReturn,
     status_code=status.HTTP_200_OK,
 )
 async def get_top_10_books(
@@ -42,6 +42,16 @@ async def get_top_10_books(
 ):
     service = BookService(session)
     data = service.get_top_10_most_discounted_books()
+    return data
+
+
+@router.get("/top_8", response_model=TopBooksReturn, status_code=status.HTTP_200_OK)
+async def get_top_8_books(
+    sort: str,
+    session: Session = Depends(get_session),
+):
+    service = BookService(session)
+    data = service.get_top_8_books(sort)
     return data
 
 

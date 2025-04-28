@@ -23,7 +23,7 @@ class BookRead(BookBase):
     id: int
 
 
-class TopBookWithDiscount(BaseModel):
+class TopBook(BaseModel):
     id: int
     book_title: str
     book_price: float
@@ -32,8 +32,8 @@ class TopBookWithDiscount(BaseModel):
     author_name: str
 
 
-class TopBooksDiscountsReturn(BaseModel):
-    books: list[TopBookWithDiscount]
+class TopBooksReturn(BaseModel):
+    books: list[TopBook]
 
 
 class BookPaginatedReturn(BookRead):

@@ -10,7 +10,7 @@ const FeaturedBooks = () => {
     const numberOfBooks = 8;
 
     const cards = Array.from({ length: numberOfBooks }, (_, i) => (
-      <BookCard key={`${type}-${i}`} />
+      <BookCard />
     ));
 
     return cards.map((card, index) => (
