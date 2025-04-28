@@ -128,26 +128,14 @@ class BookRepository:
         result = self.session.exec(statement).all()
         return result
 
-    def get_top_8_books(self, sort: str = "recommended") -> List[Book]:
-        sub_price = label("sub_price", Book.book_price - Discount.discount_price)
-        book_id = label("book_id", Book.id)
-
-        recommended = label("recommended", func.avg(cast(Review.rating_star, Float)))
-        popularity = label("popularity", func.count(Review.id))
-
-        sort_strategies = {
-            "recommended": recommended,
-            "popularity": popularity,
-        }
-
-        metric_label = sort_strategies.get(sort, recommended)
-        metric_column_name = metric_label.name
+    def get_top_8_books(self, sort: str = "recommended", limit: int = 8) -> list[dict]:
+        metric = self._get_sort_metric(sort)
 
         subquery = (
             select(
-                book_id,
-                metric_label,
-                sub_price,
+                label("book_id", Book.id),
+                metric,
+                label("sub_price", (Book.book_price - Discount.discount_price)),
             )
             .join(Review, Review.book_id == Book.id)
             .outerjoin(Discount, Discount.book_id == Book.id)
@@ -161,16 +149,29 @@ class BookRepository:
             .subquery()
         )
 
-        query = (
-            select(Book)
-            .join(subquery, Book.id == subquery.c.book_id)
-            .order_by(
-                desc(getattr(subquery.c, metric_column_name)), subquery.c.sub_price
+        statement = (
+            select(
+                Book.id,
+                Book.book_title,
+                Book.book_price,
+                Book.book_cover_photo,
+                subquery.c.sub_price,
+                Author.author_name,
             )
-            .limit(8)
+            .join(subquery, Book.id == subquery.c.book_id)
+            .join(Author, Author.id == Book.author_id)
+            .order_by(desc(subquery.c.metric), subquery.c.sub_price)
+            .limit(limit)
         )
 
-        return self.session.exec(query).all()
+        return self.session.exec(statement).all()
+
+    def _get_sort_metric(self, sort: str):
+        metrics = {
+            "recommended": func.avg(cast(Review.rating_star, Float)),
+            "popularity": func.count(Review.id),
+        }
+        return metrics.get(sort, label("recommended", metrics["recommended"]))
 
     def _get_total_items(self, category_id, author_id, min_rating):
         count_query = BookQueryHelper.build_count_query(
