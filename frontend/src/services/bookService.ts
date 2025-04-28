@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-export interface BookWithDiscount {
+export interface TopBooks {
   id: number;
   book_title: string;
   book_price: number;
@@ -14,9 +14,16 @@ const api = axios.create({
 });
 
 const bookService = {
-  async getTop10MostDiscountedBooks(): Promise<BookWithDiscount[]> {
-    const response = await api.get<{ books: BookWithDiscount[] }>(
+  async getTop10MostDiscountedBooks(): Promise<TopBooks[]> {
+    const response = await api.get<{ books: TopBooks[] }>(
       "/top_10_most_discounted"
+    );
+    return response.data.books;
+  },
+
+  async getTop8Books(sort: string): Promise<TopBooks[]> {
+    const response = await api.get<{ books: TopBooks[] }>(
+      `/top_8?sort=${sort}`
     );
     return response.data.books;
   },
