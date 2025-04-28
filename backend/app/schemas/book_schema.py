@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class BookBase(BaseModel):
@@ -7,11 +7,12 @@ class BookBase(BaseModel):
     book_summary: str
     book_price: float
     book_cover_photo: str
+    category_id: int
+    author_id: int
 
 
 class BookCreate(BookBase):
-    category_id: int
-    author_id: int
+    pass
 
 
 class BookUpdate(BookBase):
@@ -21,25 +22,28 @@ class BookUpdate(BookBase):
 class BookRead(BookBase):
     id: int
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class BookReturn(BookBase):
+class TopBookWithDiscount(BaseModel):
     id: int
-    category_id: int
-    author_id: int
-
-
-class BookPaginatedReturn(BookReturn):
+    book_title: str
+    book_price: float
+    book_cover_photo: str
     sub_price: float
+    author_name: str
+
+
+class Top10BooksDiscountsReturn(BaseModel):
+    books: list[TopBookWithDiscount]
+
+
+class BookPaginatedReturn(BookRead):
+    sub_price: Optional[float]
     review_count: int
     avg_rating: float
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 class BooksDetailsReturn(BaseModel):
-    data: list[BookPaginatedReturn]
+    data: list[BookRead]
     page: int
     limit: int
     total_pages: int

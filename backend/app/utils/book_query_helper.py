@@ -14,7 +14,9 @@ class BookQueryHelper:
     def build_paginated_query(sort, category_id, author_id, min_rating, offset, limit):
         now = datetime.now(timezone.utc)
         sort_expr = BookQueryHelper.build_sort_expr(sort)
-        query = BookQueryHelper.build_base_query(now, category_id, author_id, min_rating)
+        query = BookQueryHelper.build_base_query(
+            now, category_id, author_id, min_rating
+        )
         return query.order_by(sort_expr).offset(offset).limit(limit)
 
     @staticmethod
@@ -145,7 +147,9 @@ class BookQueryHelper:
             query = query.where(Book.author_id == author_id)
 
         if min_rating:
-            query = query.having(func.avg(cast(Review.rating_star, Float)) >= min_rating)
+            query = query.having(
+                func.avg(cast(Review.rating_star, Float)) >= min_rating
+            )
 
         query = query.group_by(Book.id, Discount.discount_price)
         return query
@@ -180,8 +184,7 @@ class BookQueryHelper:
 
     @staticmethod
     def get_active_discounts():
-        now = datetime.now(timezone.utc)
         return and_(
-            Discount.discount_start_date <= now,
-            Discount.discount_end_date >= now,
+            Discount.discount_start_date <= func.now(),
+            Discount.discount_end_date >= func.now(),
         )

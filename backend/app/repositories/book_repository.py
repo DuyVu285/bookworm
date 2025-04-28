@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
 import math
 from typing import List, Optional
-from sqlmodel import Session, and_, desc, or_, select, func, cast, Float
+from sqlmodel import Session, desc, or_, select, func, cast, Float
 from sqlalchemy import label
+
 from app.models.book_model import Book
 from app.models.discount_model import Discount
 from app.models.review_model import Review
-
-from app.repositories.discount_repository import DiscountRepository
 from app.utils.book_query_helper import BookQueryHelper
+from app.models.author_model import Author
 
 
 class BookRepository:
@@ -63,7 +63,9 @@ class BookRepository:
         offset = (page - 1) * limit
 
         sort_expr = BookQueryHelper.build_sort_expr(sort)
-        query = BookQueryHelper.build_base_query(now, category_id, author_id, min_rating)
+        query = BookQueryHelper.build_base_query(
+            now, category_id, author_id, min_rating
+        )
         query = query.order_by(sort_expr).offset(offset).limit(limit)
         results = self.session.exec(query).all()
 
@@ -101,20 +103,30 @@ class BookRepository:
             "end_item": end_item,
         }
 
-    def get_top_10_most_discounted_books(self) -> List[Book]:
-        sub_price = label("sub_price", (Book.book_price - Discount.discount_price))
+    def get_top_10_most_discounted_books(self) -> list[dict]:
+        sub_price = label(
+            "sub_price",
+            Book.book_price - Discount.discount_price,
+        )
 
-        query = (
+        statement = (
             select(
-                Book,
+                Book.id,
+                Book.book_title,
+                Book.book_price,
+                Book.book_cover_photo,
                 sub_price,
+                Author.author_name,
             )
             .join(Discount, Discount.book_id == Book.id)
+            .join(Author, Author.id == Book.author_id)
             .where(BookQueryHelper.get_active_discounts)
-            .order_by(desc(sub_price))
+            .order_by(sub_price.desc())
             .limit(10)
         )
-        return self.session.exec(query).all()
+
+        result = self.session.exec(statement).all()
+        return result
 
     def get_top_8_books(self, sort: str = "recommended") -> List[Book]:
         sub_price = label("sub_price", Book.book_price - Discount.discount_price)
