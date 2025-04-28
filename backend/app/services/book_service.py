@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select
 from app.repositories.book_repository import BookRepository
 from app.models.book_model import Book
-from app.schemas.book_schema import TopBookWithDiscount, Top10BooksDiscountsReturn
+from app.schemas.book_schema import TopBookWithDiscount, TopBooksReturn
 
 
 class BookService:
@@ -68,7 +68,7 @@ class BookService:
             )
         return books
 
-    def get_top_10_most_discounted_books(self) -> Top10BooksDiscountsReturn:
+    def get_top_10_most_discounted_books(self) -> TopBooksReturn:
         results = self.book_repository.get_top_10_most_discounted_books()
 
         if not results:
@@ -88,7 +88,7 @@ class BookService:
             for id, book_title, book_price, book_cover_photo, sub_price, author_name in results
         ]
 
-        return Top10BooksDiscountsReturn(books=books_with_discount)
+        return TopBooksReturn(books=books_with_discount)
 
     def get_top_8_books(self, sort: str = "recommended") -> list[Book]:
         books = self.book_repository.get_top_8_books(sort)

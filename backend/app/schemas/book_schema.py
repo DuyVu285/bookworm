@@ -32,7 +32,7 @@ class TopBookWithDiscount(BaseModel):
     author_name: str
 
 
-class Top10BooksDiscountsReturn(BaseModel):
+class TopBooksDiscountsReturn(BaseModel):
     books: list[TopBookWithDiscount]
 
 
