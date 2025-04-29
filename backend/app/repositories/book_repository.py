@@ -172,7 +172,7 @@ class BookRepository:
     def _get_sort_metric(self, sort: str):
         metrics = {
             "recommended": func.avg(cast(Review.rating_star, Float)),
-            "popularity": func.count(Review.id),
+            "popular": func.count(Review.id),
         }
         return metrics.get(sort, metrics["recommended"])
 
