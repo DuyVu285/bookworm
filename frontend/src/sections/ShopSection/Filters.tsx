@@ -1,32 +1,35 @@
 import { useState } from "react";
 
-type FilterType = "Books";
+type FilterType = "Category" | "Author" | "Rating";
 type FilterValue = string;
 
-interface ActiveFilter {
-  type: FilterType;
-  value: FilterValue;
+interface ActiveFilters {
+  [key: string]: FilterValue[]; // A map of filter type to selected filter values
 }
 
 const Filters = ({
   onFilterChange,
 }: {
-  onFilterChange: (type?: FilterType, value?: FilterValue) => void;
+  onFilterChange: (filters: ActiveFilters) => void;
 }) => {
   const categories = ["Category 1", "Category 2", "Category 3", "Category 4"];
   const authors = ["Author 1", "Author 2", "Author 3", "Author 4"];
   const ratings = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"];
 
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter | undefined>();
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({});
 
   const handleClick = (type: FilterType, value: FilterValue) => {
-    if (activeFilter?.type === type && activeFilter.value === value) {
-      setActiveFilter(undefined);
-      onFilterChange(); // clear filter
+    const newFilters = { ...activeFilters };
+
+    // If the value is already selected, remove it; otherwise, add it.
+    if (newFilters[type]?.includes(value)) {
+      newFilters[type] = newFilters[type].filter((item) => item !== value);
     } else {
-      setActiveFilter({ type, value });
-      onFilterChange(type, value);
+      newFilters[type] = [...(newFilters[type] || []), value];
     }
+
+    setActiveFilters(newFilters);
+    onFilterChange(newFilters);
   };
 
   const renderFilterButtons = (type: FilterType, items: string[]) =>
@@ -36,7 +39,7 @@ const Filters = ({
         type="button"
         onClick={() => handleClick(type, label)}
         className={`btn btn-none bg-base-100 border-none flex justify-start text-left ${
-          activeFilter?.type === type && activeFilter.value === label
+          activeFilters[type]?.includes(label)
             ? "btn-active bg-gray-400 btn"
             : ""
         }`}
@@ -53,7 +56,7 @@ const Filters = ({
         <input type="checkbox" name="accordion-category" defaultChecked />
         <div className="collapse-title font-semibold text-2xl">Category</div>
         <div className="collapse-content text-sm flex flex-col gap-2">
-          {renderFilterButtons("Books", categories)}
+          {renderFilterButtons("Category", categories)}
         </div>
       </div>
 
@@ -61,7 +64,7 @@ const Filters = ({
         <input type="checkbox" name="accordion-author" />
         <div className="collapse-title font-semibold text-2xl">Author</div>
         <div className="collapse-content text-sm flex flex-col gap-2">
-          {renderFilterButtons("Books", authors)}
+          {renderFilterButtons("Author", authors)}
         </div>
       </div>
 
@@ -69,7 +72,7 @@ const Filters = ({
         <input type="checkbox" name="accordion-rating" />
         <div className="collapse-title font-semibold text-2xl">Rating Review</div>
         <div className="collapse-content text-sm flex flex-col gap-2">
-          {renderFilterButtons("Books", ratings)}
+          {renderFilterButtons("Rating", ratings)}
         </div>
       </div>
     </section>

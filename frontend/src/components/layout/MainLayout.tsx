@@ -2,8 +2,17 @@ import { useState } from "react";
 import Footer from "./Footer";
 import Login from "./Login";
 import Nav from "./Nav";
+import Breadcrumbs from "./Breadcrumbs";
 
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
+const MainLayout = ({
+  children,
+  type,
+  value,
+}: {
+  children: React.ReactNode;
+  type?: string;
+  value?: string | number;
+}) => {
   const [isLoginOpen, setLoginOpen] = useState(false);
 
   const handleLoginOpen = () => setLoginOpen(true);
@@ -12,10 +21,13 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <Nav onLoginClick={handleLoginOpen} />
-
       <Login isOpen={isLoginOpen} onClose={handleLoginClose} />
 
+      <div className="mx-20">
+        <Breadcrumbs type={type} value={value} />
+      </div>
       <main>{children}</main>
+
       <Footer />
     </div>
   );

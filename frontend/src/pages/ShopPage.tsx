@@ -1,7 +1,7 @@
 import { useState } from "react";
-import BooksGrid from "../components/BooksGrid";
-import Breadcrumbs from "../components/Breadcrumbs";
-import Filters from "../components/Filters";
+import BooksGrid from "../sections/ShopSection/BooksGrid";
+import Filters from "../sections/ShopSection/Filters";
+import MainLayout from "../components/layout/MainLayout";
 
 type FilterType = "Books";
 type FilterValue = string | number;
@@ -12,7 +12,9 @@ interface ActiveFilter {
 }
 
 const ShopPage = () => {
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter | undefined>(undefined);
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter | undefined>(
+    undefined
+  );
 
   const handleFilterChange = (type?: FilterType, value?: FilterValue) => {
     if (type && value !== undefined) {
@@ -23,13 +25,7 @@ const ShopPage = () => {
   };
 
   return (
-    <main>
-      {/* Breadcrumbs */}
-      <div className="py-6 border-b border-gray-300 mx-18">
-        <Breadcrumbs selectedFilter={activeFilter} />
-      </div>
-
-      {/* Main Layout */}
+    <MainLayout type="Books">
       <div className="flex flex-col lg:flex-row mx-18">
         {/* Aside Filters */}
         <aside className="w-full lg:w-1/4">
@@ -41,7 +37,7 @@ const ShopPage = () => {
           <BooksGrid />
         </div>
       </div>
-    </main>
+    </MainLayout>
   );
 };
 

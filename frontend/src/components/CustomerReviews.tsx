@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Breadcrumbs from "./Breadcrumbs";
+import Breadcrumbs from "./layout/Breadcrumbs";
 
 const CustomerReviews = () => {
   const ratings = [1, 2, 3, 4, 5];
