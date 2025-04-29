@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class CategoryBase(BaseModel):
@@ -6,16 +6,9 @@ class CategoryBase(BaseModel):
     category_description: str
 
 
-class CategoryCreate(CategoryBase):
-    pass
-
-
-class CategoryUpdate(CategoryBase):
-    pass
-
-
 class CategoryRead(CategoryBase):
     id: int
 
-    model_config = ConfigDict(from_attributes=True)
 
+class CategoriesRead(BaseModel):
+    data: list[CategoryRead]

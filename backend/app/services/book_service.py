@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.repositories.book_repository import BookRepository
-from app.schemas.book_schema import TopBook, TopBooksReturn, BookRead
+from app.schemas.book_schema import TopBookRead, TopBooksRead, BookRead
 
 
 class BookService:
@@ -35,7 +35,7 @@ class BookService:
             )
         return books
 
-    def get_top_10_most_discounted_books(self) -> TopBooksReturn:
+    def get_top_10_most_discounted_books(self) -> TopBooksRead:
         results = self.book_repository.get_top_10_most_discounted_books()
 
         if not results:
@@ -44,7 +44,7 @@ class BookService:
             )
 
         books_with_discount = [
-            TopBook(
+            TopBookRead(
                 id=id,
                 book_title=book_title,
                 book_price=book_price,
@@ -55,9 +55,9 @@ class BookService:
             for id, book_title, book_price, book_cover_photo, sub_price, author_name in results
         ]
 
-        return TopBooksReturn(books=books_with_discount)
+        return TopBooksRead(books=books_with_discount)
 
-    def get_top_8_books(self, sort: str) -> TopBooksReturn:
+    def get_top_8_books(self, sort: str) -> TopBooksRead:
         books = self.book_repository.get_top_8_books(sort)
         if not books:
             raise HTTPException(
@@ -65,7 +65,7 @@ class BookService:
             )
 
         books_with_sort = [
-            TopBook(
+            TopBookRead(
                 id=id,
                 book_title=book_title,
                 book_price=book_price,
@@ -75,4 +75,4 @@ class BookService:
             )
             for id, book_title, book_price, book_cover_photo, sub_price, author_name in books
         ]
-        return TopBooksReturn(books=books_with_sort)
+        return TopBooksRead(books=books_with_sort)

@@ -11,19 +11,11 @@ class BookBase(BaseModel):
     author_id: int
 
 
-class BookCreate(BookBase):
-    pass
-
-
-class BookUpdate(BookBase):
-    pass
-
-
 class BookRead(BookBase):
     id: int
 
 
-class TopBook(BaseModel):
+class TopBookRead(BaseModel):
     id: int
     book_title: str
     book_price: float
@@ -32,8 +24,8 @@ class TopBook(BaseModel):
     author_name: str
 
 
-class TopBooksReturn(BaseModel):
-    books: list[TopBook]
+class TopBooksRead(BaseModel):
+    books: list[TopBookRead]
 
 
 class BookPaginatedReturn(BookRead):

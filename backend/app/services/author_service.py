@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session
 from app.repositories.author_repository import AuthorRepository
 from app.models.author_model import Author
 

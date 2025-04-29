@@ -4,10 +4,8 @@ from sqlmodel import Session
 
 from app.db.db import get_session
 from app.schemas.book_schema import (
-    BookCreate,
-    BookUpdate,
     BookRead,
-    TopBooksReturn,
+    TopBooksRead,
     BooksDetailsReturn,
 )
 from app.services.book_service import BookService
@@ -34,7 +32,7 @@ async def get_books(
 
 @router.get(
     "/top_10_most_discounted",
-    response_model=TopBooksReturn,
+    response_model=TopBooksRead,
     status_code=status.HTTP_200_OK,
 )
 async def get_top_10_books(
@@ -45,7 +43,7 @@ async def get_top_10_books(
     return data
 
 
-@router.get("/top_8", response_model=TopBooksReturn, status_code=status.HTTP_200_OK)
+@router.get("/top_8", response_model=TopBooksRead, status_code=status.HTTP_200_OK)
 async def get_top_8_books(
     sort: str,
     session: Session = Depends(get_session),

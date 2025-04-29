@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class AuthorBase(BaseModel):
@@ -6,16 +6,8 @@ class AuthorBase(BaseModel):
     author_bio: str
 
 
-class AuthorCreate(AuthorBase):
-    pass
-
-
-class AuthorUpdate(AuthorBase):
-    pass
-
-
 class AuthorRead(AuthorBase):
     id: int
 
-    model_config = ConfigDict(from_attributes=True)
-
+class AuthorsRead(BaseModel):
+    data: list[AuthorRead]
