@@ -34,14 +34,19 @@ const FeaturedBooks = () => {
     fetchTop8Books(sort);
   }, [sort]);
 
+  const handleTabChange = (tab: "recommended" | "popular") => {
+    setSelectedTab(tab);
+    setSort(tab);
+  };
+
   return (
     <>
-      <div className="flex flex-col items-center pb-2 px-2">
-        <h2 className="text-3xl font-semibold text-center">Featured Books</h2>
-        <div className="pt-2 w-full flex justify-center">
+      <div className="flex flex-col justify-between items-center pb-2 px-2">
+        <h2 className="text-3xl font-semibold">Featured Books</h2>
+        <div className="pt-4 w-full flex justify-center">
           <div className="flex gap-4">
             <button
-              onClick={() => setSelectedTab("recommended")}
+              onClick={() => handleTabChange("recommended")}
               className={`btn btn-lg font-semibold ${
                 selectedTab === "recommended"
                   ? "bg-gray-300 text-white"
@@ -51,7 +56,7 @@ const FeaturedBooks = () => {
               Recommended
             </button>
             <button
-              onClick={() => setSelectedTab("popular")}
+              onClick={() => handleTabChange("popular")}
               className={`btn btn-lg font-semibold ${
                 selectedTab === "popular"
                   ? "bg-gray-300 text-white"
@@ -64,9 +69,21 @@ const FeaturedBooks = () => {
         </div>
       </div>
 
-      <div className="relative flex items-center justify-between py-4 px-8 border border-gray-300">
-        <div className="w-full overflow-x-auto scroll-smooth snap-x snap-mandatory grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-18">
-        </div>
+      <div className="border border-gray-400 p-8 relative flex items-center min-h-[300px]">
+        {loading ? (
+          <div className="flex justify-center items-center w-full">
+            <span className="loading loading-spinner loading-xl"></span>
+            <span className="text-2xl p-2">Loading</span>
+          </div>
+        ) : (
+          <>
+            <div className="items-center w-full grid md:grid-cols-1 lg:grid-cols-4 gap-4 pr-18 pl-25 ">
+              {books.map((book) => (
+                <BookCard key={book.id} {...book} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </>
   );

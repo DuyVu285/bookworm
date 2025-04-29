@@ -21,11 +21,13 @@ const BookCard: React.FC<BookCardProps> = ({
     e.currentTarget.src = "https://placehold.co/480x640";
   };
   return (
-    <div  className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[20rem]">
+    <div className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[20rem]">
       {/* Image section - fixed aspect ratio */}
       <figure className="relative pt-[100%] overflow-hidden rounded-t-lg">
         <img
-          src={"https://placehold.co/480x640"} /* Fix the images problem with faker */
+          src={
+            "https://placehold.co/480x640"
+          } /* Fix the images problem with faker */
           alt={book_title}
           className="absolute top-0 left-0 w-full h-full object-cover"
           onError={handleError}
@@ -39,10 +41,16 @@ const BookCard: React.FC<BookCardProps> = ({
       </div>
 
       {/* Footer section - fixed height */}
-      <div className="bg-gray-100 text-2xl font-medium p-3 rounded-b-lg">
-        <span className="text-gray-400 line-through pr-2">${book_price}</span>$
-        {sub_price}
-      </div>
+      {sub_price > 0 ? (
+        <div className="bg-gray-100 text-2xl font-medium p-3 rounded-b-lg">
+          <span className="text-gray-400 line-through pr-2">${book_price}</span>
+          ${sub_price}
+        </div>
+      ) : (
+        <div className="bg-gray-100 text-2xl font-medium p-3 rounded-b-lg">
+          ${book_price}
+        </div>
+      )}
     </div>
   );
 };

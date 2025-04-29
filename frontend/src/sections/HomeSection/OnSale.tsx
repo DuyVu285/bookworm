@@ -56,7 +56,7 @@ const OnSale = () => {
         </a>
       </div>
 
-      <div className="border border-gray-400 p-8 relative flex items-center min-h-[300px]">
+      <div className="border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px]">
         {loading ? (
           <div className="flex justify-center items-center w-full">
             <span className="loading loading-spinner loading-xl"></span>
@@ -90,14 +90,14 @@ const OnSale = () => {
               slidesPerView={"auto"}
               breakpoints={{
                 320: { slidesPerView: 1, spaceBetween: 10 },
-                640: { slidesPerView: 2, spaceBetween: 20 },
+                640: { slidesPerView: 1, spaceBetween: 20 },
                 1024: { slidesPerView: 4, spaceBetween: 50 },
               }}
               className="flex-1"
             >
               {books.map((book) => (
-                <SwiperSlide key={book.id}>
-                  <BookCard {...book} />
+                <SwiperSlide>
+                  <BookCard key={book.id} {...book} />
                 </SwiperSlide>
               ))}
             </Swiper>
