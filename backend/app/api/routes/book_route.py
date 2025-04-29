@@ -59,31 +59,3 @@ async def get_top_8_books(
 async def get_book_by_id(book_id: int, session: Session = Depends(get_session)):
     service = BookService(session)
     return service.get_book_by_id(book_id)
-
-
-@router.get(
-    "/title/{book_title}", response_model=list[BookRead], status_code=status.HTTP_200_OK
-)
-async def get_book_by_title(book_title: str, session: Session = Depends(get_session)):
-    service = BookService(session)
-    return service.get_book_by_title(book_title)
-
-
-@router.post("/", response_model=BookCreate, status_code=status.HTTP_201_CREATED)
-async def create_book(book: BookCreate, session: Session = Depends(get_session)):
-    service = BookService(session)
-    return service.create_book(book)
-
-
-@router.put("/{book_id}", response_model=BookUpdate, status_code=status.HTTP_200_OK)
-async def update_book(
-    book_id: int, book: BookUpdate, session: Session = Depends(get_session)
-):
-    service = BookService(session)
-    return service.update_book(book_id, book)
-
-
-@router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_book(book_id: int, session: Session = Depends(get_session)):
-    service = BookService(session)
-    return service.delete_book(book_id)

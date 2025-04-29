@@ -21,30 +21,6 @@ class BookRepository:
         query = select(Book).where(Book.id == book_id)
         return self.session.exec(query).one_or_none()
 
-    def get_book_by_title(self, book_title: str) -> Book:
-        query = select(Book).where(Book.book_title.ilike(f"%{book_title}%"))
-        return self.session.exec(query).all()
-
-    def create_book(self, book: Book) -> Book:
-        book = Book(**book.model_dump())
-        self.session.add(book)
-        self.session.commit()
-        self.session.refresh(book)
-        return book
-
-    def update_book(self, book_id: int, updated_data: Book) -> Book | None:
-        book = self.get_book_by_id(book_id)
-        data = updated_data.model_dump(exclude_unset=True)
-        for key, value in data.items():
-            setattr(book, key, value)
-        self.session.commit()
-        self.session.refresh(book)
-        return book
-
-    def delete_book(self, book_id: int) -> None:
-        self.session.delete(self.get_book_by_id(book_id))
-        self.session.commit()
-
     def get_books(
         self,
         page: int = 1,
