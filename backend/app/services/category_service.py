@@ -1,14 +1,14 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.repositories.category_repository import CategoryRepository
-from app.models.author_model import Author
+from app.schemas.category_schema import CategoryRead
 
 
 class CategoryService:
     def __init__(self, db_session: Session):
         self.author_repository = CategoryRepository(db_session)
 
-    def get_all_categories(self) -> list[Author]:
+    def get_all_categories(self) -> list[CategoryRead]:
         authors = self.author_repository.get_all_categories()
         if not authors:
             raise HTTPException(
