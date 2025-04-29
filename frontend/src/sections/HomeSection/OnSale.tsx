@@ -88,7 +88,6 @@ const OnSale = () => {
               loop={true}
               spaceBetween={10}
               slidesPerView={"auto"}
-              centeredSlides={true}
               breakpoints={{
                 320: { slidesPerView: 1, spaceBetween: 10 },
                 640: { slidesPerView: 1, spaceBetween: 20 },

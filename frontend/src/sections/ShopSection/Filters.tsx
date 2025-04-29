@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type FilterType = "Category" | "Author" | "Rating";
 type FilterValue = string;
 
 interface ActiveFilters {
-  [key: string]: FilterValue[]; // A map of filter type to selected filter values
+  [key: string]: FilterValue | undefined; // A map of filter type to selected filter value
 }
 
 const Filters = ({
@@ -16,16 +16,17 @@ const Filters = ({
   const authors = ["Author 1", "Author 2", "Author 3", "Author 4"];
   const ratings = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"];
 
+
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({});
 
   const handleClick = (type: FilterType, value: FilterValue) => {
     const newFilters = { ...activeFilters };
 
-    // If the value is already selected, remove it; otherwise, add it.
-    if (newFilters[type]?.includes(value)) {
-      newFilters[type] = newFilters[type].filter((item) => item !== value);
+    // If the value is already selected, we remove the filter (i.e., unselect it)
+    if (newFilters[type] === value) {
+      newFilters[type] = undefined;
     } else {
-      newFilters[type] = [...(newFilters[type] || []), value];
+      newFilters[type] = value;
     }
 
     setActiveFilters(newFilters);
@@ -39,9 +40,7 @@ const Filters = ({
         type="button"
         onClick={() => handleClick(type, label)}
         className={`btn btn-none bg-base-100 border-none flex justify-start text-left ${
-          activeFilters[type]?.includes(label)
-            ? "btn-active bg-gray-400 btn"
-            : ""
+          activeFilters[type] === label ? "btn-active bg-gray-400 btn" : ""
         }`}
       >
         {label}
@@ -49,33 +48,41 @@ const Filters = ({
     ));
 
   return (
-    <section className="p-2">
-      <h2 className="text-2xl font-semibold pb-2">Filters By</h2>
+    <>
+      <div className="p-2">
+        <h2 className="text-2xl font-semibold pb-2">Filters By</h2>
 
-      <div className="collapse bg-base-100 border border-base-300">
-        <input type="checkbox" name="accordion-category" defaultChecked />
-        <div className="collapse-title font-semibold text-2xl">Category</div>
-        <div className="collapse-content text-sm flex flex-col gap-2">
-          {renderFilterButtons("Category", categories)}
+        <div className="flex flex-col gap-2">
+          <div className="collapse bg-base-100 border border-base-400">
+            <input type="checkbox" name="accordion-category" defaultChecked />
+            <div className="collapse-title font-semibold text-2xl">
+              Category
+            </div>
+            <div className="collapse-content text-sm flex flex-col gap-2">
+              {renderFilterButtons("Category", categories)}
+            </div>
+          </div>
+
+          <div className="collapse bg-base-100 border border-base-400">
+            <input type="checkbox" name="accordion-author" />
+            <div className="collapse-title font-semibold text-2xl">Author</div>
+            <div className="collapse-content text-sm flex flex-col gap-2">
+              {renderFilterButtons("Author", authors)}
+            </div>
+          </div>
+
+          <div className="collapse bg-base-100 border border-base-400">
+            <input type="checkbox" name="accordion-rating" />
+            <div className="collapse-title font-semibold text-2xl">
+              Rating Review
+            </div>
+            <div className="collapse-content text-sm flex flex-col gap-2">
+              {renderFilterButtons("Rating", ratings)}
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="collapse bg-base-100 border border-base-300">
-        <input type="checkbox" name="accordion-author" />
-        <div className="collapse-title font-semibold text-2xl">Author</div>
-        <div className="collapse-content text-sm flex flex-col gap-2">
-          {renderFilterButtons("Author", authors)}
-        </div>
-      </div>
-
-      <div className="collapse bg-base-100 border border-base-300">
-        <input type="checkbox" name="accordion-rating" />
-        <div className="collapse-title font-semibold text-2xl">Rating Review</div>
-        <div className="collapse-content text-sm flex flex-col gap-2">
-          {renderFilterButtons("Rating", ratings)}
-        </div>
-      </div>
-    </section>
+    </>
   );
 };
 
