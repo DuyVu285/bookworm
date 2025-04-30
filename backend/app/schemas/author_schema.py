@@ -1,13 +1,10 @@
 from pydantic import BaseModel
 
 
-class AuthorBase(BaseModel):
+class AuthorRead(BaseModel):
     author_name: str
-    author_bio: str
-
-
-class AuthorRead(AuthorBase):
     id: int
+
 
 class AuthorsRead(BaseModel):
     data: list[AuthorRead]
