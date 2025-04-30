@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import HTTPException, status
 from sqlmodel import Session
+from app.core.config import settings
 from app.repositories.book_repository import BookRepository
 from app.schemas.book_schema import TopBookRead, TopBooksRead, BookRead
 
@@ -8,6 +9,7 @@ from app.schemas.book_schema import TopBookRead, TopBooksRead, BookRead
 class BookService:
     def __init__(self, session: Session):
         self.book_repository = BookRepository(session)
+        self.server_url = settings.SERVER_URL
 
     def get_book_by_id(self, book_id: int) -> BookRead:
         book = self.book_repository.get_book_by_id(book_id)
@@ -48,7 +50,8 @@ class BookService:
                 id=id,
                 book_title=book_title,
                 book_price=book_price,
-                book_cover_photo=book_cover_photo,
+                book_cover_photo=self.server_url
+                + f"/static/book_covers/{book_cover_photo}",
                 sub_price=sub_price,
                 author_name=author_name,
             )
@@ -69,7 +72,8 @@ class BookService:
                 id=id,
                 book_title=book_title,
                 book_price=book_price,
-                book_cover_photo=book_cover_photo,
+                book_cover_photo=self.server_url
+                + f"/static/book_covers/{book_cover_photo}",
                 sub_price=sub_price,
                 author_name=author_name,
             )
