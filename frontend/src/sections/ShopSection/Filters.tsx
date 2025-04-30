@@ -13,6 +13,15 @@ const Filters = () => {
   const [authors, setAuthors] = useState<string[]>([]);
   const ratings = [1, 2, 3, 4, 5];
 
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      const authors = await authorService.get_all_authors();
+      console.log(authors);
+    };
+
+    fetchAuthors();
+  }, []);
+
   // Initialize filters from URL
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>(() => ({
     Category: searchParams.get("Category") ?? undefined,

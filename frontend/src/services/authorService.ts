@@ -3,11 +3,12 @@ import axios from "axios";
 interface Author {
   id: number;
   author_name: string;
-  author_bio: string;
 }
 
+const baseURL = import.meta.env.VITE_SERVER_API_URL + "/authors";
+
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/authors",
+  baseURL: baseURL,
 });
 
 const authorService = {

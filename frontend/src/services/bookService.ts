@@ -9,8 +9,10 @@ export interface TopBooks {
   author_name: string;
 }
 
+const baseURL = import.meta.env.VITE_SERVER_API_URL + "/books";
+
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/books",
+  baseURL: baseURL,
 });
 
 const bookService = {
