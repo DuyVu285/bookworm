@@ -7,5 +7,7 @@ class CategoryRepository:
         self.session = session
 
     def get_all_categories(self):
-        query = select(Category).order_by(Category.category_name)
+        query = select(Category.id, Category.category_name).order_by(
+            Category.category_name
+        )
         return self.session.exec(query).all()
