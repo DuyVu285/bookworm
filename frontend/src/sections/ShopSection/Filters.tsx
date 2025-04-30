@@ -37,8 +37,15 @@ const Filters = () => {
   }));
 
   const updateSearchParams = (filters: ActiveFilters) => {
-    const newParams = new URLSearchParams();
+    // Create a new instance based on the current URL params
+    const newParams = new URLSearchParams(searchParams);
 
+    // Clear existing filter parameters
+    newParams.delete("Category");
+    newParams.delete("Author");
+    newParams.delete("Rating");
+
+    // Set the active filters
     Object.entries(filters).forEach(([key, value]) => {
       if (value) newParams.set(key, value);
     });
