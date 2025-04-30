@@ -17,7 +17,7 @@ class DiscountRepository:
         self.session.refresh(discount)
         return discount
 
-    def update_discount(self, discount_id: int, updated_data: Discount)-> Discount:
+    def update_discount(self, discount_id: int, updated_data: Discount) -> Discount:
         discount = self.get_discount_by_id(discount_id)
         data = updated_data.model_dump(exclude_unset=True)
         for key, value in data.items():

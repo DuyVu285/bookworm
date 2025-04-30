@@ -1,6 +1,8 @@
 from datetime import datetime
+import os
+
+import requests
 from faker import Faker
-import pyshorteners
 from sqlmodel import SQLModel, Session, create_engine
 from random import randint, choice
 from app.core.config import settings
@@ -19,7 +21,6 @@ from app.models.review_model import Review
 
 # Create a Faker instance
 fake = Faker("en_US")
-shortener = pyshorteners.Shortener()
 
 # Set up the SQLite engine and session (you can use PostgreSQL or another DB if needed)
 DATABASE_URL = settings.DATABASE_URL
@@ -35,28 +36,37 @@ def generate_fake_category():
     return Category(category_name=fake.word(), category_description=fake.sentence())
 
 
+def download_book_cover(save_dir="static/book_covers/"):
+    os.makedirs(save_dir, exist_ok=True)  # Create dir if it doesn't exist
+    filename = f"book_{randint(10000, 99999)}.jpg"
+    url = "https://picsum.photos/200/300"
+
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            file_path = os.path.join(save_dir, filename)
+            with open(file_path, "wb") as f:
+                f.write(response.content)
+            return filename  # Store just the short filename (e.g., "book_12345.jpg")
+    except Exception as e:
+        print(f"Image download failed: {e}")
+
+    # Fallback if download fails
+    return "default_cover.jpg"
+
+
 # Function to generate fake books
 def generate_fake_book(categories, authors):
-    book_cover_url = fake.image_url()
-    # Shorten the URL using TinyURL (you can choose other providers)
-    try:
-        short_url = shortener.tinyurl.short(book_cover_url)
-        # Ensure the shortened URL is within the 20-character limit
-        if len(short_url) > 20:
-            short_url = book_cover_url[
-                :20
-            ]  # Fallback: Truncate if shortening fails or is too long
-    except Exception:
-        # Handle cases where URL shortening might fail
-        short_url = book_cover_url[:20]  # Fallback: Truncate the original URL
-
+    print("Downloading book cover...")
+    book_cover_filename = download_book_cover()  # Get a short filename
+    print("Book cover downloaded! Book cover filename:", book_cover_filename)
     return Book(
         category_id=choice(categories).id,
         author_id=choice(authors).id,
         book_title=fake.sentence(nb_words=5),
         book_summary=fake.text(),
         book_price=round(randint(100, 500) * 0.5, 2),
-        book_cover_photo=short_url,
+        book_cover_photo=book_cover_filename,  # Save only the filename in DB
     )
 
 
@@ -131,12 +141,12 @@ def insert_fake_data():
     with Session(engine) as session:
         # Generate authors and categories
         authors = [generate_fake_author() for _ in range(10)]
-        categories = [generate_fake_category() for _ in range(20)]
+        categories = [generate_fake_category() for _ in range(5)]
         session.add_all(authors + categories)
         session.commit()
 
         # Generate users and commit them
-        users = [generate_fake_user() for _ in range(20)]
+        users = [generate_fake_user() for _ in range(10)]
         session.add_all(users)
         session.commit()  # Commit users to generate IDs
 
@@ -146,7 +156,7 @@ def insert_fake_data():
         session.commit()
 
         # Generate orders using the committed users
-        orders = [generate_fake_order(users) for _ in range(50)]
+        orders = [generate_fake_order(users) for _ in range(100)]
         session.add_all(orders)
         session.commit()  # Commit orders to generate IDs
 
