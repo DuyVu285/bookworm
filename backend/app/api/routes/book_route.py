@@ -3,11 +3,7 @@ from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
 
 from app.db.db import get_session
-from app.schemas.book_schema import (
-    BookRead,
-    TopBooksRead,
-    BooksDetailsReturn,
-)
+from app.schemas.book_schema import BookRead, TopBooksRead, BooksRead
 from app.services.book_service import BookService
 
 router = APIRouter(
@@ -15,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=BooksDetailsReturn, status_code=status.HTTP_200_OK)
+@router.get("/", response_model=BooksRead, status_code=status.HTTP_200_OK)
 async def get_books(
     page: int = 1,
     limit: int = 20,

@@ -1,14 +1,23 @@
 from datetime import datetime, timezone
 import math
-from typing import List, Optional
-from sqlmodel import Session, desc, or_, select, func, cast, Float
+from typing import Optional
+from sqlmodel import Session, and_, desc, or_, select, func, cast, Float
 from sqlalchemy import label
 
 from app.models.book_model import Book
 from app.models.discount_model import Discount
 from app.models.review_model import Review
-from app.utils.book_query_helper import BookQueryHelper
 from app.models.author_model import Author
+from pydantic import BaseModel
+
+
+class DiscountedBook(BaseModel):
+    id: int
+    book_title: str
+    book_price: float
+    book_cover_photo: Optional[str]
+    sub_price: float
+    author_name: str
 
 
 class BookRepository:
@@ -17,7 +26,7 @@ class BookRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_book_by_id(self, book_id: int) -> Book:
+    def get_book_by_id(self, book_id: int) -> Optional[Book]:
         query = select(Book).where(Book.id == book_id)
         return self.session.exec(query).one_or_none()
 
@@ -30,61 +39,11 @@ class BookRepository:
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
     ) -> dict:
-
-        now = datetime.now(timezone.utc)
-        page = max(page, 1)
-
-        limit = self._adjust_limit(limit)
-
-        offset = (page - 1) * limit
-
-        sort_expr = BookQueryHelper.build_sort_expr(sort)
-        query = BookQueryHelper.build_base_query(
-            now, category_id, author_id, min_rating
-        )
-        query = query.order_by(sort_expr).offset(offset).limit(limit)
-        results = self.session.exec(query).all()
-
-        data = []
-        for row in results:
-            book, sub_price, review_count, avg_rating = row
-
-            data.append(
-                {
-                    "id": book.id,
-                    "book_title": book.book_title,
-                    "author_id": book.author_id,
-                    "category_id": book.category_id,
-                    "book_price": book.book_price,
-                    "book_summary": book.book_summary,
-                    "book_cover_photo": book.book_cover_photo,
-                    "sub_price": sub_price,
-                    "review_count": review_count,
-                    "avg_rating": avg_rating,
-                }
-            )
-
-        total_items = self._get_total_items(category_id, author_id, min_rating)
-
-        start_item = offset + 1 if total_items > 0 else 0
-        end_item = min(offset + limit, total_items)
-
-        return {
-            "data": data,
-            "page": page,
-            "limit": limit,
-            "total_pages": math.ceil(total_items / limit),
-            "total_items": total_items,
-            "start_item": start_item,
-            "end_item": end_item,
-        }
+        if limit not in self.valid_limits:
+            return
 
     def get_top_10_most_discounted_books(self) -> list[dict]:
-        sub_price = label(
-            "sub_price",
-            Book.book_price - Discount.discount_price,
-        )
-
+        sub_price = label("sub_price", Book.book_price - Discount.discount_price)
         statement = (
             select(
                 Book.id,
@@ -96,17 +55,15 @@ class BookRepository:
             )
             .join(Discount, Discount.book_id == Book.id)
             .join(Author, Author.id == Book.author_id)
-            .where(BookQueryHelper.get_active_discounts)
+            .where(self._get_active_discounts())
             .order_by(sub_price.desc())
             .limit(10)
         )
-
-        result = self.session.exec(statement).all()
-        return result
+        results = self.session.exec(statement).all()
+        return results
 
     def get_top_8_books(self, sort: str, limit: int = 8) -> list[dict]:
         metric = self._get_sort_metric(sort)
-
         subquery = (
             select(
                 label("book_id", Book.id),
@@ -118,16 +75,10 @@ class BookRepository:
             )
             .join(Review, Review.book_id == Book.id)
             .outerjoin(Discount, Discount.book_id == Book.id)
-            .where(
-                or_(
-                    BookQueryHelper.get_active_discounts(),
-                    Discount.id == None,
-                )
-            )
+            .where(or_(self._get_active_discounts(), Discount.id == None))
             .group_by(Book.id, Discount.discount_price)
             .subquery()
         )
-
         statement = (
             select(
                 Book.id,
@@ -142,8 +93,8 @@ class BookRepository:
             .order_by(desc(subquery.c.metric), subquery.c.sub_price)
             .limit(limit)
         )
-
-        return self.session.exec(statement).all()
+        results = self.session.exec(statement).all()
+        return results
 
     def _get_sort_metric(self, sort: str):
         metrics = {
@@ -153,12 +104,75 @@ class BookRepository:
         return metrics.get(sort, metrics["recommended"])
 
     def _get_total_items(self, category_id, author_id, min_rating):
-        count_query = BookQueryHelper.build_count_query(
-            category_id, author_id, min_rating
-        )
+        count_query = self._build_count_query(category_id, author_id, min_rating)
         return self.session.exec(count_query).one()
 
     def _adjust_limit(self, limit):
         if limit not in self.valid_limits:
             limit = min(self.valid_limits, key=lambda x: abs(x - limit))
         return limit
+
+    def _build_sort_expr(self, sort: str):
+        sub_price_expr = label("sub_price", Book.book_price - Discount.discount_price)
+        review_count_expr = label("review_count", func.count(Review.id))
+        avg_rating_expr = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
+
+        sort_column_map = {
+            "on sale": sub_price_expr,
+            "price_asc": Book.book_price,
+            "price_desc": desc(Book.book_price),
+            "popularity": desc(review_count_expr),
+            "avg_rating": desc(avg_rating_expr),
+        }
+        return sort_column_map.get(sort, sub_price_expr)
+
+    def _build_base_query(self, now, category_id=None, author_id=None, min_rating=None):
+        sub_price_expr = label("sub_price", Book.book_price - Discount.discount_price)
+        review_count_expr = label("review_count", func.count(Review.id))
+        avg_rating_expr = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
+
+        query = (
+            select(Book, sub_price_expr, review_count_expr, avg_rating_expr)
+            .outerjoin(Discount, Discount.book_id == Book.id)
+            .outerjoin(Review, Review.book_id == Book.id)
+            .where(
+                or_(
+                    and_(
+                        Discount.discount_start_date <= now,
+                        Discount.discount_end_date >= now,
+                    ),
+                    Discount.id == None,
+                )
+            )
+        )
+        if category_id:
+            query = query.where(Book.category_id == category_id)
+        if author_id:
+            query = query.where(Book.author_id == author_id)
+        if min_rating:
+            query = query.having(
+                func.avg(cast(Review.rating_star, Float)) >= min_rating
+            )
+        query = query.group_by(Book.id, Discount.discount_price)
+        return query
+
+    def _build_count_query(self, category_id=None, author_id=None, min_rating=None):
+        query = select(Book.id)
+        if category_id is not None:
+            query = query.where(Book.category_id == category_id)
+        if author_id is not None:
+            query = query.where(Book.author_id == author_id)
+        if min_rating is not None:
+            query = (
+                query.join(Review, Review.book_id == Book.id)
+                .group_by(Book.id)
+                .having(func.avg(cast(Review.rating_star, Float)) >= min_rating)
+            )
+        return select(func.count()).select_from(query.subquery())
+
+    @staticmethod
+    def _get_active_discounts():
+        return and_(
+            Discount.discount_start_date <= func.now(),
+            Discount.discount_end_date >= func.now(),
+        )
