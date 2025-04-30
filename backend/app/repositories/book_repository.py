@@ -21,7 +21,6 @@ class DiscountedBook(BaseModel):
 
 
 class BookRepository:
-    valid_limits = [5, 15, 20, 25]
 
     def __init__(self, session: Session):
         self.session = session
@@ -39,8 +38,7 @@ class BookRepository:
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
     ) -> dict:
-        if limit not in self.valid_limits:
-            return
+        sort_expression = self._build_sort_expression(sort)
 
     def get_top_10_most_discounted_books(self) -> list[dict]:
         sub_price = label("sub_price", Book.book_price - Discount.discount_price)
@@ -63,7 +61,11 @@ class BookRepository:
         return results
 
     def get_top_8_books(self, sort: str, limit: int = 8) -> list[dict]:
-        metric = self._get_sort_metric(sort)
+        metrics = {
+            "recommended": func.avg(cast(Review.rating_star, Float)),
+            "popular": func.count(Review.id),
+        }
+        metric = metrics.get(sort)
         subquery = (
             select(
                 label("book_id", Book.id),
@@ -96,35 +98,23 @@ class BookRepository:
         results = self.session.exec(statement).all()
         return results
 
-    def _get_sort_metric(self, sort: str):
-        metrics = {
-            "recommended": func.avg(cast(Review.rating_star, Float)),
-            "popular": func.count(Review.id),
-        }
-        return metrics.get(sort, metrics["recommended"])
-
     def _get_total_items(self, category_id, author_id, min_rating):
         count_query = self._build_count_query(category_id, author_id, min_rating)
         return self.session.exec(count_query).one()
 
-    def _adjust_limit(self, limit):
-        if limit not in self.valid_limits:
-            limit = min(self.valid_limits, key=lambda x: abs(x - limit))
-        return limit
-
-    def _build_sort_expr(self, sort: str):
-        sub_price_expr = label("sub_price", Book.book_price - Discount.discount_price)
-        review_count_expr = label("review_count", func.count(Review.id))
-        avg_rating_expr = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
+    def _build_sort_expression(self, sort: str):
+        sub_price = label("sub_price", Book.book_price - Discount.discount_price)
+        review_count = label("review_count", func.count(Review.id))
+        avg_rating = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
 
         sort_column_map = {
-            "on sale": sub_price_expr,
+            "on sale": sub_price,
             "price_asc": Book.book_price,
             "price_desc": desc(Book.book_price),
-            "popularity": desc(review_count_expr),
-            "avg_rating": desc(avg_rating_expr),
+            "popular": desc(review_count),
+            "avg_rating": desc(avg_rating),
         }
-        return sort_column_map.get(sort, sub_price_expr)
+        return sort_column_map.get(sort)
 
     def _build_base_query(self, now, category_id=None, author_id=None, min_rating=None):
         sub_price_expr = label("sub_price", Book.book_price - Discount.discount_price)
