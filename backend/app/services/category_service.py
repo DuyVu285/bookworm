@@ -19,4 +19,4 @@ class CategoryService:
             CategoryRead(id=category.id, category_name=category.category_name)
             for category in categories
         ]
-        return CategoriesRead(data=categories)
+        return CategoriesRead(categories=categories)

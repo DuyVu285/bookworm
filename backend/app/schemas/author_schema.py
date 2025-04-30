@@ -7,4 +7,4 @@ class AuthorRead(BaseModel):
 
 
 class AuthorsRead(BaseModel):
-    data: list[AuthorRead]
+    authors: list[AuthorRead]

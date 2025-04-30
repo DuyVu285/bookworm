@@ -22,4 +22,4 @@ class AuthorService:
             )
             for author in authors
         ]
-        return AuthorsRead(data=authors)
+        return AuthorsRead(authors=authors)

@@ -7,4 +7,4 @@ class CategoryRead(BaseModel):
 
 
 class CategoriesRead(BaseModel):
-    data: list[CategoryRead]
+    categories: list[CategoryRead]
