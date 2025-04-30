@@ -52,17 +52,16 @@ const BooksGrid = () => {
           rating,
         });
         setBooks(response.data);
-        setTotalItems(response.total); // Assuming your API returns total count
+        setTotalItems(response.total);
       } catch (error) {
         console.error("Failed to fetch books", error);
-        // Optionally set an error state
       } finally {
         setLoading(false);
       }
     }
 
     fetchBooks();
-  }, [sort, currentPage, itemsPerPage, searchParams]); // Depend on all relevant state
+  }, [sort, currentPage, itemsPerPage, searchParams]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
