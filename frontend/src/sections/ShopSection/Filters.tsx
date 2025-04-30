@@ -37,10 +37,9 @@ const Filters = () => {
   }));
 
   const updateSearchParams = (filters: ActiveFilters) => {
-    // Create a new instance based on the current URL params
     const newParams = new URLSearchParams(searchParams);
 
-    // Clear existing filter parameters
+    // Clear existing filter parameters before setting new ones
     newParams.delete("Category");
     newParams.delete("Author");
     newParams.delete("Rating");
@@ -99,7 +98,7 @@ const Filters = () => {
         </div>
 
         <div className="collapse bg-base-100 border border-base-400">
-          <input type="checkbox" name="accordion-author" />
+          <input type="checkbox" name="accordion-author" defaultChecked />
           <div className="collapse-title font-semibold text-2xl">Author</div>
           <div className="collapse-content text-sm flex flex-col gap-2">
             {renderFilterButtons("Author", authors)}
@@ -107,7 +106,7 @@ const Filters = () => {
         </div>
 
         <div className="collapse bg-base-100 border border-base-400">
-          <input type="checkbox" name="accordion-rating" />
+          <input type="checkbox" name="accordion-rating" defaultChecked />
           <div className="collapse-title font-semibold text-2xl">
             Rating Review
           </div>

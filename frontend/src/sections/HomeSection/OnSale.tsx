@@ -39,7 +39,7 @@ const OnSale = () => {
       <div className="flex justify-between items-center pb-2 px-2 ">
         <h2 className="text-3xl font-semibold">On Sale</h2>
         <a
-          href="/Shop"
+          href="/Shop?sort=sale&limit=20"
           className="btn btn-lg text-white text-xl bg-gray-500 rounded-lg "
         >
           View All
