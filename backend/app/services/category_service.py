@@ -16,11 +16,7 @@ class CategoryService:
             )
 
         categories = [
-            CategoryRead(
-                id=category.id,
-                category_name=category.category_name,
-                category_description=category.category_description,
-            )
+            CategoryRead(id=category.id, category_name=category.category_name)
             for category in categories
         ]
         return CategoriesRead(categories=categories)

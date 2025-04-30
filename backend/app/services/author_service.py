@@ -19,7 +19,6 @@ class AuthorService:
             AuthorRead(
                 id=author.id,
                 author_name=author.author_name,
-                author_bio=author.author_bio,
             )
             for author in authors
         ]
