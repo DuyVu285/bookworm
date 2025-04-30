@@ -80,7 +80,7 @@ const BooksGrid = () => {
 
   return (
     <>
-      <div className="max-w-screen-xl px-4">
+      <div className="px-4">
         {/* Grid toolbar */}
         <GridToolbar
           sortOptions={sortOptions}
