@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.config import settings
 from app.repositories.book_repository import BookRepository
-from app.schemas.book_schema import TopBookRead, TopBooksRead, BookRead
+from app.schemas.book_schema import BookRead, TopBooksRead, BooksRead
 
 
 class BookService:
@@ -35,7 +35,29 @@ class BookService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
             )
-        return books
+
+        books_with_sort_and_filters = [
+            BookRead(
+                id=id,
+                book_title=book_title,
+                book_price=book_price,
+                book_cover_photo=self.server_url
+                + f"/static/book_covers/{book_cover_photo}",
+                sub_price=sub_price,
+                author_name=author_name,
+            )
+            for id, book_title, book_price, book_cover_photo, sub_price, author_name in books
+        ]
+
+        return BooksRead(
+            books=books_with_sort_and_filters,
+            page=page,
+            limit=limit,
+            total_pages=books.total_pages,
+            total_items=books.total,
+            start_item=books.start_item,
+            end_item=books.end_item,
+        )
 
     def get_top_10_most_discounted_books(self) -> TopBooksRead:
         results = self.book_repository.get_top_10_most_discounted_books()
@@ -46,7 +68,7 @@ class BookService:
             )
 
         books_with_discount = [
-            TopBookRead(
+            BookRead(
                 id=id,
                 book_title=book_title,
                 book_price=book_price,
@@ -68,7 +90,7 @@ class BookService:
             )
 
         books_with_sort = [
-            TopBookRead(
+            BookRead(
                 id=id,
                 book_title=book_title,
                 book_price=book_price,
