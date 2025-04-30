@@ -52,7 +52,7 @@ const BooksGrid = () => {
           rating,
         });
         setBooks(response.data);
-        setTotalItems(response.total); // Assuming your API returns total count
+        setTotalItems(response.total);
       } catch (error) {
         console.error("Failed to fetch books", error);
         // Optionally set an error state
@@ -91,7 +91,7 @@ const BooksGrid = () => {
           itemType="books"
           onItemsPerPageChange={handleItemsPerPageChange}
           initialItemsPerPage={itemsPerPage}
-          onSortChange={handleSortChange} // Assuming GridToolbar can also trigger sort changes
+          onSortChange={handleSortChange}
           initialSortOption={sort}
         />
         {/* Book grid display */}

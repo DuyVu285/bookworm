@@ -1,7 +1,7 @@
 import BookCard from "./BookCard";
 
 type BookGridDisplayProps = {
-  books: any[]; // Adjust the type if needed, or use a generic
+  books: any[];
   loading: boolean;
   columns?: {
     sm?: number;
