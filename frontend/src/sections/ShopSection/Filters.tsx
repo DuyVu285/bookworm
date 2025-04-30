@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import authorService from "../../services/authorService";
+import categoryService from "../../services/categoryService";
 
 interface ActiveFilters {
   [key: string]: string | undefined;
@@ -16,10 +17,16 @@ const Filters = () => {
   useEffect(() => {
     const fetchAuthors = async () => {
       const authors = await authorService.get_all_authors();
-      console.log(authors);
+      setAuthors(authors.map((author) => author.author_name));
+    };
+
+    const fetchCategories = async () => {
+      const response = await categoryService.get_all_categories();
+      setCategories(response.map((category) => category.category_name));
     };
 
     fetchAuthors();
+    fetchCategories();
   }, []);
 
   // Initialize filters from URL
