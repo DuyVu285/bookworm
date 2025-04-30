@@ -12,6 +12,8 @@ type GridToolbarProps = {
   endItem: number;
   totalItems: number;
   itemType: string;
+  onItemsPerPageChange: (count: number) => void;
+  initialItemsPerPage: number;
 };
 
 const GridToolbar = ({
@@ -20,21 +22,23 @@ const GridToolbar = ({
   endItem,
   totalItems,
   itemType,
+  onItemsPerPageChange,
+  initialItemsPerPage,
 }: GridToolbarProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const itemsShowOptions = [5, 15, 20, 25];
   const [selectedOption, setSelectedOption] = useState(sortOptions[0].key);
-  const [selectedItems, setSelectedItems] = useState(itemsShowOptions[2]);
+  const [selectedItems, setSelectedItems] = useState(initialItemsPerPage);
 
   useEffect(() => {
     const initialSort = searchParams.get("sort") || sortOptions[0]?.key || "";
     const initialLimit = parseInt(
-      searchParams.get("limit") || String(itemsShowOptions[2]),
+      searchParams.get("limit") || String(initialItemsPerPage),
       10
     );
     setSelectedOption(initialSort);
     setSelectedItems(initialLimit);
-  }, [searchParams, sortOptions, itemsShowOptions]);
+  }, [searchParams, sortOptions, initialItemsPerPage]);
 
   const handleSortChange = (option: string) => {
     searchParams.set("sort", option);
@@ -46,6 +50,7 @@ const GridToolbar = ({
     searchParams.set("limit", count.toString());
     setSearchParams(searchParams);
     setSelectedItems(count);
+    onItemsPerPageChange(count);
   };
 
   const SortDropdown = ({
@@ -160,7 +165,9 @@ const GridToolbar = ({
             </svg>
           </div>
           <ItemsDropdown
-            setSelectedItems={handleItemsChange}
+            setSelectedItems={(count) => {
+              handleItemsChange(count);
+            }}
             itemsShowOptions={itemsShowOptions}
           />
         </div>

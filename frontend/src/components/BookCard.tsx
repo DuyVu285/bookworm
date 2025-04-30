@@ -25,7 +25,7 @@ const BookCard: React.FC<BookCardProps> = ({
       {/* Image section - fixed aspect ratio */}
       <figure className="relative pt-[100%] overflow-hidden rounded-t-lg">
         <img
-          src={book_cover_photo}
+          src={book_cover_photo || "https://placehold.co/480x640"}
           alt={book_title}
           className="absolute top-0 left-0 w-full h-full object-cover"
           onError={handleError}
