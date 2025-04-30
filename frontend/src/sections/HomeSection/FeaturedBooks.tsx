@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import BookCard from "../../components/BookCard";
 import bookService from "../../services/bookService";
+import BookGridDisplay from "../../components/BookGridDisplay"; // Import the reusable component
 
 type Book = {
   id: number;
@@ -21,6 +21,7 @@ const FeaturedBooks = () => {
 
   useEffect(() => {
     async function fetchTop8Books(sort: string) {
+      setLoading(true);
       try {
         const response = await bookService.getTop8Books(sort);
         setBooks(response);
@@ -69,22 +70,11 @@ const FeaturedBooks = () => {
         </div>
       </div>
 
-      <div className="border border-gray-400 p-8 relative flex items-center min-h-[300px]">
-        {loading ? (
-          <div className="flex justify-center items-center w-full">
-            <span className="loading loading-spinner loading-xl"></span>
-            <span className="text-2xl p-2">Loading</span>
-          </div>
-        ) : (
-          <>
-            <div className="items-center w-full grid md:grid-cols-1 lg:grid-cols-4 gap-4 pr-18 pl-25 ">
-              {books.map((book) => (
-                <BookCard key={book.id} {...book} />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+      <BookGridDisplay
+        books={books}
+        loading={loading}
+        columns={{ sm: 1, md: 2, lg: 4 }}
+      />
     </>
   );
 };

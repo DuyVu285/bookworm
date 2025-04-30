@@ -1,7 +1,19 @@
-import { useState } from "react";
-import BookCard from "../../components/BookCard";
+import { useEffect, useState } from "react";
+import BookCard from "../../components/BookCard"; // You might not need this import directly anymore
 import GridToolbar from "../../components/GridToolbar";
 import Pagination from "../../components/Pagination";
+import bookService from "../../services/bookService"; // Assuming you need bookService here
+import { useSearchParams } from "react-router-dom";
+import BookGridDisplay from "../../components/BookGridDisplay"; // Import the reusable component
+
+type Book = {
+  id: number;
+  book_title: string;
+  book_price: number;
+  book_cover_photo: string;
+  author_name: string;
+  sub_price: number;
+};
 
 const BooksGrid = () => {
   const sortOptions = [
@@ -12,8 +24,45 @@ const BooksGrid = () => {
   ];
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const totalItems = 100;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const [totalItems, setTotalItems] = useState(0);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const [sort, setSort] = useState(
+    searchParams.get("sort") || sortOptions[0].key
+  );
+  // ... (any filter state you have)
+
+  useEffect(() => {
+    async function fetchBooks() {
+      setLoading(true);
+      try {
+        const limit = itemsPerPage;
+        const offset = (currentPage - 1) * itemsPerPage;
+        const category = searchParams.get("Category") || undefined;
+        const author = searchParams.get("Author") || undefined;
+        const rating = searchParams.get("Rating") || undefined;
+
+        const response = await bookService.getBooks({
+          sort,
+          limit,
+          offset,
+          category,
+          author,
+          rating,
+        });
+        setBooks(response.data);
+        setTotalItems(response.total); // Assuming your API returns total count
+      } catch (error) {
+        console.error("Failed to fetch books", error);
+        // Optionally set an error state
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBooks();
+  }, [sort, currentPage, itemsPerPage, searchParams]); // Depend on all relevant state
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -24,23 +73,15 @@ const BooksGrid = () => {
     setCurrentPage(1);
   };
 
-  // Example function to get paginated books (replace with your actual data fetching)
-  const getPaginatedBooks = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-    // In a real application, you would slice your book data here
-    const dummyBooks = Array.from({ length: totalItems }, (_, i) => ({
-      id: i + 1,
-      title: `Book ${i + 1}`,
-    }));
-    return dummyBooks
-      .slice(startIndex, endIndex)
-      .map((book) => <BookCard key={book.id} book={book} />);
+  const handleSortChange = (newSort: string) => {
+    setSort(newSort);
+    setCurrentPage(1); // Reset page on sort
+    // Update URL if needed
   };
 
   return (
     <>
-      <div className="px-4">
+      <div className="max-w-screen-xl px-4">
         {/* Grid toolbar */}
         <GridToolbar
           sortOptions={sortOptions}
@@ -50,17 +91,17 @@ const BooksGrid = () => {
           itemType="books"
           onItemsPerPageChange={handleItemsPerPageChange}
           initialItemsPerPage={itemsPerPage}
+          onSortChange={handleSortChange} // Assuming GridToolbar can also trigger sort changes
+          initialSortOption={sort}
         />
-        {/* Book grid */}
-        <div className="items-center w-full grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {getPaginatedBooks()}
-        </div>
+        {/* Book grid display */}
+        <BookGridDisplay books={books} loading={loading} />
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {totalItems > itemsPerPage && (
           <Pagination
             currentPage={currentPage}
-            totalPages={totalPages}
+            totalPages={Math.ceil(totalItems / itemsPerPage)}
             onPageChange={handlePageChange}
           />
         )}
