@@ -16,7 +16,7 @@ type BookGridDisplayProps = {
 const BookGridDisplay = ({
   books,
   loading,
-  columns = { sm: 1, md: 2, lg: 4, xl: 4 },
+  columns = { sm: 1, md: 2, lg: 4 },
   loadingMessage = (
     <div className="flex justify-center items-center w-full">
       <span className="loading loading-spinner loading-xl"></span>
@@ -25,22 +25,22 @@ const BookGridDisplay = ({
   ),
   emptyMessage = <p>No books found.</p>,
 }: BookGridDisplayProps) => {
-  const gridTemplateColumns = `grid-cols-${columns.sm} sm:grid-cols-${columns.sm} md:grid-cols-${columns.md} lg:grid-cols-${columns.lg} xl:grid-cols-${columns.xl}`;
+  const gridTemplateColumns = `grid-cols-${columns.sm} sm:grid-cols-${columns.sm} md:grid-cols-${columns.md} lg:grid-cols-${columns.lg}`;
 
   return (
-    <div className="border border-gray-400 p-8 relative flex items-center min-h-[300px]">
+    <div>
       {loading ? (
         loadingMessage
       ) : books.length > 0 ? (
         <div
-          className={`items-center w-full grid gap-4 ${gridTemplateColumns}`}
+          className={`grid gap-4 w-full justify-center ${gridTemplateColumns}`}
         >
           {books.map((book) => (
             <BookCard key={book.id} {...book} />
           ))}
         </div>
       ) : (
-        <div className="flex justify-center items-center w-full">
+        <div className="flex justify-center items-center w-full min-h-[300px]">
           {emptyMessage}
         </div>
       )}

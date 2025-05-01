@@ -56,7 +56,7 @@ const OnSale = () => {
         </a>
       </div>
 
-      <div className="border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px]">
+      <div className="border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px] w-full">
         {loading ? (
           <div className="flex justify-center items-center w-full">
             <span className="loading loading-spinner loading-xl"></span>
@@ -65,7 +65,7 @@ const OnSale = () => {
         ) : (
           <>
             {/* Left Button */}
-            <div className="cursor-pointer custom-prev-button p-2 mr-4 hidden sm:block">
+            <div className="cursor-pointer custom-prev-button p-1 hidden sm:block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="64"
@@ -86,14 +86,13 @@ const OnSale = () => {
                 nextEl: ".custom-next-button",
               }}
               loop={true}
-              spaceBetween={10}
+              spaceBetween={4}
               slidesPerView={"auto"}
               breakpoints={{
                 320: { slidesPerView: 1, spaceBetween: 10 },
                 640: { slidesPerView: 2, spaceBetween: 20 },
                 1024: { slidesPerView: 4, spaceBetween: 50 },
               }}
-              className="flex-1"
             >
               {books.map((book) => (
                 <SwiperSlide>
@@ -103,7 +102,7 @@ const OnSale = () => {
             </Swiper>
 
             {/* Right Button */}
-            <div className="cursor-pointer custom-next-button p-2 ml-4 hidden sm:block">
+            <div className="cursor-pointer custom-next-button p-1 hidden sm:block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="64"
