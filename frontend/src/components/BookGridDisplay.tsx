@@ -3,12 +3,6 @@ import BookCard from "./BookCard";
 type BookGridDisplayProps = {
   books: any[];
   loading: boolean;
-  columns?: {
-    sm?: number;
-    md?: number;
-    lg?: number;
-    xl?: number;
-  };
   loadingMessage?: React.ReactNode;
   emptyMessage?: React.ReactNode;
 };
@@ -16,7 +10,6 @@ type BookGridDisplayProps = {
 const BookGridDisplay = ({
   books,
   loading,
-  columns = { sm: 1, md: 2, lg: 4 },
   loadingMessage = (
     <div className="flex justify-center items-center w-full">
       <span className="loading loading-spinner loading-xl"></span>
@@ -25,15 +18,13 @@ const BookGridDisplay = ({
   ),
   emptyMessage = <p>No books found.</p>,
 }: BookGridDisplayProps) => {
-  const gridTemplateColumns = `grid-cols-${columns.sm} sm:grid-cols-${columns.sm} md:grid-cols-${columns.md} lg:grid-cols-${columns.lg}`;
-
   return (
     <div>
       {loading ? (
         loadingMessage
       ) : books.length > 0 ? (
         <div
-          className={`grid gap-4 w-full justify-center ${gridTemplateColumns}`}
+          className={`grid gap-8 w-full justify-center xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4`}
         >
           {books.map((book) => (
             <BookCard key={book.id} {...book} />

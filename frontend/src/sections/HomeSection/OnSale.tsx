@@ -56,7 +56,7 @@ const OnSale = () => {
         </a>
       </div>
 
-      <div className="border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px] w-full">
+      <div className="border border-gray-400 p-4 py-8 relative flex justify-center items-center min-h-[300px] w-full">
         {loading ? (
           <div className="flex justify-center items-center w-full">
             <span className="loading loading-spinner loading-xl"></span>
@@ -86,12 +86,12 @@ const OnSale = () => {
                 nextEl: ".custom-next-button",
               }}
               loop={true}
-              spaceBetween={4}
+              spaceBetween={8}
               slidesPerView={"auto"}
               breakpoints={{
-                320: { slidesPerView: 1, spaceBetween: 10 },
-                640: { slidesPerView: 2, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 50 },
+                320: { slidesPerView: 1, spaceBetween: 30 },
+                640: { slidesPerView: 2, spaceBetween: 30 },
+                1024: { slidesPerView: 4, spaceBetween: 30 },
               }}
             >
               {books.map((book) => (

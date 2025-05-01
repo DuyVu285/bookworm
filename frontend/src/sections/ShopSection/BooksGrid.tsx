@@ -50,6 +50,7 @@ const BooksGrid = () => {
           author,
           rating,
         });
+        setBooks(response.books);
         setTotalItems(response.total_items);
       } catch (error) {
         console.error("Failed to fetch books", error);
