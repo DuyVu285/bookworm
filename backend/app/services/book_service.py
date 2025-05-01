@@ -36,8 +36,6 @@ class BookService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
             )
 
-        print(books[0])
-
         books_with_sort_and_filters = [
             BookRead(
                 id=book[0],  # id

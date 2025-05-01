@@ -1,5 +1,5 @@
 from typing import Optional
-from sqlmodel import Session, and_, case, desc, or_, select, func, cast, Float
+from sqlmodel import Session, and_, case, desc, literal, or_, select, func, cast, Float
 from sqlalchemy import label
 
 from app.models.book_model import Book
@@ -26,29 +26,52 @@ class BookRepository:
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
     ) -> list[dict]:
+        max_discount_subq = self._max_discount_subquery()
+
         sub_price = label(
             "sub_price",
-            func.coalesce(Book.book_price - Discount.discount_price, 0.0),
+            func.coalesce(
+                Book.book_price - max_discount_subq.c.max_discount, Book.book_price
+            ),
         )
         is_discounted = label(
             "is_discounted",
-            case((Discount.discount_price.isnot(None), 1), else_=0),
+            case((max_discount_subq.c.max_discount.isnot(None), 1), else_=0),
         )
-
         review_count = label("review_count", func.count(Review.id))
-        avg_rating = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
-        total_items = label("total_items", func.count(Book.id).over())
 
+        # Mapping for sort options
         sort_column_map = {
-            "on sale": (desc(is_discounted), desc(Discount.discount_price), sub_price),
+            "on sale": (
+                desc(is_discounted),
+                desc(max_discount_subq.c.max_discount),
+                sub_price,
+            ),
             "price_asc": sub_price,
             "price_desc": desc(sub_price),
             "popular": (desc(review_count), sub_price),
-            "avg_rating": desc(avg_rating),
         }
         sort_expression = sort_column_map.get(sort)
 
-        # Base query for selecting book information
+        # --- Filtering query (for total count) ---
+        filter_query = select(Book.id).join(Author)
+
+        if category_id is not None:
+            filter_query = filter_query.where(Book.category_id == category_id)
+        if author_id is not None:
+            filter_query = filter_query.where(Book.author_id == author_id)
+        if min_rating is not None:
+            filter_query = (
+                filter_query.outerjoin(Review, Review.book_id == Book.id)
+                .group_by(Book.id, Author.id)
+                .having(func.avg(cast(Review.rating_star, Float)) >= min_rating)
+            )
+
+        # --- Total items ---
+        total_items_query = select(func.count()).select_from(filter_query.subquery())
+        total_items = self.session.exec(total_items_query).one()
+
+        # --- Main base query for results ---
         base_query = (
             select(
                 Book.id,
@@ -59,11 +82,10 @@ class BookRepository:
                 Author.author_name,
                 is_discounted,
             )
-            .outerjoin(Discount, Discount.book_id == Book.id)
+            .outerjoin(max_discount_subq, max_discount_subq.c.book_id == Book.id)
             .join(Author, Author.id == Book.author_id)
         )
 
-        # Apply filters
         if category_id is not None:
             base_query = base_query.where(Book.category_id == category_id)
         if author_id is not None:
@@ -72,43 +94,28 @@ class BookRepository:
             base_query = base_query.outerjoin(Review, Review.book_id == Book.id).having(
                 func.avg(cast(Review.rating_star, Float)) >= min_rating
             )
+        if sort == "popular":
+            base_query = base_query.outerjoin(Review, Review.book_id == Book.id)
 
-        # Query to get the total number of unique books
-        total_items_query = select(func.count(Book.id.distinct())).select_from(
-            base_query.subquery()
+        # --- Final paginated query ---
+        final_query = (
+            base_query.group_by(
+                Book.id, Author.id, is_discounted, max_discount_subq.c.max_discount
+            )
+            .order_by(
+                *(
+                    sort_expression
+                    if isinstance(sort_expression, tuple)
+                    else [sort_expression]
+                )
+            )
+            .offset((page - 1) * limit)
+            .limit(limit)
         )
-        total_items = self.session.exec(total_items_query).one() or 0
 
-        # Final query to get the paginated and sorted books
-        if isinstance(sort_expression, tuple):
-            final_query = (
-                base_query.group_by(
-                    Book.id,
-                    Discount.discount_price,
-                    Author.id,
-                    Discount.discount_start_date,
-                    Discount.discount_end_date,
-                    is_discounted,
-                )
-                .order_by(*sort_expression)
-                .offset((page - 1) * limit)
-                .limit(limit)
-            )
-        else:
-            final_query = (
-                base_query.group_by(
-                    Book.id,
-                    Discount.discount_price,
-                    Author.id,
-                    Discount.discount_start_date,
-                    Discount.discount_end_date,
-                    is_discounted,
-                )
-                .order_by(*sort_expression)
-                .offset((page - 1) * limit)
-                .limit(limit)
-            )
-        final_query = final_query.add_columns(total_items)
+        # Add total_items to the result columns (optional)
+        final_query = final_query.add_columns(literal(total_items).label("total_items"))
+
         results = self.session.exec(final_query).all()
         return results
 
@@ -117,6 +124,10 @@ class BookRepository:
             "sub_price",
             func.coalesce(Book.book_price - Discount.discount_price, Book.book_price),
         )
+
+        max_discount_subq = self._max_discount_subquery()
+
+        # Join Book, Author, and the subquery with max discounts
         statement = (
             select(
                 Book.id,
@@ -126,16 +137,23 @@ class BookRepository:
                 sub_price,
                 Author.author_name,
             )
-            .join(Discount, Discount.book_id == Book.id)
+            .join(max_discount_subq, max_discount_subq.c.book_id == Book.id)
             .join(Author, Author.id == Book.author_id)
-            .where(self._get_active_discounts())
+            .join(
+                Discount,
+                (Discount.book_id == max_discount_subq.c.book_id)
+                & (Discount.discount_price == max_discount_subq.c.max_discount),
+            )
             .order_by(desc(Discount.discount_price), sub_price)
             .limit(10)
         )
+
         results = self.session.exec(statement).all()
         return results
 
     def get_top_8_books(self, sort: str, limit: int = 8) -> list[dict]:
+        max_discount_subq = self._max_discount_subquery()
+
         metrics = {
             "recommended": func.avg(cast(Review.rating_star, Float)),
             "popular": func.count(Review.id),
@@ -147,12 +165,15 @@ class BookRepository:
                 label("metric", metric),
                 label(
                     "sub_price",
-                    func.coalesce(Book.book_price - Discount.discount_price, 0.0),
+                    func.coalesce(
+                        Book.book_price - max_discount_subq.c.max_discount,
+                        Book.book_price,
+                    ),
                 ),
             )
-            .join(Review, Review.book_id == Book.id)
-            .outerjoin(Discount, Discount.book_id == Book.id)
-            .group_by(Book.id, Discount.discount_price)
+            .outerjoin(Review, Review.book_id == Book.id)
+            .outerjoin(max_discount_subq, max_discount_subq.c.book_id == Book.id)
+            .group_by(Book.id, max_discount_subq.c.max_discount)
             .subquery()
         )
         statement = (
@@ -180,4 +201,15 @@ class BookRepository:
                 Discount.discount_end_date >= func.now(),
                 Discount.discount_end_date.is_(None),
             ),
+        )
+
+    def _max_discount_subquery(self):
+        return (
+            select(
+                Discount.book_id,
+                func.max(Discount.discount_price).label("max_discount"),
+            )
+            .where(self._get_active_discounts())
+            .group_by(Discount.book_id)
+            .subquery()
         )
