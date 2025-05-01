@@ -22,8 +22,8 @@ async def get_books(
     session: Session = Depends(get_session),
 ):
     service = BookService(session)
-    results = service.get_books(page, limit, sort, category_id, author_id, min_rating)
-    return results
+    data = service.get_books(page, limit, sort, category_id, author_id, min_rating)
+    return data
 
 
 @router.get(

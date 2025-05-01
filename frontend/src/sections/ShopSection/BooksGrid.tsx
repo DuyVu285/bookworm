@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import BookCard from "../../components/BookCard"; // You might not need this import directly anymore
 import GridToolbar from "../../components/GridToolbar";
 import Pagination from "../../components/Pagination";
-import bookService from "../../services/bookService"; // Assuming you need bookService here
+import bookService from "../../services/bookService";
 import { useSearchParams } from "react-router-dom";
-import BookGridDisplay from "../../components/BookGridDisplay"; // Import the reusable component
+import BookGridDisplay from "../../components/BookGridDisplay";
 
 type Book = {
   id: number;
@@ -51,8 +50,7 @@ const BooksGrid = () => {
           author,
           rating,
         });
-        setBooks(response.data);
-        setTotalItems(response.total);
+        setTotalItems(response.total_items);
       } catch (error) {
         console.error("Failed to fetch books", error);
       } finally {
