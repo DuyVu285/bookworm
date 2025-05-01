@@ -27,28 +27,30 @@ const api = axios.create({
 
 const bookService = {
   async getBooks({
-    sort,
+    page,
     limit,
-    offset,
+    sort,
     category,
     author,
     rating,
   }: {
-    sort: string;
+    page: number;
     limit: number;
-    offset: number;
-    category?: string;
-    author?: string;
-    rating?: string;
+    sort: string;
+    category?: number;
+    author?: number;
+    rating?: number;
   }): Promise<BooksResponse> {
     const params = new URLSearchParams({
+      page: String(page),
       sort,
       limit: String(limit),
-      offset: String(offset),
-      ...(category && { category }),
-      ...(author && { author }),
-      ...(rating && { rating }),
+      ...(category !== undefined ? { category: String(category) } : {}),
+      ...(author !== undefined ? { author: String(author) } : {}),
+      ...(rating !== undefined ? { rating: String(rating) } : {}),
     });
+
+    console.log("Fetching books with params:", params.toString());
 
     const response = await api.get<BooksResponse>(`?${params.toString()}`);
     console.log("Response from API:", response.data);

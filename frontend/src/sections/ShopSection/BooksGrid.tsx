@@ -30,22 +30,32 @@ const BooksGrid = () => {
   const [sort, setSort] = useState(
     searchParams.get("sort") || sortOptions[0].key
   );
-  // ... (any filter state you have)
+  const [page, setPage] = useState(
+    parseInt(searchParams.get("page") || "1") || 1
+  );
 
   useEffect(() => {
     async function fetchBooks() {
       setLoading(true);
       try {
         const limit = itemsPerPage;
-        const offset = (currentPage - 1) * itemsPerPage;
         const category = searchParams.get("Category") || undefined;
         const author = searchParams.get("Author") || undefined;
-        const rating = searchParams.get("Rating") || undefined;
+        const rating = parseInt(searchParams.get("Rating") || "") || undefined;
+
+        console.log("Fetching books with params:", {
+          page,
+          limit,
+          sort,
+          category,
+          author,
+          rating,
+        });
 
         const response = await bookService.getBooks({
-          sort,
+          page,
           limit,
-          offset,
+          sort,
           category,
           author,
           rating,

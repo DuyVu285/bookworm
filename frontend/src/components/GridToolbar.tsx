@@ -14,6 +14,8 @@ type GridToolbarProps = {
   itemType: string;
   onItemsPerPageChange: (count: number) => void;
   initialItemsPerPage: number;
+  onSortChange: (newSort: string) => void;
+  initialSortOption: string;
 };
 
 const GridToolbar = ({
