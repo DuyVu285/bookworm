@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GridToolbar from "../../components/GridToolbar";
 import Pagination from "../../components/Pagination";
 import bookService from "../../services/bookService";
@@ -38,6 +38,7 @@ const BooksGrid = () => {
   });
   const [loading, setLoading] = useState(true);
   const [emptyMessage, setEmptyMessage] = useState<React.ReactNode>(undefined);
+  const isFetchingRef = useRef(false);
 
   const getIntParam = (key: string): number | undefined => {
     const value = searchParams.get(key);
@@ -46,6 +47,8 @@ const BooksGrid = () => {
   };
 
   useEffect(() => {
+    if (isFetchingRef.current) return;
+
     async function fetchBooks() {
       setLoading(true);
       try {
@@ -53,6 +56,15 @@ const BooksGrid = () => {
         const author = getIntParam("Author");
         const rating = getIntParam("Rating");
 
+        if (category || author || rating) {
+          setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            params.set("page", "1");
+            return params;
+          });
+        }
+
+        isFetchingRef.current = true;
         console.log("Fetching books with params:", {
           page,
           limit,
@@ -108,6 +120,7 @@ const BooksGrid = () => {
         }
       } finally {
         setLoading(false);
+        isFetchingRef.current = false;
       }
     }
 
@@ -156,7 +169,11 @@ const BooksGrid = () => {
           initialSortOption={sort}
         />
         {/* Book grid display */}
-        <BookGridDisplay books={books} loading={loading} />
+        <BookGridDisplay
+          books={books}
+          loading={loading}
+          emptyMessage={emptyMessage}
+        />
 
         {/* Pagination */}
         {pageInfo.total_pages > 1 && (

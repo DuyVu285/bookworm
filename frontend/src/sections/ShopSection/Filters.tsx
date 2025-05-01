@@ -56,7 +56,7 @@ const Filters = () => {
   }, [searchParams]);
 
   // Update search parameters with active filters
-  const updateSearchParams = (filters: ActiveFilters) => {
+  useEffect(() => {
     const newParams = new URLSearchParams(searchParams);
 
     // Remove existing filters
@@ -65,12 +65,15 @@ const Filters = () => {
     newParams.delete("Rating");
 
     // Add new filters
-    Object.entries(filters).forEach(([key, value]) => {
+    Object.entries(activeFilters).forEach(([key, value]) => {
       if (value) newParams.set(key, value);
     });
 
-    setSearchParams(newParams);
-  };
+    // Only update searchParams if there's a change
+    if (newParams.toString() !== searchParams.toString()) {
+      setSearchParams(newParams);
+    }
+  }, [activeFilters, searchParams, setSearchParams]);
 
   // Handle filter button click
   const handleFilterClick = (type: string, id: number) => {
@@ -81,11 +84,6 @@ const Filters = () => {
         delete newFilters[type]; // Remove the filter if already applied
       } else {
         newFilters[type] = stringId; // Add or update the filter
-      }
-
-      // Only update search params if filters change
-      if (JSON.stringify(newFilters) !== JSON.stringify(prev)) {
-        updateSearchParams(newFilters);
       }
 
       return newFilters;
