@@ -28,19 +28,11 @@ class BookRepository:
     ) -> list[dict]:
         sub_price = label(
             "sub_price",
-            func.coalesce(
-                case(
-                    (
-                        and_(
-                            Discount.discount_start_date <= func.now(),
-                            Discount.discount_end_date >= func.now(),
-                        ),
-                        Book.book_price - Discount.discount_price,
-                    ),
-                    else_=Book.book_price,
-                ),
-                Book.book_price,
-            ),
+            func.coalesce(Book.book_price - Discount.discount_price, 0.0),
+        )
+        is_discounted = label(
+            "is_discounted",
+            case((Discount.discount_price.isnot(None), 1), else_=0),
         )
 
         review_count = label("review_count", func.count(Review.id))
@@ -48,7 +40,7 @@ class BookRepository:
         total_items = label("total_items", func.count(Book.id).over())
 
         sort_column_map = {
-            "on sale": (desc(Discount.discount_price), sub_price),
+            "on sale": (desc(is_discounted), desc(Discount.discount_price), sub_price),
             "price_asc": sub_price,
             "price_desc": desc(sub_price),
             "popular": (desc(review_count), sub_price),
@@ -63,8 +55,9 @@ class BookRepository:
                 Book.book_title,
                 Book.book_price,
                 Book.book_cover_photo,
-                Author.author_name,
                 sub_price,
+                Author.author_name,
+                is_discounted,
             )
             .outerjoin(Discount, Discount.book_id == Book.id)
             .join(Author, Author.id == Book.author_id)
@@ -95,6 +88,7 @@ class BookRepository:
                     Author.id,
                     Discount.discount_start_date,
                     Discount.discount_end_date,
+                    is_discounted,
                 )
                 .order_by(*sort_expression)
                 .offset((page - 1) * limit)
@@ -108,6 +102,7 @@ class BookRepository:
                     Author.id,
                     Discount.discount_start_date,
                     Discount.discount_end_date,
+                    is_discounted,
                 )
                 .order_by(*sort_expression)
                 .offset((page - 1) * limit)
@@ -181,5 +176,8 @@ class BookRepository:
     def _get_active_discounts():
         return and_(
             Discount.discount_start_date <= func.now(),
-            Discount.discount_end_date >= func.now(),
+            or_(
+                Discount.discount_end_date >= func.now(),
+                Discount.discount_end_date.is_(None),
+            ),
         )

@@ -36,6 +36,8 @@ class BookService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
             )
 
+        print(books[0])
+
         books_with_sort_and_filters = [
             BookRead(
                 id=book[0],  # id
@@ -43,8 +45,8 @@ class BookService:
                 book_price=book[2],  # book_price
                 book_cover_photo=self.server_url
                 + f"/static/book_covers/{book[3]}",  # book_cover_photo
-                author_name=book[4],  # author_name
-                sub_price=book[5],  # sub_price
+                sub_price=book[4],  # sub_price
+                author_name=book[5],  # author_name
             )
             for book in books
         ]
