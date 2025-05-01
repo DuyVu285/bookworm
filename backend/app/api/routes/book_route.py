@@ -3,7 +3,13 @@ from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
 
 from app.db.db import get_session
-from app.schemas.book_schema import BookRead, TopBooksRead, BooksRead
+from app.schemas.book_schema import (
+    BookRead,
+    TopBooksRead,
+    BooksRead,
+    BookQueryParams,
+    Top8BooksQueryParams,
+)
 from app.services.book_service import BookService
 
 router = APIRouter(
@@ -13,16 +19,18 @@ router = APIRouter(
 
 @router.get("/", response_model=BooksRead, status_code=status.HTTP_200_OK)
 async def get_books(
-    page: int = 1,
-    limit: int = 20,
-    sort: str = "on sale",
-    category_id: Optional[int] = None,
-    author_id: Optional[int] = None,
-    min_rating: Optional[float] = None,
+    params: BookQueryParams = Depends(),
     session: Session = Depends(get_session),
 ):
     service = BookService(session)
-    data = service.get_books(page, limit, sort, category_id, author_id, min_rating)
+    data = service.get_books(
+        page=params.page,
+        limit=params.limit,
+        sort=params.sort,
+        category_id=params.category,
+        author_id=params.author,
+        min_rating=params.rating,
+    )
     return data
 
 
@@ -41,11 +49,11 @@ async def get_top_10_books(
 
 @router.get("/top_8", response_model=TopBooksRead, status_code=status.HTTP_200_OK)
 async def get_top_8_books(
-    sort: str,
+    params: Top8BooksQueryParams = Depends(),
     session: Session = Depends(get_session),
 ):
     service = BookService(session)
-    data = service.get_top_8_books(sort)
+    data = service.get_top_8_books(sort=params.sort)
     return data
 
 
