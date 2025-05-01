@@ -28,7 +28,7 @@ class BooksRead(BaseModel):
 class BookQueryParams(BaseModel):
     page: int = Field(1, ge=1)
     limit: int = Field(20)
-    sort: Literal["on sale", "price_asc", "price_desc", "rating"] = "on sale"
+    sort: Literal["on sale", "popular", "price_asc", "price_desc"] = "on sale"
     category: Optional[int] = None
     author: Optional[int] = None
     rating: Optional[int] = Field(None, le=5)
@@ -42,4 +42,4 @@ class BookQueryParams(BaseModel):
 
 
 class Top8BooksQueryParams(BaseModel):
-    sort: Literal["recomended", "popular"] = "recomended"
+    sort: Literal["recommended", "popular"] = "recomended"

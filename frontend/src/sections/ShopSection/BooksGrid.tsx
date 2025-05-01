@@ -16,32 +16,42 @@ type Book = {
 
 const BooksGrid = () => {
   const sortOptions = [
-    { key: "sale", label: "On Sale" },
+    { key: "on sale", label: "On Sale" },
     { key: "popular", label: "Popularity" },
-    { key: "asc", label: "Price: Low to High" },
-    { key: "desc", label: "Price: High to Low" },
+    { key: "price_asc", label: "Price: Low to High" },
+    { key: "price_desc", label: "Price: High to Low" },
   ];
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [totalItems, setTotalItems] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sort = searchParams.get("sort") || "on sale";
+  const rawPage = searchParams.get("page");
+  const page = Number.isNaN(Number(rawPage)) ? 1 : parseInt(rawPage || "1");
+  const limit = parseInt(searchParams.get("itemsPerPage") || "20") || 20;
+
   const [books, setBooks] = useState<Book[]>([]);
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    limit: 20,
+    total_items: 0,
+    total_pages: 1,
+    start_item: 1,
+    end_item: 20,
+  });
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
-  const [sort, setSort] = useState(
-    searchParams.get("sort") || sortOptions[0].key
-  );
-  const [page, setPage] = useState(
-    parseInt(searchParams.get("page") || "1") || 1
-  );
+  const [emptyMessage, setEmptyMessage] = useState<React.ReactNode>(undefined);
+
+  const getIntParam = (key: string): number | undefined => {
+    const value = searchParams.get(key);
+    const parsed = parseInt(value || "");
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
 
   useEffect(() => {
     async function fetchBooks() {
       setLoading(true);
       try {
-        const limit = itemsPerPage;
-        const category = searchParams.get("Category") || undefined;
-        const author = searchParams.get("Author") || undefined;
-        const rating = parseInt(searchParams.get("Rating") || "") || undefined;
+        const category = getIntParam("Category");
+        const author = getIntParam("Author");
+        const rating = getIntParam("Rating");
 
         console.log("Fetching books with params:", {
           page,
@@ -61,30 +71,73 @@ const BooksGrid = () => {
           rating,
         });
         setBooks(response.books);
-        setTotalItems(response.total_items);
-      } catch (error) {
+        setPageInfo({
+          page: response.page,
+          limit: response.limit,
+          total_items: response.total_items,
+          total_pages: response.total_pages,
+          start_item: response.start_item,
+          end_item: response.end_item,
+        });
+
+        if (response.books.length === 0) {
+          setEmptyMessage(
+            <p className="text-center text-gray-500">
+              No books found matching your filters.
+            </p>
+          );
+        } else {
+          setEmptyMessage(undefined); // clear message when results exist
+        }
+      } catch (error: any) {
         console.error("Failed to fetch books", error);
+
+        if (error?.response?.status === 404) {
+          setBooks([]);
+          setEmptyMessage(
+            <p className="text-center text-red-500">
+              No books found (404 Not Found).
+            </p>
+          );
+        } else {
+          setEmptyMessage(
+            <p className="text-center text-red-500">
+              Something went wrong. Please try again later.
+            </p>
+          );
+        }
       } finally {
         setLoading(false);
       }
     }
 
     fetchBooks();
-  }, [sort, currentPage, itemsPerPage, searchParams]);
+  }, [searchParams]);
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", String(newPage));
+      return params;
+    });
   };
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("itemsPerPage", String(newItemsPerPage));
+      params.set("page", "1");
+      return params;
+    });
   };
 
   const handleSortChange = (newSort: string) => {
-    setSort(newSort);
-    setCurrentPage(1); // Reset page on sort
-    // Update URL if needed
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("sort", newSort);
+      params.set("page", "1");
+      return params;
+    });
   };
 
   return (
@@ -93,12 +146,12 @@ const BooksGrid = () => {
         {/* Grid toolbar */}
         <GridToolbar
           sortOptions={sortOptions}
-          startItem={(currentPage - 1) * itemsPerPage + 1}
-          endItem={Math.min(currentPage * itemsPerPage, totalItems)}
-          totalItems={totalItems}
+          startItem={pageInfo.start_item}
+          endItem={pageInfo.end_item}
+          totalItems={pageInfo.total_items}
           itemType="books"
           onItemsPerPageChange={handleItemsPerPageChange}
-          initialItemsPerPage={itemsPerPage}
+          initialItemsPerPage={pageInfo.limit}
           onSortChange={handleSortChange}
           initialSortOption={sort}
         />
@@ -106,10 +159,10 @@ const BooksGrid = () => {
         <BookGridDisplay books={books} loading={loading} />
 
         {/* Pagination */}
-        {totalItems > itemsPerPage && (
+        {pageInfo.total_pages > 1 && (
           <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(totalItems / itemsPerPage)}
+            currentPage={pageInfo.page}
+            totalPages={pageInfo.total_pages}
             onPageChange={handlePageChange}
           />
         )}

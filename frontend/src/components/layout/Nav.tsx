@@ -34,7 +34,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
               </a>
             </li>
             <li>
-              <a href="/Shop">Shop</a>
+              <a href="/Shop?page=1&sort=on+sale&limit=20">Shop</a>
             </li>
             <li>
               <a href="/About">About</a>
