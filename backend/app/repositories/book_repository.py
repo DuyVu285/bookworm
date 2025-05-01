@@ -127,7 +127,6 @@ class BookRepository:
 
         max_discount_subq = self._max_discount_subquery()
 
-        # Join Book, Author, and the subquery with max discounts
         statement = (
             select(
                 Book.id,
