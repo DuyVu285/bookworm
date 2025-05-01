@@ -70,11 +70,13 @@ const FeaturedBooks = () => {
         </div>
       </div>
 
-      <BookGridDisplay
-        books={books}
-        loading={loading}
-        columns={{ sm: 1, md: 2, lg: 4 }}
-      />
+      <div className="border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px] w-full">
+        <BookGridDisplay
+          books={books}
+          loading={loading}
+          columns={{ sm: 1, md: 2, lg: 4 }}
+        />
+      </div>
     </>
   );
 };

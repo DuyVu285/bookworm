@@ -82,20 +82,33 @@ def generate_fake_review(books):
 
 
 # Function to generate fake discounts
-def generate_fake_discount(books):
-    # Generate a discount_end_date first
-    discount_end_date = fake.date_between(start_date=datetime.today(), end_date="+1y")
+def generate_fake_discount(books, existing_discounts):
+    book = choice(books)
 
-    # Generate discount_start_date before discount_end_date
-    discount_start_date = fake.date_between(
-        start_date="-1y", end_date=discount_end_date
-    )
+    # Check if the book already has a discount
+    if any(discount.book_id == book.id for discount in existing_discounts):
+        return None  # Skip this book as it already has a discount
+
+    discount_start_date = fake.date_between(start_date="-1y", end_date="+6m")
+
+    # Randomly choose whether to have an end date
+    if choice([True, False]):
+        discount_end_date = fake.date_between(
+            start_date=discount_start_date, end_date="+1y"
+        )
+    else:
+        discount_end_date = None
+
+    discount_price = round(randint(50, 300) * 0.5, 2)
+
+    while discount_price >= book.book_price:
+        discount_price = round(randint(50, 300) * 0.5, 2)
 
     return Discount(
-        book_id=choice(books).id,
+        book_id=book.id,
         discount_start_date=discount_start_date,
         discount_end_date=discount_end_date,
-        discount_price=round(randint(50, 300) * 0.5, 2),
+        discount_price=discount_price,
     )
 
 
@@ -151,7 +164,7 @@ def insert_fake_data():
         session.commit()  # Commit users to generate IDs
 
         # Generate books using authors and categories
-        books = [generate_fake_book(categories, authors) for _ in range(100)]
+        books = [generate_fake_book(categories, authors) for _ in range(200)]
         session.add_all(books)
         session.commit()
 
@@ -162,7 +175,16 @@ def insert_fake_data():
 
         # Generate reviews and discounts using committed books
         reviews = [generate_fake_review(books) for _ in range(150)]
-        discounts = [generate_fake_discount(books) for _ in range(30)]
+
+        # Track existing discounts to ensure each book gets only one discount
+        existing_discounts = []
+        discounts = []
+        for _ in range(30):
+            fake_discount = generate_fake_discount(books, existing_discounts)
+            if fake_discount:  # Ensure the discount was generated
+                discounts.append(fake_discount)
+                existing_discounts.append(fake_discount)  # Add to existing discounts
+
         session.add_all(reviews + discounts)
         session.commit()
 

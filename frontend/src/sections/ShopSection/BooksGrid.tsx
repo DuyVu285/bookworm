@@ -55,14 +55,13 @@ const BooksGrid = () => {
         setTotalItems(response.total);
       } catch (error) {
         console.error("Failed to fetch books", error);
-        // Optionally set an error state
       } finally {
         setLoading(false);
       }
     }
 
     fetchBooks();
-  }, [sort, currentPage, itemsPerPage, searchParams]); // Depend on all relevant state
+  }, [sort, currentPage, itemsPerPage, searchParams]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -81,7 +80,7 @@ const BooksGrid = () => {
 
   return (
     <>
-      <div className="max-w-screen-xl px-4">
+      <div className="px-4">
         {/* Grid toolbar */}
         <GridToolbar
           sortOptions={sortOptions}

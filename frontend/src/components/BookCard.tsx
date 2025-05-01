@@ -21,11 +21,11 @@ const BookCard: React.FC<BookCardProps> = ({
     e.currentTarget.src = "https://placehold.co/480x640";
   };
   return (
-    <div className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[20rem]">
+    <div className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[25rem]">
       {/* Image section - fixed aspect ratio */}
       <figure className="relative pt-[100%] overflow-hidden rounded-t-lg">
         <img
-          src={book_cover_photo || "https://placehold.co/480x640"}
+          src={book_cover_photo}
           alt={book_title}
           className="absolute top-0 left-0 w-full h-full object-cover"
           onError={handleError}
@@ -33,7 +33,7 @@ const BookCard: React.FC<BookCardProps> = ({
       </figure>
 
       {/* Body section - fixed height with overflow handling */}
-      <div className="card-body p-3 min-h-[8rem] max-w-[18rem] flex flex-col justify-between">
+      <div className="card-body p-3 min-h-[8rem]  flex flex-col justify-between">
         <h2 className="text-2xl font-semibold line-clamp-2 min-h-[3.5rem]">
           {book_title}
         </h2>
