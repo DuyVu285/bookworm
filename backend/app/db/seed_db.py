@@ -83,6 +83,8 @@ def generate_fake_review(books):
 
 # Function to generate fake discounts
 def generate_fake_discount(books):
+
+    book = choice(books)
     # Generate a discount_end_date first
     discount_end_date = fake.date_between(start_date=datetime.today(), end_date="+1y")
 
@@ -91,11 +93,16 @@ def generate_fake_discount(books):
         start_date="-1y", end_date=discount_end_date
     )
 
+    discount_price = round(randint(50, 300) * 0.5, 2)
+
+    while discount_price >= book.book_price:
+        discount_price = round(randint(50, 300) * 0.5, 2)
+
     return Discount(
-        book_id=choice(books).id,
+        book_id=book.id,
         discount_start_date=discount_start_date,
         discount_end_date=discount_end_date,
-        discount_price=round(randint(50, 300) * 0.5, 2),
+        discount_price=discount_price,
     )
 
 
