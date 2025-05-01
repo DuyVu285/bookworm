@@ -1,23 +1,11 @@
-from datetime import datetime, timezone
-import math
 from typing import Optional
-from sqlmodel import Session, and_, desc, or_, select, func, cast, Float
+from sqlmodel import Session, and_, case, desc, or_, select, func, cast, Float
 from sqlalchemy import label
 
 from app.models.book_model import Book
 from app.models.discount_model import Discount
 from app.models.review_model import Review
 from app.models.author_model import Author
-from pydantic import BaseModel
-
-
-class DiscountedBook(BaseModel):
-    id: int
-    book_title: str
-    book_price: float
-    book_cover_photo: Optional[str]
-    sub_price: float
-    author_name: str
 
 
 class BookRepository:
@@ -37,11 +25,103 @@ class BookRepository:
         category_id: Optional[int] = None,
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
-    ) -> dict:
-        sort_expression = self._build_sort_expression(sort)
+    ) -> list[dict]:
+        sub_price = label(
+            "sub_price",
+            func.coalesce(
+                case(
+                    (
+                        and_(
+                            Discount.discount_start_date <= func.now(),
+                            Discount.discount_end_date >= func.now(),
+                        ),
+                        Book.book_price - Discount.discount_price,
+                    ),
+                    else_=Book.book_price,
+                ),
+                Book.book_price,
+            ),
+        )
+
+        review_count = label("review_count", func.count(Review.id))
+        avg_rating = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
+        total_items = label("total_items", func.count(Book.id).over())
+
+        sort_column_map = {
+            "on sale": (desc(Discount.discount_price), sub_price),
+            "price_asc": sub_price,
+            "price_desc": desc(sub_price),
+            "popular": (desc(review_count), sub_price),
+            "avg_rating": desc(avg_rating),
+        }
+        sort_expression = sort_column_map.get(sort)
+
+        # Base query for selecting book information
+        base_query = (
+            select(
+                Book.id,
+                Book.book_title,
+                Book.book_price,
+                Book.book_cover_photo,
+                Author.author_name,
+                sub_price,
+            )
+            .outerjoin(Discount, Discount.book_id == Book.id)
+            .join(Author, Author.id == Book.author_id)
+        )
+
+        # Apply filters
+        if category_id is not None:
+            base_query = base_query.where(Book.category_id == category_id)
+        if author_id is not None:
+            base_query = base_query.where(Book.author_id == author_id)
+        if min_rating is not None:
+            base_query = base_query.outerjoin(Review, Review.book_id == Book.id).having(
+                func.avg(cast(Review.rating_star, Float)) >= min_rating
+            )
+
+        # Query to get the total number of unique books
+        total_items_query = select(func.count(Book.id.distinct())).select_from(
+            base_query.subquery()
+        )
+        total_items = self.session.exec(total_items_query).one() or 0
+
+        # Final query to get the paginated and sorted books
+        if isinstance(sort_expression, tuple):
+            final_query = (
+                base_query.group_by(
+                    Book.id,
+                    Discount.discount_price,
+                    Author.id,
+                    Discount.discount_start_date,
+                    Discount.discount_end_date,
+                )
+                .order_by(*sort_expression)
+                .offset((page - 1) * limit)
+                .limit(limit)
+            )
+        else:
+            final_query = (
+                base_query.group_by(
+                    Book.id,
+                    Discount.discount_price,
+                    Author.id,
+                    Discount.discount_start_date,
+                    Discount.discount_end_date,
+                )
+                .order_by(*sort_expression)
+                .offset((page - 1) * limit)
+                .limit(limit)
+            )
+        final_query = final_query.add_columns(total_items)
+        results = self.session.exec(final_query).all()
+        return results
 
     def get_top_10_most_discounted_books(self) -> list[dict]:
-        sub_price = label("sub_price", Book.book_price - Discount.discount_price)
+        sub_price = label(
+            "sub_price",
+            func.coalesce(Book.book_price - Discount.discount_price, Book.book_price),
+        )
         statement = (
             select(
                 Book.id,
@@ -54,7 +134,7 @@ class BookRepository:
             .join(Discount, Discount.book_id == Book.id)
             .join(Author, Author.id == Book.author_id)
             .where(self._get_active_discounts())
-            .order_by(sub_price.desc())
+            .order_by(desc(Discount.discount_price), sub_price)
             .limit(10)
         )
         results = self.session.exec(statement).all()
@@ -77,7 +157,6 @@ class BookRepository:
             )
             .join(Review, Review.book_id == Book.id)
             .outerjoin(Discount, Discount.book_id == Book.id)
-            .where(or_(self._get_active_discounts(), Discount.id == None))
             .group_by(Book.id, Discount.discount_price)
             .subquery()
         )
@@ -97,68 +176,6 @@ class BookRepository:
         )
         results = self.session.exec(statement).all()
         return results
-
-    def _get_total_items(self, category_id, author_id, min_rating):
-        count_query = self._build_count_query(category_id, author_id, min_rating)
-        return self.session.exec(count_query).one()
-
-    def _build_sort_expression(self, sort: str):
-        sub_price = label("sub_price", Book.book_price - Discount.discount_price)
-        review_count = label("review_count", func.count(Review.id))
-        avg_rating = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
-
-        sort_column_map = {
-            "on sale": sub_price,
-            "price_asc": Book.book_price,
-            "price_desc": desc(Book.book_price),
-            "popular": desc(review_count),
-            "avg_rating": desc(avg_rating),
-        }
-        return sort_column_map.get(sort)
-
-    def _build_base_query(self, now, category_id=None, author_id=None, min_rating=None):
-        sub_price_expr = label("sub_price", Book.book_price - Discount.discount_price)
-        review_count_expr = label("review_count", func.count(Review.id))
-        avg_rating_expr = label("avg_rating", func.avg(cast(Review.rating_star, Float)))
-
-        query = (
-            select(Book, sub_price_expr, review_count_expr, avg_rating_expr)
-            .outerjoin(Discount, Discount.book_id == Book.id)
-            .outerjoin(Review, Review.book_id == Book.id)
-            .where(
-                or_(
-                    and_(
-                        Discount.discount_start_date <= now,
-                        Discount.discount_end_date >= now,
-                    ),
-                    Discount.id == None,
-                )
-            )
-        )
-        if category_id:
-            query = query.where(Book.category_id == category_id)
-        if author_id:
-            query = query.where(Book.author_id == author_id)
-        if min_rating:
-            query = query.having(
-                func.avg(cast(Review.rating_star, Float)) >= min_rating
-            )
-        query = query.group_by(Book.id, Discount.discount_price)
-        return query
-
-    def _build_count_query(self, category_id=None, author_id=None, min_rating=None):
-        query = select(Book.id)
-        if category_id is not None:
-            query = query.where(Book.category_id == category_id)
-        if author_id is not None:
-            query = query.where(Book.author_id == author_id)
-        if min_rating is not None:
-            query = (
-                query.join(Review, Review.book_id == Book.id)
-                .group_by(Book.id)
-                .having(func.avg(cast(Review.rating_star, Float)) >= min_rating)
-            )
-        return select(func.count()).select_from(query.subquery())
 
     @staticmethod
     def _get_active_discounts():
