@@ -1,5 +1,5 @@
 from typing import Literal, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class BookRead(BaseModel):
@@ -27,11 +27,18 @@ class BooksRead(BaseModel):
 
 class BookQueryParams(BaseModel):
     page: int = Field(1, ge=1)
-    limit: int = Field(10, ge=1, le=100)
+    limit: int = Field(20)
     sort: Literal["on sale", "price_asc", "price_desc", "rating"] = "on sale"
-    category: Optional[int]
-    author: Optional[int]
-    rating: Optional[int] = Field(1, ge=1, le=5)
+    category: Optional[int] = None
+    author: Optional[int] = None
+    rating: Optional[int] = Field(None, le=5)
+
+    @field_validator("limit")
+    def validate_limit(cls, v):
+        allowed_limits = [5, 10, 20, 25]
+        if v not in allowed_limits:
+            raise ValueError(f"Limit must be one of {allowed_limits}")
+        return v
 
 
 class Top8BooksQueryParams(BaseModel):
