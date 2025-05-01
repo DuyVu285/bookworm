@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import BaseModel
+from typing import Literal, Optional
+from pydantic import BaseModel, Field
 
 
 class BookRead(BaseModel):
@@ -23,3 +23,16 @@ class BooksRead(BaseModel):
     total_items: int
     start_item: int
     end_item: int
+
+
+class BookQueryParams(BaseModel):
+    page: int = Field(1, ge=1)
+    limit: int = Field(10, ge=1, le=100)
+    sort: Literal["on sale", "price_asc", "price_desc", "rating"] = "on sale"
+    category: Optional[int]
+    author: Optional[int]
+    rating: Optional[int] = Field(1, ge=1, le=5)
+
+
+class Top8BooksQueryParams(BaseModel):
+    sort: Literal["recomended", "popular"] = "recomended"
