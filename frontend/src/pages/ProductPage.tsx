@@ -3,36 +3,83 @@ import BookDetails from "../sections/ProductSection/BookDetails";
 import CustomerReviews from "../sections/ProductSection/CustomerReviews";
 import MainLayout from "../components/layout/MainLayout";
 import WriteAReview from "../sections/ProductSection/WriteAReview";
+import bookService from "../services/bookService";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
+type Book = {
+  book_title: string;
+  book_price: number;
+  book_summary?: string;
+  book_cover_photo: string;
+  author_name: string;
+  category_name?: string;
+};
+
+type Prices = {
+  book_price: number;
+  sub_price: number;
+};
 
 const ProductPage = () => {
+  const [bookDetails, setBookDetails] = useState<Book | null>(null);
+  const [prices, setPrices] = useState<Prices>();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      const fetchBookDetails = async () => {
+        try {
+          const response = await bookService.getBookById(Number(id));
+          const book: Book = {
+            book_title: response.book_title,
+            book_price: response.book_price,
+            book_summary: response.book_summary,
+            book_cover_photo: response.book_cover_photo,
+            author_name: response.author_name,
+            category_name: response.category_name,
+          };
+          const prices: Prices = {
+            book_price: response.book_price,
+            sub_price: response.sub_price,
+          };
+          console.log(prices);
+          setBookDetails(book);
+          setPrices(prices);
+        } catch (error) {
+          console.error("Failed to fetch book details", error);
+        }
+      };
+      fetchBookDetails();
+    }
+  }, [id]);
+
   return (
-    <MainLayout>
-      <h2 className="text-2xl font-semibold py-6 border-b border-gray-300 mx-18 mb-4">
-        Category Name
-      </h2>
+    <MainLayout type={bookDetails?.category_name}>
       <div className="flex flex-col lg:flex-row mx-18 gap-8">
         {/* Book Details */}
         <div className="w-full lg:w-7/10">
-          <BookDetails></BookDetails>
+          {bookDetails && <BookDetails book={bookDetails} />}
         </div>
 
         {/* Add To Cart */}
         <aside className="w-full lg:w-3/10">
-          <AddtoCart></AddtoCart>
+          {prices && <AddtoCart prices={prices} />}
         </aside>
       </div>
       <div className="flex flex-col lg:flex-row mx-18 gap-8 mt-8">
-        {/* Book Details */}
+        {/* Customer Reviews */}
         <div className="w-full lg:w-7/10 mb-6">
-          <CustomerReviews></CustomerReviews>
+          <CustomerReviews />
         </div>
 
-        {/* Add To Cart */}
+        {/* Write a Review */}
         <aside className="w-full lg:w-3/10">
-          <WriteAReview></WriteAReview>
+          <WriteAReview />
         </aside>
       </div>
     </MainLayout>
   );
 };
+
 export default ProductPage;

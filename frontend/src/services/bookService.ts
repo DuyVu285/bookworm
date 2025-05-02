@@ -4,9 +4,11 @@ export interface Book {
   id: number;
   book_title: string;
   book_price: number;
+  book_summary?: string;
   book_cover_photo: string;
   sub_price: number;
   author_name: string;
+  category_name?: string;
 }
 
 export interface BooksResponse {
