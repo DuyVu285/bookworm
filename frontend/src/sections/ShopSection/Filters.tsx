@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import authorService from "../../services/authorService";
 import categoryService from "../../services/categoryService";
-
-interface ActiveFilters {
-  [key: string]: string | undefined;
-}
+import { useQueryFilters } from "../../hooks/useQueryFilters";
 
 const Filters = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { getParam, updateParams } = useQueryFilters();
 
   const [categories, setCategories] = useState<{ id: number; name: string }[]>(
     []
@@ -39,55 +35,14 @@ const Filters = () => {
     fetchCategories();
   }, []);
 
-  // Initialize filters from URL
-  const [activeFilters, setActiveFilters] = useState<ActiveFilters>(() => ({
-    Category: searchParams.get("Category") ?? undefined,
-    Author: searchParams.get("Author") ?? undefined,
-    Rating: searchParams.get("Rating") ?? undefined,
-  }));
-
-  // Update activeFilters state when searchParams change
-  useEffect(() => {
-    setActiveFilters({
-      Category: searchParams.get("Category") ?? undefined,
-      Author: searchParams.get("Author") ?? undefined,
-      Rating: searchParams.get("Rating") ?? undefined,
-    });
-  }, [searchParams]);
-
   // Update search parameters with active filters
-  useEffect(() => {
-    const newParams = new URLSearchParams(searchParams);
-
-    // Remove existing filters
-    newParams.delete("Category");
-    newParams.delete("Author");
-    newParams.delete("Rating");
-
-    // Add new filters
-    Object.entries(activeFilters).forEach(([key, value]) => {
-      if (value) newParams.set(key, value);
-    });
-
-    // Only update searchParams if there's a change
-    if (newParams.toString() !== searchParams.toString()) {
-      setSearchParams(newParams);
-    }
-  }, [activeFilters, searchParams, setSearchParams]);
-
-  // Handle filter button click
   const handleFilterClick = (type: string, id: number) => {
-    setActiveFilters((prev) => {
-      const newFilters = { ...prev };
-      const stringId = id.toString();
-      if (newFilters[type] === stringId) {
-        delete newFilters[type]; // Remove the filter if already applied
-      } else {
-        newFilters[type] = stringId; // Add or update the filter
-      }
-
-      return newFilters;
-    });
+    const stringId = id.toString();
+    const current = getParam(type);
+    updateParams(
+      { [type]: current === stringId ? undefined : stringId },
+      "page"
+    );
   };
 
   // Render filter buttons for categories, authors, or ratings
@@ -101,11 +56,11 @@ const Filters = () => {
         type="button"
         onClick={() => handleFilterClick(type, item.id)}
         className={`btn flex justify-start text-left ${
-          activeFilters[type] === item.id.toString()
+          getParam(type) === item.id.toString()
             ? "btn-active bg-gray-400"
             : "bg-base-100 border-none"
         }`}
-        aria-pressed={activeFilters[type] === item.id.toString()}
+        aria-pressed={getParam(type) === item.id.toString()}
       >
         {item.name} {type === "Rating" ? "Star" : ""}
       </button>

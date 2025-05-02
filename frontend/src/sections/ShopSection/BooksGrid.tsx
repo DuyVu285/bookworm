@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import GridToolbar from "../../components/GridToolbar";
 import Pagination from "../../components/Pagination";
 import bookService from "../../services/bookService";
-import { useSearchParams } from "react-router-dom";
 import BookGridDisplay from "../../components/BookGridDisplay";
+import { FILTER_KEYS, useQueryFilters } from "../../hooks/useQueryFilters";
 
 type Book = {
   id: number;
@@ -21,10 +21,8 @@ const BooksGrid = () => {
     { key: "price_asc", label: "Price: Low to High" },
     { key: "price_desc", label: "Price: High to Low" },
   ];
-  const [searchParams, setSearchParams] = useSearchParams();
-  const sort = searchParams.get("sort") || "on sale";
-  const limit = parseInt(searchParams.get("itemsPerPage") || "20") || 20;
-
+  const { getParam, getIntParam, updateParams, searchParams } =
+    useQueryFilters();
   const [books, setBooks] = useState<Book[]>([]);
   const [pageInfo, setPageInfo] = useState({
     page: 1,
@@ -37,20 +35,16 @@ const BooksGrid = () => {
   const [loading, setLoading] = useState(true);
   const [emptyMessage, setEmptyMessage] = useState<React.ReactNode>(undefined);
 
-  const getIntParam = (key: string): number | undefined => {
-    const value = searchParams.get(key);
-    const parsed = parseInt(value || "");
-    return Number.isNaN(parsed) ? undefined : parsed;
-  };
-
   useEffect(() => {
     async function fetchBooks() {
       setLoading(true);
       try {
-        const category = getIntParam("Category");
-        const author = getIntParam("Author");
-        const rating = getIntParam("Rating");
-        const page = getIntParam("page") || 1;
+        const category = getIntParam(FILTER_KEYS.CATEGORY);
+        const author = getIntParam(FILTER_KEYS.AUTHOR);
+        const rating = getIntParam(FILTER_KEYS.RATING);
+        const page = getIntParam(FILTER_KEYS.PAGE) || 1;
+        const sort = getParam(FILTER_KEYS.SORT) || "on sale";
+        const limit = getIntParam(FILTER_KEYS.LIMIT) || 20;
 
         console.log("Fetching books with params:", {
           page,
@@ -114,28 +108,9 @@ const BooksGrid = () => {
   }, [searchParams]);
 
   const handlePageChange = (newPage: number) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("page", String(newPage));
-      return params;
-    });
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("itemsPerPage", String(newItemsPerPage));
-      params.set("page", "1");
-      return params;
-    });
-  };
-
-  const handleSortChange = (newSort: string) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("sort", newSort);
-      params.set("page", "1");
-      return params;
+    console.log("Page changed to:", newPage);
+    updateParams({
+      [FILTER_KEYS.PAGE]: newPage.toString(),
     });
   };
 
@@ -149,10 +124,8 @@ const BooksGrid = () => {
           endItem={pageInfo.end_item}
           totalItems={pageInfo.total_items}
           itemType="books"
-          onItemsPerPageChange={handleItemsPerPageChange}
           initialItemsPerPage={pageInfo.limit}
-          onSortChange={handleSortChange}
-          initialSortOption={sort}
+          initialSortOption={sortOptions[0].key}
         />
         {/* Book grid display */}
         <BookGridDisplay

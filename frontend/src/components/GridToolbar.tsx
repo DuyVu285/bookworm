@@ -12,9 +12,7 @@ type GridToolbarProps = {
   endItem: number;
   totalItems: number;
   itemType: string;
-  onItemsPerPageChange: (count: number) => void;
   initialItemsPerPage: number;
-  onSortChange: (newSort: string) => void;
   initialSortOption: string;
 };
 
@@ -24,7 +22,6 @@ const GridToolbar = ({
   endItem,
   totalItems,
   itemType,
-  onItemsPerPageChange,
   initialItemsPerPage,
 }: GridToolbarProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,15 +41,16 @@ const GridToolbar = ({
 
   const handleSortChange = (option: string) => {
     searchParams.set("sort", option);
+    searchParams.set("page", "1");
     setSearchParams(searchParams);
     setSelectedOption(option);
   };
 
   const handleItemsChange = (count: number) => {
     searchParams.set("limit", count.toString());
+    searchParams.set("page", "1");
     setSearchParams(searchParams);
     setSelectedItems(count);
-    onItemsPerPageChange(count);
   };
 
   const SortDropdown = ({
