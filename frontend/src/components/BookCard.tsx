@@ -41,14 +41,14 @@ const BookCard: React.FC<BookCardProps> = ({
       </div>
 
       {/* Footer section - fixed height */}
-      {sub_price > 0 ? (
+      {sub_price == book_price ? (
         <div className="bg-gray-100 text-2xl font-medium p-3 rounded-b-lg">
-          <span className="text-gray-400 line-through pr-2">${book_price}</span>
-          ${sub_price}
+          ${book_price}
         </div>
       ) : (
         <div className="bg-gray-100 text-2xl font-medium p-3 rounded-b-lg">
-          ${book_price}
+          <span className="text-gray-400 line-through pr-2">${book_price}</span>
+          ${sub_price}
         </div>
       )}
     </div>

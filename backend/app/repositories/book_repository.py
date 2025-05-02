@@ -30,7 +30,9 @@ class BookRepository:
 
         sub_price = label(
             "sub_price",
-            func.coalesce(Book.book_price - max_discount_subq.c.max_discount, 0),
+            func.coalesce(
+                Book.book_price - max_discount_subq.c.max_discount, Book.book_price
+            ),
         )
         is_discounted = label(
             "is_discounted",
@@ -120,7 +122,7 @@ class BookRepository:
     def get_top_10_most_discounted_books(self) -> list[dict]:
         sub_price = label(
             "sub_price",
-            func.coalesce(Book.book_price - Discount.discount_price, 0),
+            func.coalesce(Book.book_price - Discount.discount_price, Book.book_price),
         )
 
         max_discount_subq = self._max_discount_subquery()
@@ -164,7 +166,7 @@ class BookRepository:
                     "sub_price",
                     func.coalesce(
                         Book.book_price - max_discount_subq.c.max_discount,
-                        0,
+                        Book.book_price,
                     ),
                 ),
             )

@@ -23,7 +23,6 @@ const BooksGrid = () => {
   ];
   const [searchParams, setSearchParams] = useSearchParams();
   const sort = searchParams.get("sort") || "on sale";
-  const rawPage = searchParams.get("page");
   const limit = parseInt(searchParams.get("itemsPerPage") || "20") || 20;
 
   const [books, setBooks] = useState<Book[]>([]);
