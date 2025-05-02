@@ -23,10 +23,6 @@ class BookRepository:
                 Book.book_price - max_discount_subq.c.max_discount, Book.book_price
             ),
         )
-        is_discounted = label(
-            "is_discounted",
-            case((max_discount_subq.c.max_discount.isnot(None), 1), else_=0),
-        )
 
         query = (
             select(
