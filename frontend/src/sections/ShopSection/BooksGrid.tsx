@@ -24,7 +24,6 @@ const BooksGrid = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const sort = searchParams.get("sort") || "on sale";
   const rawPage = searchParams.get("page");
-  const page = Number.isNaN(Number(rawPage)) ? 1 : parseInt(rawPage || "1");
   const limit = parseInt(searchParams.get("itemsPerPage") || "20") || 20;
 
   const [books, setBooks] = useState<Book[]>([]);
@@ -52,6 +51,7 @@ const BooksGrid = () => {
         const category = getIntParam("Category");
         const author = getIntParam("Author");
         const rating = getIntParam("Rating");
+        const page = getIntParam("page") || 1;
 
         console.log("Fetching books with params:", {
           page,
@@ -87,7 +87,7 @@ const BooksGrid = () => {
             </p>
           );
         } else {
-          setEmptyMessage(undefined); // clear message when results exist
+          setEmptyMessage(undefined);
         }
       } catch (error: any) {
         console.error("Failed to fetch books", error);
