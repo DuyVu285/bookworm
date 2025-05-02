@@ -35,7 +35,7 @@ class BookQueryParams(BaseModel):
 
     @field_validator("limit")
     def validate_limit(cls, v):
-        allowed_limits = [5, 10, 20, 25]
+        allowed_limits = [5, 15, 20, 25]
         if v not in allowed_limits:
             raise ValueError(f"Limit must be one of {allowed_limits}")
         return v

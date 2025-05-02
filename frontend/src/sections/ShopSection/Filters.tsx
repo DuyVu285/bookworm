@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import authorService from "../../services/authorService";
 import categoryService from "../../services/categoryService";
-import { useQueryFilters } from "../../hooks/useQueryFilters";
+import { FILTER_KEYS, useQueryFilters } from "../../hooks/useQueryFilters";
 
 const Filters = () => {
   const { getParam, updateParams } = useQueryFilters();
@@ -76,7 +76,7 @@ const Filters = () => {
           <input type="checkbox" name="accordion-category" defaultChecked />
           <div className="collapse-title font-semibold text-2xl">Category</div>
           <div className="collapse-content text-sm flex flex-col gap-2">
-            {renderFilterButtons("Category", categories)}
+            {renderFilterButtons(FILTER_KEYS.CATEGORY, categories)}
           </div>
         </div>
 
@@ -85,7 +85,7 @@ const Filters = () => {
           <input type="checkbox" name="accordion-author" defaultChecked />
           <div className="collapse-title font-semibold text-2xl">Author</div>
           <div className="collapse-content text-sm flex flex-col gap-2">
-            {renderFilterButtons("Author", authors)}
+            {renderFilterButtons(FILTER_KEYS.AUTHOR, authors)}
           </div>
         </div>
 

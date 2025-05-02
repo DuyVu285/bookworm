@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { FILTER_KEYS, useQueryFilters } from "../hooks/useQueryFilters";
 
 type SortOption = {
   key: string;
@@ -24,32 +25,29 @@ const GridToolbar = ({
   itemType,
   initialItemsPerPage,
 }: GridToolbarProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { getParam, updateParams } = useQueryFilters();
+  const searchParams = useSearchParams();
   const itemsShowOptions = [5, 15, 20, 25];
   const [selectedOption, setSelectedOption] = useState(sortOptions[0].key);
   const [selectedItems, setSelectedItems] = useState(initialItemsPerPage);
 
   useEffect(() => {
-    const initialSort = searchParams.get("sort") || sortOptions[0]?.key || "";
+    const initialSort = getParam(FILTER_KEYS.SORT) || sortOptions[0]?.key || "";
     const initialLimit = parseInt(
-      searchParams.get("limit") || String(initialItemsPerPage),
+      getParam(FILTER_KEYS.LIMIT) || String(initialItemsPerPage),
       10
     );
-    setSelectedOption(initialSort);
-    setSelectedItems(initialLimit);
-  }, [searchParams, sortOptions, initialItemsPerPage]);
+    if (initialSort !== selectedOption) setSelectedOption(initialSort);
+    if (initialLimit !== selectedItems) setSelectedItems(initialLimit);
+  }, [searchParams, selectedOption, selectedItems]);
 
   const handleSortChange = (option: string) => {
-    searchParams.set("sort", option);
-    searchParams.set("page", "1");
-    setSearchParams(searchParams);
+    updateParams({ [FILTER_KEYS.SORT]: option }, FILTER_KEYS.PAGE);
     setSelectedOption(option);
   };
 
   const handleItemsChange = (count: number) => {
-    searchParams.set("limit", count.toString());
-    searchParams.set("page", "1");
-    setSearchParams(searchParams);
+    updateParams({ [FILTER_KEYS.LIMIT]: count.toString() }, FILTER_KEYS.PAGE);
     setSelectedItems(count);
   };
 
