@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 type PaginationProps = {
   currentPage: number;
   totalPages: number;
@@ -16,7 +18,6 @@ const Pagination = ({
   let startPage = Math.max(currentPage - halfVisible, 1);
   let endPage = Math.min(currentPage + halfVisible, totalPages);
 
-  // Adjust the range if there are not enough pages before or after the current page
   if (endPage - startPage < visiblePageCount - 1) {
     if (startPage === 1) {
       endPage = Math.min(visiblePageCount, totalPages);
@@ -25,20 +26,22 @@ const Pagination = ({
     }
   }
 
-  // Create the page numbers to display
   const pageNumbers = [];
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
   }
 
-  // Add ellipsis if needed
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
   const showEllipsisBefore = startPage > 1;
   const showEllipsisAfter = endPage < totalPages;
 
   return (
-    <div className="flex justify-center p-4">
-      <div className="join">
-        {/* First Page Button */}
+    <div className="flex flex-col items-center p-4 gap-2">
+      {/* Desktop pagination buttons */}
+      <div className="join flex flex-wrap justify-center gap-1 sm:gap-0 hidden sm:flex">
         <button
           className="join-item btn btn-outline"
           disabled={currentPage === 1}
@@ -47,7 +50,6 @@ const Pagination = ({
           First
         </button>
 
-        {/* Previous Page Button */}
         <button
           className="join-item btn btn-outline"
           disabled={currentPage === 1}
@@ -56,34 +58,30 @@ const Pagination = ({
           Previous
         </button>
 
-        {/* Ellipsis before if needed */}
         {showEllipsisBefore && (
           <button className="join-item btn btn-outline" disabled>
             ...
           </button>
         )}
 
-        {/* Page Numbers */}
         {pageNumbers.map((page) => (
           <input
             key={page}
             className="join-item btn btn-square"
             type="radio"
-            name="options"
+            name="page-options"
             aria-label={`${page}`}
             checked={currentPage === page}
             onChange={() => onPageChange(page)}
           />
         ))}
 
-        {/* Ellipsis after if needed */}
         {showEllipsisAfter && (
           <button className="join-item btn btn-outline" disabled>
             ...
           </button>
         )}
 
-        {/* Next Page Button */}
         <button
           className="join-item btn btn-outline"
           disabled={currentPage === totalPages}
@@ -92,7 +90,6 @@ const Pagination = ({
           Next
         </button>
 
-        {/* Last Page Button */}
         <button
           className="join-item btn btn-outline"
           disabled={currentPage === totalPages}
@@ -100,6 +97,21 @@ const Pagination = ({
         >
           Last
         </button>
+      </div>
+
+      {/* Mobile dropdown pagination */}
+      <div className="block sm:hidden w-full max-w-xs">
+        <select
+          className="select select-bordered w-full"
+          value={currentPage}
+          onChange={(e) => onPageChange(Number(e.target.value))}
+        >
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <option key={page} value={page}>
+              Page {page}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

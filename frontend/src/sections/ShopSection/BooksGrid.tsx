@@ -108,10 +108,10 @@ const BooksGrid = () => {
   }, [searchParams]);
 
   const handlePageChange = (newPage: number) => {
-    console.log("Page changed to:", newPage);
     updateParams({
       [FILTER_KEYS.PAGE]: newPage.toString(),
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
