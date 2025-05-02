@@ -8,10 +8,12 @@ const Breadcrumbs = ({
   if (!type) return null;
   return (
     <>
-      <div className="breadcrumbs text-4xl">
+      <div className="breadcrumbs text-4xl border-b border-gray-300 py-6 mb-4">
         <span className="font-semibold">{type}</span>
         {value !== undefined && value && (
-          <span className="font-light ml-2">(Filtered by {value})</span>
+          <span className="ml-2 text-gray-400 font-light">
+            (Filtered by {value})
+          </span>
         )}
       </div>
     </>

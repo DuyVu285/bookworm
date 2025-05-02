@@ -19,15 +19,13 @@ const MainLayout = ({
   const handleLoginClose = () => setLoginOpen(false);
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <Nav onLoginClick={handleLoginOpen} />
       <Login isOpen={isLoginOpen} onClose={handleLoginClose} />
-
       <div className="mx-20">
         <Breadcrumbs type={type} value={value} />
       </div>
-      <main>{children}</main>
-
+      <main className="flex-grow">{children}</main>
       <Footer />
     </div>
   );

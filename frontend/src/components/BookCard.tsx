@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 type BookCardProps = {
   id: number;
@@ -17,15 +18,25 @@ const BookCard: React.FC<BookCardProps> = ({
   author_name,
   sub_price,
 }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/Book/${id}`);
+  };
+
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = "https://placehold.co/480x640";
   };
+
   return (
-    <div className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[25rem]">
+    <div
+      className="card bg-base-100 shadow-sm rounded-lg min-h-[18rem] max-w-[25rem]"
+      onClick={handleCardClick}
+    >
       {/* Image section - fixed aspect ratio */}
       <figure className="relative pt-[100%] overflow-hidden rounded-t-lg">
         <img
-          src={book_cover_photo}
+          src={book_cover_photo || "https://placehold.co/480x640"}
           alt={book_title}
           className="absolute top-0 left-0 w-full h-full object-cover"
           onError={handleError}

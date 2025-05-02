@@ -1,8 +1,25 @@
+import { useLocation } from "react-router-dom";
+
 type NavProps = {
   onLoginClick: () => void;
 };
 
 const Nav = ({ onLoginClick }: NavProps) => {
+  const location = useLocation(); // Get current location using React Router's `useLocation`
+
+  // Function to determine if the current link is active
+  const isActive = (path: string) => {
+    const activeClass = "text-primary font-bold";
+
+    // If you're on a book page, highlight the 'Shop' link
+    if (location.pathname.startsWith("/Book/")) {
+      return path === "/Shop" ? activeClass : "";
+    }
+
+    // Default case for other paths
+    return location.pathname === path ? activeClass : "";
+  };
+
   return (
     <div className="navbar bg-base-100 shadow-sm fixed top-0 left-0 w-full z-50">
       <div className="navbar-start">
@@ -29,21 +46,29 @@ const Nav = ({ onLoginClick }: NavProps) => {
         <div className="hidden lg:flex">
           <ul className="menu menu-horizontal px-1 mr-18">
             <li>
-              <a href="/" className="underline-offset-auto">
+              <a href="/" className={`${isActive("/")}`}>
                 Home
               </a>
             </li>
             <li>
-              <a href="/Shop?page=1&sort=on+sale&limit=20">Shop</a>
+              <a href="/Shop" className={`${isActive("/Shop")}`}>
+                Shop
+              </a>
             </li>
             <li>
-              <a href="/About">About</a>
+              <a href="/About" className={`${isActive("/About")}`}>
+                About
+              </a>
             </li>
             <li>
-              <a href="/Cart">Cart (0)</a>
+              <a href="/Cart" className={`${isActive("/Cart")}`}>
+                Cart (0)
+              </a>
             </li>
             <li>
-              <a onClick={onLoginClick}>Sign In</a>
+              <a onClick={onLoginClick} className={`${isActive("/Login")}`}>
+                Sign In
+              </a>
             </li>
           </ul>
         </div>

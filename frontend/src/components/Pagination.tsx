@@ -39,7 +39,7 @@ const Pagination = ({
   const showEllipsisAfter = endPage < totalPages;
 
   return (
-    <div className="flex flex-col items-center p-4 gap-2">
+    <div className="flex flex-col items-center p-8 gap-2">
       {/* Desktop pagination buttons */}
       <div className="join flex flex-wrap justify-center gap-1 sm:gap-0 hidden sm:flex">
         <button

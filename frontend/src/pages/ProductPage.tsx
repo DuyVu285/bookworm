@@ -1,11 +1,12 @@
 import AddtoCart from "../components/AddToCart";
 import BookDetails from "../components/BookDetails";
 import CustomerReviews from "../components/CustomerReviews";
+import MainLayout from "../components/layout/MainLayout";
 import WriteAReview from "../components/WriteAReview";
 
 const ProductPage = () => {
   return (
-    <>
+    <MainLayout>
       <h2 className="text-2xl font-semibold py-6 border-b border-gray-300 mx-18 mb-4">
         Category Name
       </h2>
@@ -31,7 +32,7 @@ const ProductPage = () => {
           <WriteAReview></WriteAReview>
         </aside>
       </div>
-    </>
+    </MainLayout>
   );
 };
 export default ProductPage;

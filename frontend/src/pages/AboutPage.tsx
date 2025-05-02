@@ -1,9 +1,8 @@
+import MainLayout from "../components/layout/MainLayout";
+
 const AboutPage = () => {
   return (
-    <>
-      <h2 className="text-2xl font-semibold py-6 border-b border-gray-300 mx-18 mb-6">
-        About Us
-      </h2>
+    <MainLayout type="About">
       <div className="flex flex-col text-2xl justify-center items-center mx-60 p-8">
         <h1 className="text-3xl font-bold pb-5">Welcome to Bookworm</h1>
         <p className="leading-relaxed">
@@ -40,7 +39,7 @@ const AboutPage = () => {
           </div>
         </div>
       </div>
-    </>
+    </MainLayout>
   );
 };
 
