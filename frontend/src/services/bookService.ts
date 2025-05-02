@@ -75,6 +75,15 @@ const bookService = {
       throw error;
     }
   },
+
+  async getBookById(book_id: number): Promise<Book> {
+    try {
+      const response = await api.get<Book>(`/book/${book_id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default bookService;
