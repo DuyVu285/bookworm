@@ -1,13 +1,13 @@
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, field_validator
 from datetime import datetime
 
 
 class ReviewRead(BaseModel):
+    book_id: int
     review_title: str
     review_details: str
     review_date: datetime
-    rating_star: str
-    book_id: int
+    rating_star: int
 
 
 class ReviewsRead(BaseModel):
@@ -25,7 +25,7 @@ class ReviewCreate(BaseModel):
     review_title: str
     review_details: str
     review_date: datetime
-    rating_star: str
+    rating_star: int
 
     @field_validator("rating_star")
     def validate_rating_star(cls, value):
