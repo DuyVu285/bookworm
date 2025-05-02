@@ -1,8 +1,8 @@
-import AddtoCart from "../components/AddToCart";
-import BookDetails from "../components/BookDetails";
-import CustomerReviews from "../components/CustomerReviews";
+import AddtoCart from "../sections/ProductSection/AddToCart";
+import BookDetails from "../sections/ProductSection/BookDetails";
+import CustomerReviews from "../sections/ProductSection/CustomerReviews";
 import MainLayout from "../components/layout/MainLayout";
-import WriteAReview from "../components/WriteAReview";
+import WriteAReview from "../sections/ProductSection/WriteAReview";
 
 const ProductPage = () => {
   return (

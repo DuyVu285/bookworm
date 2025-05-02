@@ -1,18 +1,16 @@
 import { useState } from "react";
-import Breadcrumbs from "./layout/Breadcrumbs";
+import Breadcrumbs from "../../components/layout/Breadcrumbs";
 
 const CustomerReviews = () => {
   const ratings = [1, 2, 3, 4, 5];
   const [selectedRating, setSelectedRating] = useState(ratings[0]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = 3
+  const totalPages = 3;
   return (
     <>
       <div className="border border-gray-300 p-8">
-        <Breadcrumbs
-          selectedFilter={{ type: "Customer Reviews", value: selectedRating }}
-        />
+        <Breadcrumbs />
         <div>
           {/* Customer Ratings */}
           <div className="py-8">
