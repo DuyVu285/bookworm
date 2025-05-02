@@ -19,7 +19,7 @@ const MainLayout = ({
   const handleLoginClose = () => setLoginOpen(false);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col h-screen justify-between mt-18">
       <Nav onLoginClick={handleLoginOpen} />
       <Login isOpen={isLoginOpen} onClose={handleLoginClose} />
       <div className="mx-20">

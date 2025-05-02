@@ -5,20 +5,20 @@ import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
 import CartPage from "./pages/CartPage";
 import AboutPage from "./pages/AboutPage";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
-    <div className="flex flex-col h-screen justify-between">
-      <main className="pt-18">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/Shop" element={<ShopPage />} />
-          <Route path="/Book/:id" element={<ProductPage />} />
-          <Route path="/Cart" element={<CartPage />} />
-          <Route path="/About" element={<AboutPage />} />
-        </Routes>
-      </main>
-    </div>
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/Shop" element={<ShopPage />} />
+        <Route path="/Book/:id" element={<ProductPage />} />
+        <Route path="/Cart" element={<CartPage />} />
+        <Route path="/About" element={<AboutPage />} />
+      </Routes>
+    </>
   );
 }
 
