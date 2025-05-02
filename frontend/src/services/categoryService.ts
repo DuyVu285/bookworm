@@ -13,13 +13,21 @@ const api = axios.create({
 
 const categoryService = {
   async get_all_categories(): Promise<Category[]> {
-    const response = await api.get<{ categories: Category[] }>(`/`);
-    return response.data.categories;
+    try {
+      const response = await api.get<{ categories: Category[] }>(`/`);
+      return response.data.categories;
+    } catch (error) {
+      throw error;
+    }
   },
 
   async get_category_by_id(category_id: number): Promise<Category> {
-    const response = await api.get<Category>(`/${category_id}`);
-    return response.data;
+    try {
+      const response = await api.get<Category>(`/${category_id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

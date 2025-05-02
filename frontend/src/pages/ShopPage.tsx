@@ -20,23 +20,33 @@ const ShopPage = () => {
 
     // Fetch category
     async function fetchCategoryById() {
-      if (categoryId) {
-        const response = await categoryService.get_category_by_id(
-          Number(categoryId)
-        );
-        setCategory(response.category_name);
-      } else {
-        setCategory(null);
+      try {
+        if (categoryId) {
+          const response = await categoryService.get_category_by_id(
+            Number(categoryId)
+          );
+          setCategory(response.category_name);
+        } else {
+          setCategory(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch category", error);
       }
     }
 
     // Fetch author
     async function fetchAuthorById() {
-      if (authorId) {
-        const response = await authorService.get_author_by_id(Number(authorId));
-        setAuthor(response.author_name);
-      } else {
-        setAuthor(null);
+      try {
+        if (authorId) {
+          const response = await authorService.get_author_by_id(
+            Number(authorId)
+          );
+          setAuthor(response.author_name);
+        } else {
+          setAuthor(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch author", error);
       }
     }
 

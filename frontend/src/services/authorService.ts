@@ -13,13 +13,21 @@ const api = axios.create({
 
 const authorService = {
   async get_all_authors(): Promise<Author[]> {
-    const response = await api.get<{ authors: Author[] }>(`/`);
-    return response.data.authors;
+    try {
+      const response = await api.get<{ authors: Author[] }>(`/`);
+      return response.data.authors;
+    } catch (error) {
+      throw error;
+    }
   },
 
   async get_author_by_id(id: number): Promise<Author> {
-    const response = await api.get<Author>(`/${id}`);
-    return response.data;
+    try {
+      const response = await api.get<Author>(`/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

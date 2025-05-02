@@ -15,20 +15,28 @@ const Filters = () => {
   // Fetch authors and categories on component mount
   useEffect(() => {
     const fetchAuthors = async () => {
-      const authors = await authorService.get_all_authors();
-      setAuthors(
-        authors.map((author) => ({ id: author.id, name: author.author_name }))
-      );
+      try {
+        const authors = await authorService.get_all_authors();
+        setAuthors(
+          authors.map((author) => ({ id: author.id, name: author.author_name }))
+        );
+      } catch (error) {
+        console.error("Failed to fetch authors", error);
+      }
     };
 
     const fetchCategories = async () => {
-      const response = await categoryService.get_all_categories();
-      setCategories(
-        response.map((category) => ({
-          id: category.id,
-          name: category.category_name,
-        }))
-      );
+      try {
+        const response = await categoryService.get_all_categories();
+        setCategories(
+          response.map((category) => ({
+            id: category.id,
+            name: category.category_name,
+          }))
+        );
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
     };
 
     fetchAuthors();

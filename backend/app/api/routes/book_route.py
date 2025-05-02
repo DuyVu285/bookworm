@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
 
@@ -7,6 +6,7 @@ from app.schemas.book_schema import (
     BookRead,
     TopBooksRead,
     BooksRead,
+    BookDetailsRead,
     BookQueryParams,
     Top8BooksQueryParams,
 )
@@ -35,6 +35,15 @@ async def get_books(
 
 
 @router.get(
+    "/book/{book_id}", response_model=BookDetailsRead, status_code=status.HTTP_200_OK
+)
+async def get_book_by_id(book_id: int, session: Session = Depends(get_session)):
+    service = BookService(session)
+    data = service.get_book_by_id(book_id)
+    return data
+
+
+@router.get(
     "/top_10_most_discounted",
     response_model=TopBooksRead,
     status_code=status.HTTP_200_OK,
@@ -55,9 +64,3 @@ async def get_top_8_books(
     service = BookService(session)
     data = service.get_top_8_books(sort=params.sort)
     return data
-
-
-@router.get("/{book_id}", response_model=BookRead, status_code=status.HTTP_200_OK)
-async def get_book_by_id(book_id: int, session: Session = Depends(get_session)):
-    service = BookService(session)
-    return service.get_book_by_id(book_id)

@@ -6,6 +6,7 @@ from app.models.book_model import Book
 from app.models.discount_model import Discount
 from app.models.review_model import Review
 from app.models.author_model import Author
+from app.models.category_model import Category
 
 
 class BookRepository:
@@ -14,8 +15,36 @@ class BookRepository:
         self.session = session
 
     def get_book_by_id(self, book_id: int) -> Optional[Book]:
-        query = select(Book).where(Book.id == book_id)
-        return self.session.exec(query).one_or_none()
+        max_discount_subq = self._max_discount_subquery()
+
+        sub_price = label(
+            "sub_price",
+            func.coalesce(
+                Book.book_price - max_discount_subq.c.max_discount, Book.book_price
+            ),
+        )
+        is_discounted = label(
+            "is_discounted",
+            case((max_discount_subq.c.max_discount.isnot(None), 1), else_=0),
+        )
+
+        query = (
+            select(
+                Book.book_title,
+                Book.book_price,
+                Book.book_summary,
+                Book.book_cover_photo,
+                Author.author_name,
+                Category.category_name,
+                sub_price,
+            )
+            .join(Category, Book.category_id == Category.id)
+            .join(Author, Book.author_id == Author.id)
+            .join(max_discount_subq, max_discount_subq.c.book_id == Book.id)
+            .where(Book.id == book_id)
+        )
+        result = self.session.exec(query).one_or_none()
+        return result
 
     def get_books(
         self,

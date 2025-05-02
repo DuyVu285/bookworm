@@ -21,9 +21,7 @@ export interface BooksResponse {
 
 const baseURL = import.meta.env.VITE_SERVER_API_URL + "/books";
 
-const api = axios.create({
-  baseURL: baseURL,
-});
+const api = axios.create({ baseURL });
 
 const bookService = {
   async getBooks({
@@ -41,30 +39,41 @@ const bookService = {
     author?: number;
     rating?: number;
   }): Promise<BooksResponse> {
-    const params = new URLSearchParams({
-      page: String(page),
-      sort,
-      limit: String(limit),
-      ...(category !== undefined ? { category: String(category) } : {}),
-      ...(author !== undefined ? { author: String(author) } : {}),
-      ...(rating !== undefined ? { rating: String(rating) } : {}),
-    });
+    try {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        sort,
+        ...(category !== undefined && { category: String(category) }),
+        ...(author !== undefined && { author: String(author) }),
+        ...(rating !== undefined && { rating: String(rating) }),
+      });
 
-    const response = await api.get<BooksResponse>(`?${params.toString()}`);
-    return response.data;
+      const response = await api.get<BooksResponse>(`?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   async getTop10MostDiscountedBooks(): Promise<Book[]> {
-    const response = await api.get<{ books: Book[] }>(
-      "/top_10_most_discounted"
-    );
-
-    return response.data.books;
+    try {
+      const response = await api.get<{ books: Book[] }>(
+        "/top_10_most_discounted"
+      );
+      return response.data.books;
+    } catch (error) {
+      throw error;
+    }
   },
 
   async getTop8Books(sort: string): Promise<Book[]> {
-    const response = await api.get<{ books: Book[] }>(`/top_8?sort=${sort}`);
-    return response.data.books;
+    try {
+      const response = await api.get<{ books: Book[] }>(`/top_8?sort=${sort}`);
+      return response.data.books;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 
