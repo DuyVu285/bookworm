@@ -25,6 +25,7 @@ const ProductPage = () => {
   const [bookDetails, setBookDetails] = useState<Book | null>(null);
   const [prices, setPrices] = useState<Prices>();
   const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
@@ -43,11 +44,12 @@ const ProductPage = () => {
             book_price: response.book_price,
             sub_price: response.sub_price,
           };
-          console.log(prices);
           setBookDetails(book);
           setPrices(prices);
         } catch (error) {
           console.error("Failed to fetch book details", error);
+        } finally {
+          setIsLoading(false);
         }
       };
       fetchBookDetails();
@@ -59,7 +61,14 @@ const ProductPage = () => {
       <div className="flex flex-col lg:flex-row mx-18 gap-8">
         {/* Book Details */}
         <div className="w-full lg:w-7/10">
-          {bookDetails && <BookDetails book={bookDetails} />}
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <span className="loading loading-spinner loading-xl"></span>
+              <span className="text-2xl p-2">Loading</span>
+            </div>
+          ) : (
+            <>{bookDetails && <BookDetails book={bookDetails} />}</>
+          )}
         </div>
 
         {/* Add To Cart */}

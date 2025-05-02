@@ -9,8 +9,8 @@ type BookDetails = {
 
 const BookDetails = ({ book }: { book: BookDetails }) => {
   return (
-    <section>
-      <div className="flex flex-col lg:flex-row border border-gray-300">
+    <>
+      <div className="flex flex-col lg:flex-row border border-gray-300 min-h-[25rem]">
         {/* Aside Image */}
         <aside className="w-full lg:w-1/3">
           <img
@@ -28,7 +28,7 @@ const BookDetails = ({ book }: { book: BookDetails }) => {
           <p>{book.book_summary}</p>
         </div>
       </div>
-    </section>
+    </>
   );
 };
 
