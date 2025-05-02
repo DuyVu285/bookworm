@@ -52,4 +52,4 @@ class BookQueryParams(BaseModel):
 
 
 class Top8BooksQueryParams(BaseModel):
-    sort: Literal["recommended", "popular"] = "recomended"
+    sort: Literal["recommended", "popular"] = "recommended"

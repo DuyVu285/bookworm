@@ -1,5 +1,6 @@
+from fastapi import HTTPException, status
 from sqlmodel import Session
-from app.schemas.review_schema import ReviewCreate, ReviewRead
+from app.schemas.review_schema import ReviewCreate, ReviewRead, ReviewsByIdRead
 from app.repositories.review_repository import ReviewRepository
 
 
@@ -21,3 +22,54 @@ class ReviewService:
             rating_star=review.rating_star,
         )
         return review
+
+    def get_reviews_by_book_id(
+        self,
+        book_id: int,
+        page: int = 1,
+        limit: int = 20,
+        sort: str = "newest",
+        rating: int = 0,
+    ) -> ReviewsByIdRead:
+        reviews = self.service_repository.get_reviews_by_id(
+            book_id, page, limit, sort, rating
+        )
+        if not reviews:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Reviews not found"
+            )
+
+        reviews_with_sort_and_filters = [
+            ReviewRead(
+                book_id=review[0],  # book_id
+                review_title=review[1],  # review_title
+                review_details=review[2],  # review_details
+                review_date=review[3],  # review_date
+                rating_star=review[4],  # rating_star
+            )
+            for review in reviews
+        ]
+
+        total_items = reviews[0][-1]
+        total_pages = (total_items + limit - 1) // limit
+        start_item = (page - 1) * limit + 1
+        end_item = min(page * limit, total_items)
+
+        reviews = ReviewsByIdRead(
+            reviews=reviews_with_sort_and_filters,
+            page=page,
+            limit=limit,
+            total_pages=total_pages,
+            total_items=total_items,
+            start_item=start_item,
+            end_item=end_item,
+        )
+        return reviews
+
+    def get_book_reviews_avg_rating(self, book_id: int) -> float:
+        avg_rating = self.service_repository.get_book_reviews_avg_rating(book_id)
+        if avg_rating is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+            )
+        return avg_rating
