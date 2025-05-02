@@ -11,6 +11,16 @@ class BookRead(BaseModel):
     author_name: str
 
 
+class BookDetailsRead(BaseModel):
+    book_title: str
+    book_price: float
+    book_summary: str
+    book_cover_photo: str
+    sub_price: float
+    author_name: str
+    category_name: str
+
+
 class TopBooksRead(BaseModel):
     books: list[BookRead]
 
