@@ -84,7 +84,7 @@ const ProductPage = () => {
 
         {/* Write a Review */}
         <aside className="w-full lg:w-3/10">
-          <WriteAReview />
+          <WriteAReview book_id={Number(id)} />
         </aside>
       </div>
     </MainLayout>

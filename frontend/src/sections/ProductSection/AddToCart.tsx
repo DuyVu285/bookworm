@@ -48,10 +48,12 @@ const AddtoCart = ({ prices }: { prices: Prices }) => {
       <div className="rounded-box border border-gray-300">
         <div className="bg-gray-100 text-2xl font-medium p-4">
           {prices.book_price === prices.sub_price ? (
-            <span className="text-3xl font-bold">${prices.book_price}</span>
+            <span className="text-3xl font-bold pl-4">
+              ${prices.book_price}
+            </span>
           ) : (
             <>
-              <span className="text-gray-400 line-through pr-2">
+              <span className="text-gray-400 line-through pl-4 pr-2">
                 ${prices.book_price}
               </span>
               <span className="text-3xl font-bold">${prices.sub_price}</span>
@@ -76,7 +78,7 @@ const AddtoCart = ({ prices }: { prices: Prices }) => {
             </button>
           </div>
           <button
-            className="btn w-[80%] mt-8 text-2xl font-semibold"
+            className="btn btn-primary w-[80%] mt-8 text-2xl font-semibold"
             onClick={handleAddToCart}
           >
             Add to cart

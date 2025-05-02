@@ -1,5 +1,17 @@
 from typing import Optional
-from sqlmodel import Session, and_, case, desc, literal, or_, select, func, cast, Float
+from sqlmodel import (
+    Numeric,
+    Session,
+    and_,
+    case,
+    desc,
+    literal,
+    or_,
+    select,
+    func,
+    cast,
+    Float,
+)
 from sqlalchemy import label
 
 from app.models.book_model import Book
@@ -90,7 +102,7 @@ class BookRepository:
                 filter_query.outerjoin(Review, Review.book_id == Book.id)
                 .group_by(Book.id, Author.id)
                 .having(
-                    func.round(func.avg(cast(Review.rating_star, Float)), 1)
+                    func.round(func.avg(cast(Review.rating_star, Numeric)), 1)
                     >= min_rating
                 )
             )
@@ -120,7 +132,7 @@ class BookRepository:
             base_query = base_query.where(Book.author_id == author_id)
         if min_rating is not None:
             base_query = base_query.outerjoin(Review, Review.book_id == Book.id).having(
-                func.round(func.avg(cast(Review.rating_star, Float)), 1) >= min_rating
+                func.round(func.avg(cast(Review.rating_star, Numeric)), 1) >= min_rating
             )
         if sort == "popular":
             base_query = base_query.outerjoin(Review, Review.book_id == Book.id)
@@ -182,7 +194,7 @@ class BookRepository:
         max_discount_subq = self._max_discount_subquery()
 
         metrics = {
-            "recommended": func.round(func.avg(cast(Review.rating_star, Float)), 1),
+            "recommended": func.round(func.avg(cast(Review.rating_star, Numeric)), 1),
             "popular": func.count(Review.id),
         }
         metric = metrics.get(sort)
