@@ -46,15 +46,6 @@ const BooksGrid = () => {
         const sort = getParam(FILTER_KEYS.SORT) || "on sale";
         const limit = getIntParam(FILTER_KEYS.LIMIT) || 20;
 
-        console.log("Fetching books with params:", {
-          page,
-          limit,
-          sort,
-          category,
-          author,
-          rating,
-        });
-
         const response = await bookService.getBooks({
           page,
           limit,

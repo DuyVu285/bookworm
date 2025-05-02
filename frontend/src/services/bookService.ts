@@ -50,10 +50,7 @@ const bookService = {
       ...(rating !== undefined ? { rating: String(rating) } : {}),
     });
 
-    console.log("Fetching books with params:", params.toString());
-
     const response = await api.get<BooksResponse>(`?${params.toString()}`);
-    console.log("Response from API:", response.data);
     return response.data;
   },
 

@@ -55,8 +55,6 @@ const ShopPage = () => {
   // Join parts with commas, but only if parts exist
   const displayString = parts.join(", ");
 
-  console.log("Display String:", displayString);
-
   return (
     <MainLayout type="Books" value={displayString}>
       <div className="flex flex-col lg:flex-row mx-18">
