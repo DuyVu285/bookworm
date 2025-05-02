@@ -21,6 +21,19 @@ class ReviewsByIdRead(BaseModel):
     end_item: int
 
 
+class ReviewsAvgRatingRead(BaseModel):
+    avg_rating: float
+
+
+class ReviewsStarDistributionRead(BaseModel):
+    rating_star: int
+    count: int
+
+
+class ReviewsStarsDistributionRead(BaseModel):
+    reviews: list[ReviewsStarDistributionRead]
+
+
 class ReviewCreate(BaseModel):
     book_id: int
     review_title: str

@@ -1,6 +1,13 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session
-from app.schemas.review_schema import ReviewCreate, ReviewRead, ReviewsByIdRead
+from app.schemas.review_schema import (
+    ReviewCreate,
+    ReviewRead,
+    ReviewsByIdRead,
+    ReviewsAvgRatingRead,
+    ReviewsStarsDistributionRead,
+    ReviewsStarDistributionRead,
+)
 from app.repositories.review_repository import ReviewRepository
 
 
@@ -66,10 +73,30 @@ class ReviewService:
         )
         return reviews
 
-    def get_book_reviews_avg_rating(self, book_id: int) -> float:
+    def get_book_reviews_avg_rating(self, book_id: int) -> ReviewsAvgRatingRead:
         avg_rating = self.service_repository.get_book_reviews_avg_rating(book_id)
         if avg_rating is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
             )
-        return avg_rating
+
+        return ReviewsAvgRatingRead(avg_rating=avg_rating)
+
+    def get_book_reviews_star_distribution(
+        self, book_id: int
+    ) -> ReviewsStarsDistributionRead:
+        reviews = self.service_repository.get_book_reviews_star_distribution(book_id)
+        if not reviews:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Reviews not found"
+            )
+
+        reviews_with_star_distribution = [
+            ReviewsStarDistributionRead(
+                rating_star=rating_star,
+                count=count,
+            )
+            for rating_star, count in reviews
+        ]
+
+        return ReviewsStarsDistributionRead(reviews=reviews_with_star_distribution)

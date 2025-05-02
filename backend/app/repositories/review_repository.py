@@ -66,3 +66,13 @@ class ReviewRepository:
             func.round(cast(func.avg(cast(Review.rating_star, Float)), Numeric), 1)
         ).where(Review.book_id == book_id)
         return self.session.exec(query).one_or_none() or 0.0
+
+    def get_book_reviews_star_distribution(self, book_id: int) -> dict:
+        query = (
+            select(Review.rating_star, func.count().label("count"))
+            .where(Review.book_id == book_id)
+            .group_by(Review.rating_star)
+            .order_by(Review.rating_star.desc())
+        )
+        results = self.session.exec(query).all()
+        return results
