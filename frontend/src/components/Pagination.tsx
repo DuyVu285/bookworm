@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 type PaginationProps = {
   currentPage: number;
   totalPages: number;
@@ -30,10 +28,6 @@ const Pagination = ({
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
   }
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
 
   const showEllipsisBefore = startPage > 1;
   const showEllipsisAfter = endPage < totalPages;

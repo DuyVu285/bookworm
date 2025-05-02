@@ -12,11 +12,12 @@ type Review = {
   rating_star: number;
 };
 
-type BookId = {
+type Props = {
   book_id: number;
+  refreshTrigger: boolean;
 };
 
-const CustomerReviews = ({ book_id }: BookId) => {
+const CustomerReviews = ({ book_id, refreshTrigger }: Props) => {
   const sortOptions = [
     { key: "newest", label: "date: newest to oldest" },
     { key: "oldest", label: "date: oldest to newest" },
@@ -47,14 +48,6 @@ const CustomerReviews = ({ book_id }: BookId) => {
         const page = getIntParam(FILTER_KEYS.PAGE) || 1;
         const sort = getParam(FILTER_KEYS.SORT) || "newest";
         const limit = getIntParam(FILTER_KEYS.LIMIT) || 20;
-
-        console.log("Fetching reviews with params:", {
-          book_id,
-          page,
-          sort,
-          limit,
-          rating: selectedRating,
-        });
 
         const response = await reviewService.getReviewsByBookId({
           book_id,
@@ -105,7 +98,7 @@ const CustomerReviews = ({ book_id }: BookId) => {
     fetchReviews();
     fetchAverageRating();
     fetchStarDistribution();
-  }, [searchParams, book_id, selectedRating]);
+  }, [searchParams, book_id, selectedRating, refreshTrigger]);
 
   // Handle page changes
   const handlePageChange = (newPage: number) => {
@@ -116,7 +109,7 @@ const CustomerReviews = ({ book_id }: BookId) => {
 
   return (
     <>
-      <div className="border border-gray-300 p-8">
+      <div className="rounded-box border border-gray-300 p-8">
         <Breadcrumbs type="Customer Reviews" />
         <div>
           {/* Customer Ratings */}

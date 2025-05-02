@@ -26,6 +26,7 @@ const ProductPage = () => {
   const [prices, setPrices] = useState<Prices>();
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshReviews, setRefreshReviews] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -79,12 +80,18 @@ const ProductPage = () => {
       <div className="flex flex-col lg:flex-row mx-18 gap-8 mt-8">
         {/* Customer Reviews */}
         <div className="w-full lg:w-7/10 mb-6">
-          <CustomerReviews book_id={Number(id)} />
+          <CustomerReviews
+            book_id={Number(id)}
+            refreshTrigger={refreshReviews}
+          />
         </div>
 
         {/* Write a Review */}
         <aside className="w-full lg:w-3/10">
-          <WriteAReview book_id={Number(id)} />
+          <WriteAReview
+            book_id={Number(id)}
+            onReviewSubmitted={() => setRefreshReviews((prev) => !prev)}
+          />
         </aside>
       </div>
     </MainLayout>

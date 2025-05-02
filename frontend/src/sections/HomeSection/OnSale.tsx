@@ -56,7 +56,7 @@ const OnSale = () => {
         </a>
       </div>
 
-      <div className="border border-gray-400 p-4 py-8 relative flex justify-center items-center min-h-[300px] w-full">
+      <div className="rounded-box border border-gray-400 p-4 py-8 relative flex justify-center items-center min-h-[300px] w-full">
         {loading ? (
           <div className="flex justify-center items-center w-full">
             <span className="loading loading-spinner loading-xl"></span>

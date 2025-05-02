@@ -70,7 +70,7 @@ const FeaturedBooks = () => {
         </div>
       </div>
 
-      <div className="border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px] w-full">
+      <div className="rounded-box border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px] w-full">
         <BookGridDisplay books={books} loading={loading} />
       </div>
     </>

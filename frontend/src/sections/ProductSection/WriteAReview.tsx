@@ -2,11 +2,12 @@ import { useState } from "react";
 import reviewService from "../../services/reviewService";
 import Toast from "../../components/Toast";
 
-type BookId = {
+type Props = {
   book_id: number;
+  onReviewSubmitted: () => void;
 };
 
-const WriteAReview = ({ book_id }: BookId) => {
+const WriteAReview = ({ book_id, onReviewSubmitted }: Props) => {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [rating, setRating] = useState(1);
@@ -54,6 +55,7 @@ const WriteAReview = ({ book_id }: BookId) => {
       setDetails("");
       setRating(1);
       showToast("Review submitted successfully!", "success");
+      onReviewSubmitted();
     } catch (error) {
       showToast("Failed to submit review. Please try again.", "error");
     }
@@ -69,7 +71,7 @@ const WriteAReview = ({ book_id }: BookId) => {
         />
       )}
 
-      <div className="border border-gray-300">
+      <div className="rounded-box border border-gray-300">
         <div className="border-b border-gray-300 text-2xl font-medium p-4">
           Write a Review
         </div>

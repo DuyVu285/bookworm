@@ -1,5 +1,6 @@
 from typing import Optional
 from sqlmodel import (
+    Float,
     Numeric,
     Session,
     and_,
@@ -10,7 +11,6 @@ from sqlmodel import (
     select,
     func,
     cast,
-    Float,
 )
 from sqlalchemy import label
 
@@ -26,7 +26,7 @@ class BookRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_book_by_id(self, book_id: int) -> Optional[Book]:
+    def get_book_by_id(self, book_id: int) -> Book:
         max_discount_subq = self._max_discount_subquery()
 
         sub_price = label(
@@ -48,7 +48,7 @@ class BookRepository:
             )
             .join(Category, Book.category_id == Category.id)
             .join(Author, Book.author_id == Author.id)
-            .join(max_discount_subq, max_discount_subq.c.book_id == Book.id)
+            .outerjoin(max_discount_subq, max_discount_subq.c.book_id == Book.id)
             .where(Book.id == book_id)
         )
         result = self.session.exec(query).one_or_none()
@@ -102,7 +102,9 @@ class BookRepository:
                 filter_query.outerjoin(Review, Review.book_id == Book.id)
                 .group_by(Book.id, Author.id)
                 .having(
-                    func.round(func.avg(cast(Review.rating_star, Numeric)), 1)
+                    func.round(
+                        cast(func.avg(cast(Review.rating_star, Float)), Numeric), 1
+                    )
                     >= min_rating
                 )
             )
@@ -132,7 +134,8 @@ class BookRepository:
             base_query = base_query.where(Book.author_id == author_id)
         if min_rating is not None:
             base_query = base_query.outerjoin(Review, Review.book_id == Book.id).having(
-                func.round(func.avg(cast(Review.rating_star, Numeric)), 1) >= min_rating
+                func.round(cast(func.avg(cast(Review.rating_star, Float)), Numeric), 1)
+                >= min_rating
             )
         if sort == "popular":
             base_query = base_query.outerjoin(Review, Review.book_id == Book.id)
@@ -194,10 +197,13 @@ class BookRepository:
         max_discount_subq = self._max_discount_subquery()
 
         metrics = {
-            "recommended": func.round(func.avg(cast(Review.rating_star, Numeric)), 1),
+            "recommended": func.round(
+                cast(func.avg(cast(Review.rating_star, Float)), Numeric), 1
+            ),
             "popular": func.count(Review.id),
         }
         metric = metrics.get(sort)
+        print("Current metric:", metric)
         subquery = (
             select(
                 label("book_id", Book.id),
@@ -210,7 +216,7 @@ class BookRepository:
                     ),
                 ),
             )
-            .outerjoin(Review, Review.book_id == Book.id)
+            .join(Review, Review.book_id == Book.id)
             .outerjoin(max_discount_subq, max_discount_subq.c.book_id == Book.id)
             .group_by(Book.id, max_discount_subq.c.max_discount)
             .subquery()
