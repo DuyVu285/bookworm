@@ -11,3 +11,7 @@ class CategoryRepository:
             Category.category_name
         )
         return self.session.exec(query).all()
+
+    def get_category_by_id(self, category_id: int):
+        query = select(Category).where(Category.id == category_id)
+        return self.session.exec(query).one_or_none()
