@@ -111,7 +111,6 @@ const BooksGrid = () => {
     updateParams({
       [FILTER_KEYS.PAGE]: newPage.toString(),
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (

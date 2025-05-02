@@ -16,6 +16,11 @@ const categoryService = {
     const response = await api.get<{ categories: Category[] }>(`/`);
     return response.data.categories;
   },
+
+  async get_category_by_id(category_id: number): Promise<Category> {
+    const response = await api.get<Category>(`/${category_id}`);
+    return response.data;
+  },
 };
 
 export default categoryService;

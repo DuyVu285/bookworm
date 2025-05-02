@@ -16,6 +16,11 @@ const authorService = {
     const response = await api.get<{ authors: Author[] }>(`/`);
     return response.data.authors;
   },
+
+  async get_author_by_id(id: number): Promise<Author> {
+    const response = await api.get<Author>(`/${id}`);
+    return response.data;
+  },
 };
 
 export default authorService;
