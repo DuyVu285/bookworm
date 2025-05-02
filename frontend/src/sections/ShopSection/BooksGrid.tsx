@@ -74,18 +74,16 @@ const BooksGrid = () => {
           setEmptyMessage(undefined);
         }
       } catch (error: any) {
-        console.error("Failed to fetch books", error);
-
         if (error?.response?.status === 404) {
           setBooks([]);
           setEmptyMessage(
-            <p className="text-center text-red-500">
-              No books found (404 Not Found).
+            <p className="text-center text-gray-500">
+              No books found matching your filters.
             </p>
           );
         } else {
           setEmptyMessage(
-            <p className="text-center text-red-500">
+            <p className="text-center text-gray-500">
               Something went wrong. Please try again later.
             </p>
           );
@@ -102,6 +100,7 @@ const BooksGrid = () => {
     updateParams({
       [FILTER_KEYS.PAGE]: newPage.toString(),
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -125,7 +124,7 @@ const BooksGrid = () => {
         />
 
         {/* Pagination */}
-        {pageInfo.total_pages > 1 && (
+        {pageInfo.total_pages > 0 && (
           <Pagination
             currentPage={pageInfo.page}
             totalPages={pageInfo.total_pages}

@@ -2,11 +2,11 @@ import { useState } from "react";
 import reviewService from "../../services/reviewService";
 import Toast from "../../components/Toast";
 
-interface WriteAReviewProps {
+type BookId = {
   book_id: number;
-}
+};
 
-const WriteAReview = ({ book_id }: WriteAReviewProps) => {
+const WriteAReview = ({ book_id }: BookId) => {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [rating, setRating] = useState(1);

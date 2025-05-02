@@ -110,7 +110,10 @@ const GridToolbar = ({
       </h3>
 
       <div className="flex flex-wrap md:flex-nowrap md:justify-end gap-4">
-        <div className="dropdown w-full md:w-[220px]">
+        <div
+          className="dropdown w-full md:w-[15rem]
+"
+        >
           <div
             tabIndex={0}
             role="button"

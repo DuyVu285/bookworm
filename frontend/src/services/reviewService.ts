@@ -8,8 +8,14 @@ export interface Review {
   rating_star: number;
 }
 
-export interface ReviewResponse extends Review {
+export interface ReviewResponse {
+  reviews: Review[];
   total_items: number;
+  total_pages: number;
+  start_item: number;
+  end_item: number;
+  limit: number;
+  page: number;
 }
 
 export interface ReviewCreate {
@@ -39,26 +45,24 @@ const reviewService = {
     page,
     limit,
     sort,
-    rating,
+    rating = 0,
   }: {
     book_id: number;
     page: number;
     limit: number;
-    sort?: string;
-    rating?: number;
-  }): Promise<ReviewResponse[]> {
+    sort: string;
+    rating: number;
+  }): Promise<ReviewResponse> {
     try {
       const params = new URLSearchParams({
         book_id: String(book_id),
         page: String(page),
         limit: String(limit),
-        ...(sort && { sort }),
+        sort,
         ...(rating !== undefined && { rating: String(rating) }),
       });
 
-      const response = await api.get<ReviewResponse[]>(
-        `/by_book?${params.toString()}`
-      );
+      const response = await api.get<ReviewResponse>(`/?${params.toString()}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -74,11 +78,9 @@ const reviewService = {
     }
   },
 
-  async getAverageRating(book_id: number): Promise<{ avg_rating: number }> {
+  async getAverageRating(book_id: number): Promise<number> {
     try {
-      const response = await api.get<{ avg_rating: number }>(
-        `/average?book_id=${book_id}`
-      );
+      const response = await api.get<number>(`/average?book_id=${book_id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -90,8 +92,17 @@ const reviewService = {
   ): Promise<StarDistributionResponse> {
     try {
       const response = await api.get<StarDistributionResponse>(
-        `/star_distribution?book_id=${book_id}`
+        `/distribution?book_id=${book_id}`
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getTotalReviewsByBookId(book_id: number): Promise<number> {
+    try {
+      const response = await api.get<number>(`/total?book_id=${book_id}`);
       return response.data;
     } catch (error) {
       throw error;

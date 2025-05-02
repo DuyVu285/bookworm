@@ -8,7 +8,6 @@ from app.schemas.review_schema import (
     ReviewRead,
     ReviewCreate,
     ReviewsByIdQueryParams,
-    ReviewsAvgRatingRead,
     ReviewsStarsDistributionRead,
 )
 
@@ -41,7 +40,7 @@ async def get_reviews_by_book_id(
 
 @router.get(
     "/average",
-    response_model=ReviewsAvgRatingRead,
+    response_model=float,
     status_code=status.HTTP_200_OK,
 )
 async def get_avg_rating_by_book_id(
@@ -49,6 +48,19 @@ async def get_avg_rating_by_book_id(
 ):
     service = ReviewService(session)
     data = service.get_book_reviews_avg_rating(book_id=book_id)
+    return data
+
+
+@router.get(
+    "/total",
+    response_model=int,
+    status_code=status.HTTP_200_OK,
+)
+async def get_total_reviews_by_book_id(
+    book_id: int, session: Session = Depends(get_session)
+):
+    service = ReviewService(session)
+    data = service.get_total_reviews_by_book_id(book_id=book_id)
     return data
 
 

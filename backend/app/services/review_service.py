@@ -4,7 +4,6 @@ from app.schemas.review_schema import (
     ReviewCreate,
     ReviewRead,
     ReviewsByIdRead,
-    ReviewsAvgRatingRead,
     ReviewsStarsDistributionRead,
     ReviewsStarDistributionRead,
 )
@@ -73,30 +72,39 @@ class ReviewService:
         )
         return reviews
 
-    def get_book_reviews_avg_rating(self, book_id: int) -> ReviewsAvgRatingRead:
+    def get_book_reviews_avg_rating(self, book_id: int) -> float:
         avg_rating = self.service_repository.get_book_reviews_avg_rating(book_id)
         if avg_rating is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
             )
 
-        return ReviewsAvgRatingRead(avg_rating=avg_rating)
+        return avg_rating
 
     def get_book_reviews_star_distribution(
         self, book_id: int
     ) -> ReviewsStarsDistributionRead:
         reviews = self.service_repository.get_book_reviews_star_distribution(book_id)
         if not reviews:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Reviews not found"
-            )
-
-        reviews_with_star_distribution = [
-            ReviewsStarDistributionRead(
-                rating_star=rating_star,
-                count=count,
-            )
-            for rating_star, count in reviews
-        ]
+            reviews_with_star_distribution = [
+                ReviewsStarDistributionRead(rating_star=i, count=0) for i in range(1, 6)
+            ]
+        else:
+            star_map = {rating_star: count for rating_star, count in reviews}
+            reviews_with_star_distribution = [
+                ReviewsStarDistributionRead(rating_star=i, count=star_map.get(i, 0))
+                for i in range(1, 6)
+            ]
 
         return ReviewsStarsDistributionRead(reviews=reviews_with_star_distribution)
+
+    def get_total_reviews_by_book_id(
+        self,
+        book_id: int,
+    ) -> int:
+        total_reviews = self.service_repository.get_total_reviews_by_book_id(book_id)
+        if total_reviews is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+            )
+        return total_reviews

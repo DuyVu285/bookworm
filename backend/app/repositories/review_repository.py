@@ -37,7 +37,7 @@ class ReviewRepository:
 
         # Filter by minimum rating
         if rating > 0:
-            base_query = base_query.where(cast(Review.rating_star, Float) >= rating)
+            base_query = base_query.where(cast(Review.rating_star, Float) == rating)
 
         # Apply sorting
         sort_column_map = {
@@ -76,3 +76,7 @@ class ReviewRepository:
         )
         results = self.session.exec(query).all()
         return results
+
+    def get_total_reviews_by_book_id(self, book_id: int) -> int:
+        query = select(func.count()).where(Review.book_id == book_id)
+        return self.session.exec(query).one_or_none() or 0

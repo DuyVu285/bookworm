@@ -21,10 +21,6 @@ class ReviewsByIdRead(BaseModel):
     end_item: int
 
 
-class ReviewsAvgRatingRead(BaseModel):
-    avg_rating: float
-
-
 class ReviewsStarDistributionRead(BaseModel):
     rating_star: int
     count: int
