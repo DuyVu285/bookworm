@@ -44,6 +44,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
 
   return (
     <>
+      {/* Toast */}
       {toast && (
         <Toast
           message={toast.message}
@@ -52,6 +53,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
         />
       )}
 
+      {/* Add to Cart Section */}
       <div className="rounded-box border border-gray-300">
         <div className="bg-gray-100 text-2xl font-medium p-4">
           {bookCart.book_price === bookCart.sub_price ? (
