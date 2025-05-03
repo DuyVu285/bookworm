@@ -13,6 +13,7 @@ from sqlmodel import (
     cast,
 )
 from sqlalchemy import label
+from sqlalchemy.orm import aliased
 
 from app.models.book_model import Book
 from app.models.discount_model import Discount
@@ -64,7 +65,7 @@ class BookRepository:
         min_rating: Optional[float] = None,
     ) -> list[dict]:
         max_discount_subq = self._max_discount_subquery()
-
+        ReviewAlias = aliased(Review)
         sub_price = label(
             "sub_price",
             func.coalesce(
@@ -138,7 +139,10 @@ class BookRepository:
                 >= min_rating
             )
         if sort == "popular":
-            base_query = base_query.outerjoin(Review, Review.book_id == Book.id)
+            base_query = base_query.outerjoin(
+                ReviewAlias, ReviewAlias.book_id == Book.id
+            )
+            review_count = label("review_count", func.count(ReviewAlias.id))
 
         # --- Final paginated query ---
         final_query = (

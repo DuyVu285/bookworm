@@ -1,16 +1,23 @@
 import { useState } from "react";
 import Toast from "../../components/Toast";
-type Prices = {
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { addToCart } from "../../store/cartSlice";
+type BookCart = {
+  id: number;
+  book_title: string;
   book_price: number;
   sub_price: number;
+  book_cover_photo: string;
+  author_name: string;
 };
 
-const AddtoCart = ({ prices }: { prices: Prices }) => {
+const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [toast, setToast] = useState<{ message: string; type?: string } | null>(
     null
   );
-
+  const dispatch = useDispatch<AppDispatch>();
   const showToast = (
     message: string,
     type: "info" | "success" | "error" | "warning" = "info"
@@ -31,7 +38,7 @@ const AddtoCart = ({ prices }: { prices: Prices }) => {
   };
 
   const handleAddToCart = () => {
-    // Simulate cart logic
+    dispatch(addToCart({ ...bookCart, quantity: 1 }));
     showToast(`${quantity} book(s) added to cart!`, "success");
   };
 
@@ -47,16 +54,16 @@ const AddtoCart = ({ prices }: { prices: Prices }) => {
 
       <div className="rounded-box border border-gray-300">
         <div className="bg-gray-100 text-2xl font-medium p-4">
-          {prices.book_price === prices.sub_price ? (
+          {bookCart.book_price === bookCart.sub_price ? (
             <span className="text-3xl font-bold pl-4">
-              ${prices.book_price}
+              ${bookCart.book_price}
             </span>
           ) : (
             <>
               <span className="text-gray-400 line-through pl-4 pr-2">
-                ${prices.book_price}
+                ${bookCart.book_price}
               </span>
-              <span className="text-3xl font-bold">${prices.sub_price}</span>
+              <span className="text-3xl font-bold">${bookCart.sub_price}</span>
             </>
           )}
         </div>

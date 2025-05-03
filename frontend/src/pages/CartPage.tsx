@@ -1,9 +1,10 @@
-import CartTable from "../components/CartTable";
-import CartTotals from "../components/CartTotals";
+import MainLayout from "../components/layout/MainLayout";
+import CartTable from "../sections/CartSection/CartTable";
+import CartTotals from "../sections/CartSection/CartTotals";
 
 const CartPage = () => {
   return (
-    <>
+    <MainLayout>
       <h2 className="text-2xl font-semibold py-6 border-b border-gray-300 mx-18 mb-6">
         Your cart: 3 items
       </h2>
@@ -18,7 +19,7 @@ const CartPage = () => {
           <CartTotals></CartTotals>
         </aside>
       </div>
-    </>
+    </MainLayout>
   );
 };
 

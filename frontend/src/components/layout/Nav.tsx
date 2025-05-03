@@ -1,11 +1,17 @@
+import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { RootState } from "../../store";
 
 type NavProps = {
   onLoginClick: () => void;
 };
 
 const Nav = ({ onLoginClick }: NavProps) => {
-  const location = useLocation(); // Get current location using React Router's `useLocation`
+  const cartCount = useSelector((state: RootState) =>
+    state.cart.items.reduce((acc, item) => acc + item.quantity, 0)
+  );
+
+  const location = useLocation();
 
   // Function to determine if the current link is active
   const isActive = (path: string) => {
@@ -62,7 +68,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
             </li>
             <li>
               <a href="/Cart" className={`${isActive("/Cart")}`}>
-                Cart (0)
+                Cart ({cartCount})
               </a>
             </li>
             <li>

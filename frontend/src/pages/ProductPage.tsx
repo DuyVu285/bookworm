@@ -16,14 +16,18 @@ type Book = {
   category_name?: string;
 };
 
-type Prices = {
+type BookCart = {
+  id: number;
+  book_title: string;
   book_price: number;
   sub_price: number;
+  book_cover_photo: string;
+  author_name: string;
 };
 
 const ProductPage = () => {
   const [bookDetails, setBookDetails] = useState<Book | null>(null);
-  const [prices, setPrices] = useState<Prices>();
+  const [bookCart, setBookCart] = useState<BookCart>();
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [refreshReviews, setRefreshReviews] = useState(false);
@@ -41,12 +45,16 @@ const ProductPage = () => {
             author_name: response.author_name,
             category_name: response.category_name,
           };
-          const prices: Prices = {
+          const bookCart: BookCart = {
+            id: Number(id),
+            book_title: response.book_title,
             book_price: response.book_price,
             sub_price: response.sub_price,
+            book_cover_photo: response.book_cover_photo,
+            author_name: response.author_name,
           };
           setBookDetails(book);
-          setPrices(prices);
+          setBookCart(bookCart);
         } catch (error) {
           console.error("Failed to fetch book details", error);
         } finally {
@@ -74,7 +82,7 @@ const ProductPage = () => {
 
         {/* Add To Cart */}
         <aside className="w-full lg:w-3/10">
-          {prices && <AddtoCart prices={prices} />}
+          {bookCart && <AddtoCart bookCart={bookCart} />}
         </aside>
       </div>
       <div className="flex flex-col lg:flex-row mx-18 gap-8 mt-8">
