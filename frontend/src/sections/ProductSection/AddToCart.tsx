@@ -38,7 +38,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
   };
 
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...bookCart, quantity: 1 }));
+    dispatch(addToCart({ ...bookCart, quantity }));
     showToast(`${quantity} book(s) added to cart!`, "success");
   };
 
