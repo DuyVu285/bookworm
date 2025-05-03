@@ -1,53 +1,33 @@
 from typing import Optional
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session
+from app.core.config import settings
 from app.repositories.book_repository import BookRepository
-from app.models.book_model import Book
+from app.schemas.book_schema import BookRead, TopBooksRead, BooksRead, BookDetailsRead
 
 
 class BookService:
     def __init__(self, session: Session):
         self.book_repository = BookRepository(session)
+        self.server_url = settings.SERVER_URL
 
-    def get_book_by_id(self, book_id: int) -> Book:
+    def get_book_by_id(self, book_id: int) -> BookDetailsRead:
         book = self.book_repository.get_book_by_id(book_id)
         if not book:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
             )
+        book = BookDetailsRead(
+            book_title=book.book_title,
+            book_price=book.book_price,
+            book_summary=book.book_summary,
+            book_cover_photo=self.server_url
+            + f"/static/book_covers/{book.book_cover_photo}",
+            sub_price=book.sub_price,
+            author_name=book.author_name,
+            category_name=book.category_name,
+        )
         return book
-
-    def get_book_by_title(self, book_title: str) -> list[Book]:
-        book = self.book_repository.get_book_by_title(book_title)
-        if not book:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
-            )
-        return book
-
-    def create_book(self, book: Book) -> Book:
-        existing_book = self.book_repository.get_book_by_title(book.book_title)
-        if existing_book:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Book already exists"
-            )
-        return self.book_repository.create_book(book)
-
-    def update_book(self, book_id: int, book: Book) -> Book:
-        existing_book = self.book_repository.get_book_by_id(book_id)
-        if not existing_book:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
-            )
-        return self.book_repository.update_book(book_id, book)
-
-    def delete_book(self, book_id: int) -> None:
-        existing_book = self.book_repository.get_book_by_id(book_id)
-        if not existing_book:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
-            )
-        return self.book_repository.delete_book(book_id)
 
     def get_books(
         self,
@@ -57,7 +37,7 @@ class BookService:
         category_id: Optional[int] = None,
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
-    ) -> dict:
+    ) -> BooksRead:
         books = self.book_repository.get_books(
             page, limit, sort, category_id, author_id, min_rating
         )
@@ -65,20 +45,77 @@ class BookService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
             )
+
+        books_with_sort_and_filters = [
+            BookRead(
+                id=book[0],  # id
+                book_title=book[1],  # book_title
+                book_price=book[2],  # book_price
+                book_cover_photo=self.server_url
+                + f"/static/book_covers/{book[3]}",  # book_cover_photo
+                sub_price=book[4],  # sub_price
+                author_name=book[5],  # author_name
+            )
+            for book in books
+        ]
+
+        total_items = books[0][-1]
+        total_pages = (total_items + limit - 1) // limit
+        start_item = (page - 1) * limit + 1
+        end_item = min(page * limit, total_items)
+
+        books = BooksRead(
+            books=books_with_sort_and_filters,
+            page=page,
+            limit=limit,
+            total_pages=total_pages,
+            total_items=total_items,
+            start_item=start_item,
+            end_item=end_item,
+        )
+
         return books
 
-    def get_top_10_most_discounted_books(self) -> list[Book]:
-        books = self.book_repository.get_top_10_most_discounted_books()
-        if not books:
+    def get_top_10_most_discounted_books(self) -> TopBooksRead:
+        results = self.book_repository.get_top_10_most_discounted_books()
+
+        if not results:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
             )
-        return books
 
-    def get_top_8_books(self, sort: str = "recommended") -> list[Book]:
+        books_with_discount = [
+            BookRead(
+                id=id,
+                book_title=book_title,
+                book_price=book_price,
+                book_cover_photo=self.server_url
+                + f"/static/book_covers/{book_cover_photo}",
+                sub_price=sub_price,
+                author_name=author_name,
+            )
+            for id, book_title, book_price, book_cover_photo, sub_price, author_name in results
+        ]
+
+        return TopBooksRead(books=books_with_discount)
+
+    def get_top_8_books(self, sort: str) -> TopBooksRead:
         books = self.book_repository.get_top_8_books(sort)
         if not books:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
             )
-        return books
+
+        books_with_sort = [
+            BookRead(
+                id=id,
+                book_title=book_title,
+                book_price=book_price,
+                book_cover_photo=self.server_url
+                + f"/static/book_covers/{book_cover_photo}",
+                sub_price=sub_price,
+                author_name=author_name,
+            )
+            for id, book_title, book_price, book_cover_photo, sub_price, author_name in books
+        ]
+        return TopBooksRead(books=books_with_sort)

@@ -38,8 +38,10 @@ target_metadata = SQLModel.metadata
 # ... etc.
 from app.core.config import settings
 
+
 def get_url():
     return settings.DATABASE_URL
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

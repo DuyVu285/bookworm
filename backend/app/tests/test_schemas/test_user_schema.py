@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from app.schemas.user_schema import UserBase, UserSignIn, UserRead
+from app.schemas.user_schema import UserBase, UserRead
 
 
 def test_user_base_valid():

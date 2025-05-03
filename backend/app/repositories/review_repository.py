@@ -1,4 +1,4 @@
-from sqlmodel import Session, select, func
+from sqlmodel import Float, Numeric, Session, asc, cast, desc, func, literal, select
 from app.models.review_model import Review
 
 
@@ -17,25 +17,66 @@ class ReviewRepository:
         self.session.refresh(review)
         return review
 
-    def update_review(self, review_id: int, updated_data: Review) -> Review:
-        review = self.get_review_by_id(review_id)
-        data = updated_data.model_dump(exclude_unset=True)
-        for key, value in data.items():
-            setattr(review, key, value)
-        self.session.commit()
-        self.session.refresh(review)
-        return review
+    def get_reviews_by_id(
+        self,
+        book_id: int,
+        page: int = 1,
+        limit: int = 20,
+        sort: str = "newest",
+        rating: int = 0,
+    ) -> list[dict]:
 
-    def delete_review(self, review_id: int) -> None:
-        self.session.delete(self.get_review_by_id(review_id))
-        self.session.commit()
+        # Base query
+        base_query = select(
+            Review.book_id,
+            Review.review_title,
+            Review.review_details,
+            Review.review_date,
+            Review.rating_star,
+        ).where(Review.book_id == book_id)
 
-    def get_reviews_count_by_book_id(self, book_id: int) -> int:
-        query = select(func.count(Review.id)).where(Review.book_id == book_id)
-        (count,) = self.session.exec(query).one()
-        return count
+        # Filter by minimum rating
+        if rating > 0:
+            base_query = base_query.where(cast(Review.rating_star, Float) == rating)
 
-    def get_average_rating_by_book_id(self, book_id: int) -> float:
-        query = select(func.avg(Review.rating_star)).where(Review.book_id == book_id)
-        (avg_rating,) = self.session.exec(query).one()
-        return avg_rating or 0.0
+        # Apply sorting
+        sort_column_map = {
+            "newest": desc(Review.review_date),
+            "oldest": asc(Review.review_date),
+        }
+        sort_expression = sort_column_map.get(sort, desc(Review.review_date))
+
+        # Total count
+        count_query = select(func.count()).select_from(base_query.subquery())
+        total_items = self.session.exec(count_query).one()
+
+        # Final paginated query
+        final_query = (
+            base_query.order_by(sort_expression)
+            .offset((page - 1) * limit)
+            .limit(limit)
+            .add_columns(literal(total_items).label("total_items"))
+        )
+
+        results = self.session.exec(final_query).all()
+        return results
+
+    def get_book_reviews_avg_rating(self, book_id: int) -> float:
+        query = select(
+            func.round(cast(func.avg(cast(Review.rating_star, Float)), Numeric), 1)
+        ).where(Review.book_id == book_id)
+        return self.session.exec(query).one_or_none() or 0.0
+
+    def get_book_reviews_star_distribution(self, book_id: int) -> dict:
+        query = (
+            select(Review.rating_star, func.count().label("count"))
+            .where(Review.book_id == book_id)
+            .group_by(Review.rating_star)
+            .order_by(Review.rating_star.desc())
+        )
+        results = self.session.exec(query).all()
+        return results
+
+    def get_total_reviews_by_book_id(self, book_id: int) -> int:
+        query = select(func.count()).where(Review.book_id == book_id)
+        return self.session.exec(query).one_or_none() or 0

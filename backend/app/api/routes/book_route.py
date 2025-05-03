@@ -1,9 +1,15 @@
-from typing import Optional
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
 
 from app.db.db import get_session
-from app.schemas.book_schema import BookCreate, BookUpdate, BookRead, BooksDetailsReturn
+from app.schemas.book_schema import (
+    BookRead,
+    TopBooksRead,
+    BooksRead,
+    BookDetailsRead,
+    BookQueryParams,
+    Top8BooksQueryParams,
+)
 from app.services.book_service import BookService
 
 router = APIRouter(
@@ -11,49 +17,50 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=BooksDetailsReturn, status_code=status.HTTP_200_OK)
+@router.get("/", response_model=BooksRead, status_code=status.HTTP_200_OK)
 async def get_books(
-    page: int = 1,
-    limit: int = 20,
-    sort: str = "on sale",
-    category_id: Optional[int] = None,
-    author_id: Optional[int] = None,
-    min_rating: Optional[float] = None,
+    params: BookQueryParams = Depends(),
     session: Session = Depends(get_session),
 ):
     service = BookService(session)
-    results = service.get_books(page, limit, sort, category_id, author_id, min_rating)
-    return results
-
-@router.get("/{book_id}", response_model=BookRead, status_code=status.HTTP_200_OK)
-async def get_book_by_id(book_id: int, session: Session = Depends(get_session)):
-    service = BookService(session)
-    return service.get_book_by_id(book_id)
+    data = service.get_books(
+        page=params.page,
+        limit=params.limit,
+        sort=params.sort,
+        category_id=params.category,
+        author_id=params.author,
+        min_rating=params.rating,
+    )
+    return data
 
 
 @router.get(
-    "/title/{book_title}", response_model=list[BookRead], status_code=status.HTTP_200_OK
+    "/book/{book_id}", response_model=BookDetailsRead, status_code=status.HTTP_200_OK
 )
-async def get_book_by_title(book_title: str, session: Session = Depends(get_session)):
+async def get_book_by_id(book_id: int, session: Session = Depends(get_session)):
     service = BookService(session)
-    return service.get_book_by_title(book_title)
+    data = service.get_book_by_id(book_id)
+    return data
 
 
-@router.post("/", response_model=BookCreate, status_code=status.HTTP_201_CREATED)
-async def create_book(book: BookCreate, session: Session = Depends(get_session)):
-    service = BookService(session)
-    return service.create_book(book)
-
-
-@router.put("/{book_id}", response_model=BookUpdate, status_code=status.HTTP_200_OK)
-async def update_book(
-    book_id: int, book: BookUpdate, session: Session = Depends(get_session)
+@router.get(
+    "/top_10_most_discounted",
+    response_model=TopBooksRead,
+    status_code=status.HTTP_200_OK,
+)
+async def get_top_10_books(
+    session: Session = Depends(get_session),
 ):
     service = BookService(session)
-    return service.update_book(book_id, book)
+    data = service.get_top_10_most_discounted_books()
+    return data
 
 
-@router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_book(book_id: int, session: Session = Depends(get_session)):
+@router.get("/top_8", response_model=TopBooksRead, status_code=status.HTTP_200_OK)
+async def get_top_8_books(
+    params: Top8BooksQueryParams = Depends(),
+    session: Session = Depends(get_session),
+):
     service = BookService(session)
-    return service.delete_book(book_id)
+    data = service.get_top_8_books(sort=params.sort)
+    return data
