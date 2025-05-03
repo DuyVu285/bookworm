@@ -15,8 +15,9 @@ class OrderItemUpdate(OrderItemBase):
     pass
 
 
-class OrderItemRead(OrderItemBase):
+class OrderItemRead(OrderItemCreate):
     id: int
 
-    model_config = ConfigDict(from_attributes=True)
 
+class OrderItemForOrderCreate(OrderItemBase):
+    book_id: int

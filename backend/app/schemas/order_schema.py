@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class OrderBase(BaseModel):
@@ -17,5 +17,4 @@ class OrderUpdate(OrderBase):
 
 class OrderRead(OrderBase):
     id: int
-
-    model_config = ConfigDict(from_attributes=True)
+    user_id: int
