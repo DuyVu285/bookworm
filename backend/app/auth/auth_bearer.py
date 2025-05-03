@@ -39,5 +39,20 @@ class AuthBearer:
         user = user_service.get_user_by_email(email)
         if user is None:
             raise credentials_exception
-
         return user
+
+    def get_refresh_token(self, token: str = Depends(oauth2_scheme)):
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+
+        try:
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            email: str = payload.get("sub")
+            if email is None:
+                raise credentials_exception
+        except JWTError:
+            raise credentials_exception
+
+        return token
