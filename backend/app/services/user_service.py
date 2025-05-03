@@ -3,15 +3,13 @@ from app.models.user_model import User
 from sqlmodel import Session
 from passlib.context import CryptContext
 from app.repositories.user_repository import UserRepository
+from app.schemas.user_schema import UserCreate, UserRead
 
 
 class UserService:
     def __init__(self, session: Session):
         self.userRepository = UserRepository(session)
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-    def hash_password(self, password: str) -> str:
-        return self.pwd_context.hash(password)
 
     def verify_password(self, plain: str, hashed: str) -> bool:
         return self.pwd_context.verify(plain, hashed)
@@ -27,11 +25,24 @@ class UserService:
             raise HTTPException(status_code=401, detail="Incorrect password")
         return user
 
-    def create_user(self, user: User) -> User:
-        user.password = self.hash_password(user.password)
-        print("Registering user...", user)
-        existing_user = self.userRepository.get_user_by_email(user.email)
-        if existing_user:
-            raise HTTPException(status_code=409, detail="User already exists")
-        user = self.userRepository.create_user(user)
-        return user
+    # Create a new user to test and hash the password
+    def hash_password(self, password: str) -> str:
+        return self.pwd_context.hash(password)
+
+    def create_user(self, user: UserCreate) -> User:
+        # Check if email already exists
+        if self.userRepository.get_user_by_email(user.email):
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+        # Create the SQLAlchemy User object
+        new_user = User(
+            first_name=user.first_name,
+            last_name=user.last_name,
+            email=user.email,
+            password=self.hash_password(user.password),  # hash the password
+        )
+
+        # Save to DB via the repository
+        created_user = self.userRepository.create_user(new_user)
+
+        return created_user

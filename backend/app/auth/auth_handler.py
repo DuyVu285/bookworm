@@ -5,20 +5,21 @@ from fastapi import HTTPException
 
 
 class AuthHandler:
+    def __init__(self):
+        self.secret = settings.SECRET_KEY
+        self.algorithm = settings.ALGORITHM
 
     def create_access_token(self, data: dict, expires_delta: timedelta = None):
         to_encode = data.copy()
-        expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=15))
+        expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=30))
         to_encode.update({"exp": expire})
-        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        return jwt.encode(to_encode, self.secret, algorithm=self.algorithm)
 
     def verify_token(self, token: str):
         try:
-            payload = jwt.decode(
-                token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-            )
+            payload = jwt.decode(token, self.secret, algorithms=[self.algorithm])
             return payload
         except ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Token expired")
         except JWTError:
-            return HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(status_code=401, detail="Invalid token")

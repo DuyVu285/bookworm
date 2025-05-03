@@ -3,10 +3,11 @@ from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings
 from app.auth.auth_handler import AuthHandler
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
 
 class AuthBearer:
+
     def get_current_user(self, token: str = Depends(oauth2_scheme)):
         user = AuthHandler().verify_token(token)
         if user is None:

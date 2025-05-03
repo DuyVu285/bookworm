@@ -9,22 +9,17 @@ class UserBase(BaseModel):
     password: str
 
 
-class UserLogIn(BaseModel):
-    email: str
-    password: str
-
-
-class UserCreate(UserBase):
-    admin: bool = False
-
-
-class UserCreateResponse(BaseModel):
-    id: int
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class UserRead(UserBase):
     id: int
 
-    model_config = ConfigDict(from_attributes=True)
+
+class UserInDB(UserBase):
+    id: int
+    hashed_password: str
+
+
+class UserCreate(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    password: str
