@@ -92,7 +92,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
               </li>
             ) : (
               <li tabIndex={0} className="dropdown dropdown-end">
-                <a className="btn btn-ghost text-gray-800">
+                <a className="text-gray-800">
                   {user?.first_name} {user?.last_name}
                   <svg
                     className="fill-current w-4 h-4 ml-2"
