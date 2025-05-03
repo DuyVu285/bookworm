@@ -1,6 +1,8 @@
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { useLocation, Link } from "react-router-dom";
 import { RootState } from "../../store";
+import authService from "../../services/authService"; // Import authService for handling logout
+import { clearUser } from "../../store/userSlice";
 
 type NavProps = {
   onLoginClick: () => void;
@@ -12,24 +14,34 @@ const Nav = ({ onLoginClick }: NavProps) => {
   );
 
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  // User information (first and last name)
+  const user = useSelector((state: RootState) => state.user);
+  console.log("User from Redux:", user);
+  console.log("User first name:", user.first_name);
+  console.log("User last name:", user.last_name);
 
   // Function to determine if the current link is active
   const isActive = (path: string) => {
     const activeClass = "text-primary font-bold";
 
-    // If you're on a book page, highlight the 'Shop' link
     if (location.pathname.startsWith("/Book/")) {
       return path === "/Shop" ? activeClass : "";
     }
 
-    // Default case for other paths
     return location.pathname === path ? activeClass : "";
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    dispatch(clearUser());
   };
 
   return (
     <div className="navbar bg-base-100 shadow-sm fixed top-0 left-0 w-full z-50">
       <div className="navbar-start">
-        <a href="/" className="btn btn-ghost">
+        <Link to="/" className="btn btn-ghost">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -45,37 +57,65 @@ const Nav = ({ onLoginClick }: NavProps) => {
             />
           </svg>
           <span className="text-xl uppercase">bookworm</span>
-        </a>
+        </Link>
       </div>
       <div className="navbar-end">
         {/* Desktop Menu */}
         <div className="hidden lg:flex">
           <ul className="menu menu-horizontal px-1 mr-18">
             <li>
-              <a href="/" className={`${isActive("/")}`}>
+              <Link to="/" className={`${isActive("/")}`}>
                 Home
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/Shop" className={`${isActive("/Shop")}`}>
+              <Link to="/Shop" className={`${isActive("/Shop")}`}>
                 Shop
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/About" className={`${isActive("/About")}`}>
+              <Link to="/About" className={`${isActive("/About")}`}>
                 About
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/Cart" className={`${isActive("/Cart")}`}>
-                Cart ({cartCount})
-              </a>
+              <Link to="/Cart" className={`${isActive("/Cart")}`}>
+                Cart {cartCount > 0 && `(${cartCount})`}
+              </Link>
             </li>
-            <li>
-              <a onClick={onLoginClick} className={`${isActive("/Login")}`}>
-                Sign In
-              </a>
-            </li>
+            {/* Conditionally render the login or user dropdown */}
+            {!authService.isLoggedIn() ? (
+              <li>
+                <a onClick={onLoginClick} className={`${isActive("/Login")}`}>
+                  Sign In
+                </a>
+              </li>
+            ) : (
+              <li tabIndex={0} className="dropdown dropdown-end">
+                <a className="btn btn-ghost text-gray-800">
+                  {user?.first_name} {user?.last_name}
+                  <svg
+                    className="fill-current w-4 h-4 ml-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </a>
+                <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                  <li>
+                    <a onClick={handleLogout} className="text-red-600">
+                      Logout
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            )}
           </ul>
         </div>
       </div>

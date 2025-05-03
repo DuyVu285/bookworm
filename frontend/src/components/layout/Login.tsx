@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import authService from "../../services/authService"; // Import authService for handling login
 
 interface LoginProps {
   isOpen: boolean;
@@ -8,6 +9,9 @@ interface LoginProps {
 const Login = ({ isOpen, onClose }: LoginProps) => {
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // for error feedback
 
   useEffect(() => {
     const modal = modalRef.current;
@@ -17,6 +21,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
       formRef.current?.reset();
       onClose();
     };
+
     const handleClickOutside = (event: MouseEvent) => {
       if (event.target === modal) modal.close();
     };
@@ -34,6 +39,19 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
     };
   }, [isOpen, onClose]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null); // Reset any previous error
+
+    try {
+      await authService.login({ username: email, password });
+      onClose(); // Close the modal on successful login
+      // Redirect user or update app state here (e.g., setLoggedIn(true))
+    } catch (error) {
+      setErrorMessage("Invalid email or password");
+    }
+  };
+
   return (
     <dialog ref={modalRef} className="modal flex justify-center items-center">
       <div
@@ -44,6 +62,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
           method="dialog"
           ref={formRef}
           className="w-full flex flex-col gap-4"
+          onSubmit={handleSubmit}
         >
           <h3 className="font-bold text-2xl text-center">Login</h3>
 
@@ -54,6 +73,8 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
               <input
                 type="email"
                 placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full"
               />
@@ -67,12 +88,18 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
               <input
                 type="password"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={8}
                 className="w-full"
               />
             </label>
           </div>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <p className="text-red-500 text-center">{errorMessage}</p>
+          )}
 
           {/* Submit Button */}
           <button type="submit" className="btn btn-primary w-full mt-2">
