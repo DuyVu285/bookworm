@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import BookCard from "../../components/BookCard";
-import bookService from "../../services/bookService";
+import bookService from "../../services/api/bookService";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";

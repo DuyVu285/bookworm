@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, Link } from "react-router-dom";
 import { RootState } from "../../store";
-import authService from "../../services/authService"; // Import authService for handling logout
+import authService from "../../services/auth/authService";
 import { clearUser } from "../../store/userSlice";
 
 type NavProps = {

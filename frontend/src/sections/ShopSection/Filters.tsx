@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import authorService from "../../services/authorService";
-import categoryService from "../../services/categoryService";
+import authorService from "../../services/api/authorService";
+import categoryService from "../../services/api/categoryService";
 import { FILTER_KEYS, useQueryFilters } from "../../hooks/useQueryFilters";
 
 const Filters = () => {

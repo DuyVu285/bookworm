@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Breadcrumbs from "../../components/layout/Breadcrumbs";
-import reviewService from "../../services/reviewService";
+import reviewService from "../../services/api/reviewService";
 import GridToolbar from "../../components/GridToolbar";
 import { FILTER_KEYS, useQueryFilters } from "../../hooks/useQueryFilters";
 import Pagination from "../../components/Pagination";

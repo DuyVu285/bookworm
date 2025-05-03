@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import bookService from "../../services/bookService";
+import bookService from "../../services/api/bookService";
 import BookGridDisplay from "../../components/BookGridDisplay"; // Import the reusable component
 
 type Book = {

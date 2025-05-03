@@ -1,5 +1,5 @@
 import { useState } from "react";
-import reviewService from "../../services/reviewService";
+import reviewService from "../../services/api/reviewService";
 import Toast from "../../components/Toast";
 
 type Props = {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import GridToolbar from "../../components/GridToolbar";
 import Pagination from "../../components/Pagination";
-import bookService from "../../services/bookService";
+import bookService from "../../services/api/bookService";
 import BookGridDisplay from "../../components/BookGridDisplay";
 import { FILTER_KEYS, useQueryFilters } from "../../hooks/useQueryFilters";
 

@@ -57,7 +57,7 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.post("/users/refresh", response_model=Token)
+@router.post("/refresh", response_model=Token)
 def refresh_token(
     request: Request,
     session: Session = Depends(get_session),

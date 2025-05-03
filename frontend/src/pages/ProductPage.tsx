@@ -3,7 +3,7 @@ import BookDetails from "../sections/ProductSection/BookDetails";
 import CustomerReviews from "../sections/ProductSection/CustomerReviews";
 import MainLayout from "../components/layout/MainLayout";
 import WriteAReview from "../sections/ProductSection/WriteAReview";
-import bookService from "../services/bookService";
+import bookService from "../services/api/bookService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 

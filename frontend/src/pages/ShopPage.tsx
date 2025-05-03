@@ -3,8 +3,8 @@ import BooksGrid from "../sections/ShopSection/BooksGrid";
 import Filters from "../sections/ShopSection/Filters";
 import MainLayout from "../components/layout/MainLayout";
 import { FILTER_KEYS, useQueryFilters } from "../hooks/useQueryFilters";
-import categoryService from "../services/categoryService";
-import authorService from "../services/authorService";
+import categoryService from "../services/api/categoryService";
+import authorService from "../services/api/authorService";
 
 const ShopPage = () => {
   const { getParam } = useQueryFilters();

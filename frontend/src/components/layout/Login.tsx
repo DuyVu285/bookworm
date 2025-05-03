@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import authService from "../../services/authService"; // Import authService for handling login
+import authService from "../../services/auth/authService"; // Import authService for handling login
 
 interface LoginProps {
   isOpen: boolean;
