@@ -3,6 +3,9 @@ import Toast from "../../components/Toast";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { addToCart } from "../../store/cartSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+
 type BookCart = {
   id: number;
   book_title: string;
@@ -17,6 +20,11 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
   const [toast, setToast] = useState<{ message: string; type?: string } | null>(
     null
   );
+
+  const cartItem = useSelector((state: RootState) =>
+    state.cart.items.find((item) => item.id === bookCart.id)
+  );
+  const currentQty = cartItem?.quantity || 0;
   const dispatch = useDispatch<AppDispatch>();
   const showToast = (
     message: string,
@@ -38,6 +46,17 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
   };
 
   const handleAddToCart = () => {
+    const totalQty = currentQty + quantity;
+
+    if (totalQty > 8) {
+      const allowed = 8 - currentQty;
+      showToast(
+        `You can only add ${allowed} more of this book. (Max 8 total)`,
+        "warning"
+      );
+      return;
+    }
+
     dispatch(addToCart({ ...bookCart, quantity }));
     showToast(`${quantity} book(s) added to cart!`, "success");
   };

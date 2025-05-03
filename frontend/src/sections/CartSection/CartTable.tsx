@@ -122,6 +122,7 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
                         className="input input-bordered text-center join-item input-sm w-12"
                         readOnly
                         value={item.quantity}
+                        max={8}
                       />
                       <button
                         className="btn btn-sm join-item"
