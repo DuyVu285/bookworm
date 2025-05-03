@@ -3,7 +3,7 @@ from app.models.user_model import User
 from sqlmodel import Session
 from passlib.context import CryptContext
 from app.repositories.user_repository import UserRepository
-from app.schemas.user_schema import UserCreate, UserRead
+from app.schemas.user_schema import UserCreate
 
 
 class UserService:

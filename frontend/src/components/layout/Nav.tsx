@@ -18,9 +18,6 @@ const Nav = ({ onLoginClick }: NavProps) => {
 
   // User information (first and last name)
   const user = useSelector((state: RootState) => state.user);
-  console.log("User from Redux:", user);
-  console.log("User first name:", user.first_name);
-  console.log("User last name:", user.last_name);
 
   // Function to determine if the current link is active
   const isActive = (path: string) => {
@@ -84,16 +81,10 @@ const Nav = ({ onLoginClick }: NavProps) => {
               </Link>
             </li>
             {/* Conditionally render the login or user dropdown */}
-            {!authService.isLoggedIn() ? (
-              <li>
-                <a onClick={onLoginClick} className={`${isActive("/Login")}`}>
-                  Sign In
-                </a>
-              </li>
-            ) : (
+            {authService.isLoggedIn() && user.first_name && user.last_name ? (
               <li tabIndex={0} className="dropdown dropdown-end">
                 <a className="text-gray-800">
-                  {user?.first_name} {user?.last_name}
+                  {user.first_name} {user.last_name}
                   <svg
                     className="fill-current w-4 h-4 ml-2"
                     xmlns="http://www.w3.org/2000/svg"
@@ -114,6 +105,12 @@ const Nav = ({ onLoginClick }: NavProps) => {
                     </a>
                   </li>
                 </ul>
+              </li>
+            ) : (
+              <li>
+                <a onClick={onLoginClick} className={`${isActive("/Login")}`}>
+                  Sign In
+                </a>
               </li>
             )}
           </ul>

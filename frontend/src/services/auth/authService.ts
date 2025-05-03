@@ -19,6 +19,12 @@ export interface TokenResponse {
   token_type: string;
 }
 
+export interface User {
+  first_name: string;
+  last_name: string;
+  id: number;
+}
+
 const TOKEN_KEY = "access_token";
 
 // Attach Authorization header to each request if access token is available
@@ -57,7 +63,7 @@ api.interceptors.response.use(
 
 const authService = {
   // Login and get access token
-  async login(payload: LoginPayload): Promise<void> {
+  async login(payload: LoginPayload): Promise<string> {
     try {
       const form = new URLSearchParams();
       form.append("grant_type", "password");
@@ -74,31 +80,22 @@ const authService = {
       });
 
       if (response.status === 200 && response.data.access_token) {
-        console.log(
-          "Login successful, access token:",
-          response.data.access_token
-        );
         const userResponse = await api.get("/users/me", {
           headers: { Authorization: `Bearer ${response.data.access_token}` },
         });
         store.dispatch(setUser(userResponse.data));
-        console.log("User data:", userResponse.data);
-        store.dispatch(setAccessToken(response.data.access_token)); // Store token in Redux
+        store.dispatch(setAccessToken(response.data.access_token));
+        return "Login successful";
       } else {
-        console.log("Unexpected response:", response);
+        return "Login failed: unexpected response from server";
       }
     } catch (error: any) {
-      if (error.response) {
-        console.error("API Error:", error.response.data);
-      } else {
-        console.error("Error during login:", error.message);
-      }
-      throw error;
+      const message = error.response?.data?.detail || "Login failed";
+      throw new Error(message);
     }
   },
 
-  // Logout and clear user and token from state and local storage
-  async logout(): Promise<void> {
+  async logout(): Promise<string> {
     try {
       await api.post(
         "/users/logout",
@@ -107,13 +104,14 @@ const authService = {
       );
       store.dispatch(clearUser());
       store.dispatch(clearAccessToken());
-      localStorage.removeItem(TOKEN_KEY);
-    } catch (error) {
-      console.error("Error during logout:", error);
+      return "Logout successful";
+    } catch (error: any) {
+      const message = error.response?.data?.detail || "Logout failed";
+      throw new Error(message);
     }
   },
 
-  async getUser(): Promise<any> {
+  async getUser(): Promise<User> {
     try {
       const response = await api.get("/users/me", {
         headers: authService.getAuthHeader(),
@@ -130,7 +128,7 @@ const authService = {
     try {
       const response = await api.post("/users/refresh");
       const { access_token } = response.data;
-      store.dispatch(setAccessToken(access_token)); // Store refreshed token in Redux
+      store.dispatch(setAccessToken(access_token));
       return true;
     } catch (err) {
       console.warn("Token refresh failed", err);

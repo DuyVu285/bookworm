@@ -2,20 +2,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict
 
 
-class UserBase(BaseModel):
+class UserRead(BaseModel):
+    id: int
     first_name: str
     last_name: str
-    email: str
-    password: str
-
-
-class UserRead(UserBase):
-    id: int
-
-
-class UserInDB(UserBase):
-    id: int
-    hashed_password: str
 
 
 class UserCreate(BaseModel):

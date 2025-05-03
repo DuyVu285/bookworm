@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import authService from "../../services/auth/authService"; // Import authService for handling login
+import Toast from "../Toast";
 
 interface LoginProps {
   isOpen: boolean;
@@ -11,7 +12,17 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // for error feedback
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type?: string } | null>(
+    null
+  );
+
+  const showToast = (
+    message: string,
+    type: "info" | "success" | "error" | "warning" = "info"
+  ) => {
+    setToast({ message, type });
+  };
 
   useEffect(() => {
     const modal = modalRef.current;
@@ -19,6 +30,9 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
 
     const handleClose = () => {
       formRef.current?.reset();
+      setEmail("");
+      setPassword("");
+      setErrorMessage(null);
       onClose();
     };
 
@@ -41,73 +55,85 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null); // Reset any previous error
+    setErrorMessage(null);
 
     try {
       await authService.login({ username: email, password });
-      onClose(); // Close the modal on successful login
-      // Redirect user or update app state here (e.g., setLoggedIn(true))
+      onClose();
+      showToast("Login successful!", "success");
     } catch (error) {
-      setErrorMessage("Invalid email or password");
+      showToast("Login failed. Please try again.", "error");
+      setErrorMessage("Invalid email or password.");
     }
   };
 
   return (
-    <dialog ref={modalRef} className="modal flex justify-center items-center">
-      <div
-        className="modal-box flex flex-col justify-center items-center gap-6 w-full max-w-md"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <form
-          method="dialog"
-          ref={formRef}
-          className="w-full flex flex-col gap-4"
-          onSubmit={handleSubmit}
+    <>
+      {/* Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type as any}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      <dialog ref={modalRef} className="modal flex justify-center items-center">
+        <div
+          className="modal-box flex flex-col justify-center items-center gap-6 w-full max-w-md"
+          onClick={(e) => e.stopPropagation()}
         >
-          <h3 className="font-bold text-2xl text-center">Login</h3>
+          <form
+            method="dialog"
+            ref={formRef}
+            className="w-full flex flex-col gap-4"
+            onSubmit={handleSubmit}
+          >
+            <h3 className="font-bold text-2xl text-center">Login</h3>
 
-          {/* Email Field */}
-          <div className="w-full flex flex-col">
-            <label className="input validator w-full flex items-center">
-              <EmailIcon />
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full"
-              />
-            </label>
-          </div>
+            {/* Email Field */}
+            <div className="w-full flex flex-col">
+              <label className="input validator w-full flex items-center">
+                <EmailIcon />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </label>
+            </div>
 
-          {/* Password Field */}
-          <div className="w-full flex flex-col">
-            <label className="input validator w-full flex items-center gap-2">
-              <PasswordIcon />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full"
-              />
-            </label>
-          </div>
+            {/* Password Field */}
+            <div className="w-full flex flex-col">
+              <label className="input validator w-full flex items-center gap-2">
+                <PasswordIcon />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </label>
+            </div>
 
-          {/* Error Message */}
-          {errorMessage && (
-            <p className="text-red-500 text-center">{errorMessage}</p>
-          )}
+            {/* Error Message */}
+            {errorMessage && (
+              <p className="text-red-500 text-center">{errorMessage}</p>
+            )}
 
-          {/* Submit Button */}
-          <button type="submit" className="btn btn-primary w-full mt-2">
-            Login
-          </button>
-        </form>
-      </div>
-    </dialog>
+            {/* Submit Button */}
+            <button type="submit" className="btn btn-primary w-full mt-2">
+              Login
+            </button>
+          </form>
+        </div>
+      </dialog>
+    </>
   );
 };
 

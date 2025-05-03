@@ -20,7 +20,6 @@ const CartPage = () => {
   const cart = useSelector((state: RootState) => state.cart.items);
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   useEffect(() => {
-    console.log("cart", cart);
     setCartItems(cart);
   });
   return (
