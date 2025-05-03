@@ -25,8 +25,6 @@ export interface User {
   id: number;
 }
 
-const TOKEN_KEY = "access_token";
-
 // Attach Authorization header to each request if access token is available
 api.interceptors.request.use((config) => {
   const token = store.getState().auth.access_token;

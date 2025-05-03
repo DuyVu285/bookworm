@@ -1,51 +1,82 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
+import orderService from "../../services/api/orderService";
+import { clearCart } from "../../store/cartSlice";
+import authService from "../../services/auth/authService";
+import { useEffect, useState } from "react";
+import Login from "../../components/layout/Login";
 
 const CartTotals = () => {
   const cart = useSelector((state: RootState) => state.cart.items);
+  const user = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoginOpen, setLoginOpen] = useState(false); // State to control login dialog
+
+  useEffect(() => {
+    // Check if user is logged in when component mounts
+    setIsLoggedIn(authService.isLoggedIn());
+  }, []);
+
   const totalPrice = cart.reduce(
     (sum, item) => sum + (item.sub_price ?? item.book_price) * item.quantity,
     0
   );
 
   const handlePlaceOrder = async () => {
+    if (!isLoggedIn || user.id === null) {
+      // Open login dialog if not logged in
+      setLoginOpen(true);
+      return;
+    }
+
     const orderItems = cart.map((item) => ({
-      id: item.id,
+      book_id: item.id,
       quantity: item.quantity,
+      price: item.sub_price ?? item.book_price,
     }));
 
+    const orderData = {
+      user_id: user.id,
+      order_date: new Date().toISOString(),
+      order_amount: totalPrice,
+      items: orderItems,
+    };
+
     try {
-      const response = await fetch("/api/place-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: orderItems }),
-      });
-
-      if (!response.ok) throw new Error("Failed to place order");
-
+      await orderService.placeOrder(orderData);
       alert("Order placed successfully!");
-      // Optionally dispatch action to clear cart here
+
+      // Optionally clear cart after placing order
+      dispatch(clearCart());
     } catch (error) {
       alert("Error placing order.");
       console.error(error);
     }
   };
 
+  const handleLoginClose = () => setLoginOpen(false); // Close login dialog
+
   return (
-    <div className="rounded-box border border-gray-300 bg-base-200">
-      <div className="text-xl border-b p-1 border-gray-300 flex items-center justify-center">
-        <span className="text-gray-500 p-2">Cart Totals</span>
+    <>
+      {isLoginOpen && <Login isOpen={isLoginOpen} onClose={handleLoginClose} />}
+
+      <div className="rounded-box border border-gray-300 bg-base-200">
+        <div className="text-xl border-b p-1 border-gray-300 flex items-center justify-center">
+          <span className="text-gray-500 p-2">Cart Totals</span>
+        </div>
+        <div className="p-2 rounded-b-lg flex flex-col items-center justify-center h-64 gap-2">
+          <span className="text-3xl font-bold">${totalPrice.toFixed(2)}</span>
+          <button
+            className="btn w-[80%] mt-8 text-2xl font-bold bg-base-300"
+            onClick={handlePlaceOrder}
+          >
+            Place Order
+          </button>
+        </div>
       </div>
-      <div className="p-2 rounded-b-lg flex flex-col items-center justify-center h-64 gap-2">
-        <span className="text-3xl font-bold">${totalPrice.toFixed(2)}</span>
-        <button
-          className="btn w-[80%] mt-8 text-2xl font-bold bg-base-300"
-          onClick={handlePlaceOrder}
-        >
-          Place Order
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
 
