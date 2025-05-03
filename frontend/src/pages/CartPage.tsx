@@ -39,5 +39,4 @@ const CartPage = () => {
     </MainLayout>
   );
 };
-
 export default CartPage;

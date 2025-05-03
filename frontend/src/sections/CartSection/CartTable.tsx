@@ -33,6 +33,7 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
       showToast("Book removed from cart!", "success");
     } else {
       dispatch(updateQuantity({ id, quantity: currentQty - 1 }));
+      showToast("Book quantity decreased!", "success");
     }
   };
 
@@ -40,7 +41,7 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
     if (currentQty < 8) {
       dispatch(updateQuantity({ id, quantity: currentQty + 1 }));
     }
-    showToast("Book added to cart!", "success");
+    showToast("Book quantity increased!", "success");
   };
 
   return cartItems.length === 0 ? (
