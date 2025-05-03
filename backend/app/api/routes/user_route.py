@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{user_id}", response_model=UserRead, status_code=status.HTTP_200_OK)
+@router.get("/user/{user_id}", response_model=UserRead, status_code=status.HTTP_200_OK)
 async def get_user(user_id: int, session: Session = Depends(get_session)):
     user = session.get(User, user_id)
     if not user:

@@ -10,11 +10,8 @@ class UserRepository:
         return self.session.get(User, user_id)
 
     def get_user_by_email(self, email: str):
-        query = select(
-            User.first_name, User.last_name, User.email, User.password
-        ).where(User.email == email)
-
-        return self.session.exec(query).one_or_none()
+        statement = select(User).where(User.email == email)
+        return self.session.exec(statement).one_or_none()
 
     def create_user(self, user: User) -> User:
         self.session.add(user)
