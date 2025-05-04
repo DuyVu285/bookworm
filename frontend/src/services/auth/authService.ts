@@ -39,7 +39,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    // Only attempt to refresh the token once
+
+    // Check if it's a 401 error and if retrying is allowed
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -55,10 +56,11 @@ api.interceptors.response.use(
       store.dispatch(clearUser());
       store.dispatch(clearAccessToken());
     }
+
     return Promise.reject(error);
   }
 );
-
+let isRefreshing = false;
 const authService = {
   // Login and get access token
   async login(payload: LoginPayload): Promise<string> {
@@ -123,13 +125,17 @@ const authService = {
 
   // Try to refresh the access token
   async tryRefreshToken() {
+    if (isRefreshing) return false; // Prevent multiple refresh attempts
+
     try {
+      isRefreshing = true; // Set flag to prevent retrying
       const response = await api.post("/users/refresh");
       const { access_token } = response.data;
       store.dispatch(setAccessToken(access_token));
+      isRefreshing = false; // Reset flag after refresh
       return true;
-    } catch (err) {
-      console.warn("Token refresh failed", err);
+    } catch (err: any) {
+      isRefreshing = false; // Reset flag in case of failure
       return false;
     }
   },

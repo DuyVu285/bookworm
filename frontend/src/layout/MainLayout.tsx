@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Footer from "./Footer";
-import Login from "./Login";
+import Login from "../components/Login";
 import Nav from "./Nav";
 import Breadcrumbs from "./Breadcrumbs";
 

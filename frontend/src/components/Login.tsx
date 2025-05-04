@@ -52,6 +52,12 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
     e.preventDefault();
     setErrorMessage(null);
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage("Please enter a valid email with a proper domain.");
+      return;
+    }
+
     try {
       await authService.login({ username: email, password });
       onClose();
@@ -122,7 +128,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
             )}
 
             {/* Submit Button */}
-            <button type="submit" className="btn btn-primary w-full mt-2">
+            <button type="submit" className="btn bg-gray-200 w-full mx-auto">
               Login
             </button>
           </form>

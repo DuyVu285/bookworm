@@ -8,15 +8,19 @@ type BookDetails = {
 };
 
 const BookDetails = ({ book }: { book: BookDetails }) => {
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = "https://placehold.co/480x640";
+  };
   return (
     <>
       <div className="rounded-box flex flex-col lg:flex-row border border-gray-300 min-h-[25rem]">
         {/* Aside Image */}
         <aside className="w-full lg:w-1/3">
           <img
-            src={book.book_cover_photo || "https://placehold.co/480x640"} // Use the dynamic image
+            src={book.book_cover_photo || "https://placehold.co/480x640"}
             alt={book.book_title}
             className="rounded-tl-lg h-60 w-full object-cover"
+            onError={handleError}
           />
           <span className="flex justify-end p-2">By {book.author_name}</span>
         </aside>
