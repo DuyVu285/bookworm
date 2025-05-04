@@ -1,10 +1,10 @@
 import { useState } from "react";
-import Toast from "../../components/Toast";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { addToCart } from "../../store/cartSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { showToast } from "../../store/toastSlice";
 
 type BookCart = {
   id: number;
@@ -17,61 +17,57 @@ type BookCart = {
 
 const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
   const [quantity, setQuantity] = useState(1);
-  const [toast, setToast] = useState<{ message: string; type?: string } | null>(
-    null
-  );
-
   const cartItem = useSelector((state: RootState) =>
     state.cart.items.find((item) => item.id === bookCart.id)
   );
   const currentQty = cartItem?.quantity || 0;
   const dispatch = useDispatch<AppDispatch>();
-  const showToast = (
-    message: string,
-    type: "info" | "success" | "error" | "warning" = "info"
-  ) => {
-    setToast({ message, type });
-  };
-
+  const maxQuantity = 8;
   const decrease = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
   };
 
   const increase = () => {
-    if (quantity >= 8) {
-      showToast("Maximum quantity is 8 books.", "warning");
+    if (quantity >= maxQuantity) {
+      dispatch(
+        showToast({
+          message: "You can only add 8 of this book. (Max 8 total)",
+          type: "warning",
+        })
+      );
       return;
     }
     setQuantity((prev) => prev + 1);
   };
 
   const handleAddToCart = () => {
-    const totalQty = currentQty + quantity;
+    if (currentQty >= maxQuantity) {
+      dispatch(
+        showToast({
+          message: "You've reached the maximum quantity for this book (8).",
+          type: "warning",
+        })
+      );
+      return;
+    }
 
-    if (totalQty > 8) {
-      const allowed = 8 - currentQty;
-      showToast(
-        `You can only add ${allowed} more of this book. (Max 8 total)`,
-        "warning"
+    if (currentQty + quantity > maxQuantity) {
+      const allowed = maxQuantity - currentQty;
+      dispatch(
+        showToast({
+          message: `You can only add ${allowed} more of this book.`,
+          type: "warning",
+        })
       );
       return;
     }
 
     dispatch(addToCart({ ...bookCart, quantity }));
-    showToast(`${quantity} book(s) added to cart!`, "success");
+    dispatch(showToast({ message: "Book added to cart!", type: "success" }));
   };
 
   return (
     <>
-      {/* Toast */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type as any}
-          onClose={() => setToast(null)}
-        />
-      )}
-
       {/* Add to Cart Section */}
       <div className="rounded-box border border-gray-300">
         <div className="bg-gray-100 text-2xl font-medium p-4">
@@ -99,7 +95,19 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
               type="text"
               className="input input-bordered w-full text-center join-item"
               value={quantity}
-              readOnly
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                if (!isNaN(value) && value > 0 && value <= 8) {
+                  setQuantity(value);
+                } else {
+                  dispatch(
+                    showToast({
+                      message: "Book quantity must be between 1 and 8.",
+                      type: "warning",
+                    })
+                  );
+                }
+              }}
             />
             <button className="btn join-item w-[20%]" onClick={increase}>
               +

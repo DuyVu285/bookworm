@@ -1,19 +1,21 @@
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
+import { hideToast } from "../store/toastSlice";
 
-type ToastProps = {
-  message: string;
-  type?: "info" | "success" | "error" | "warning";
-  onClose: () => void;
-};
+const Toast = () => {
+  const { message, type, visible } = useSelector(
+    (state: RootState) => state.toast
+  );
+  const dispatch = useDispatch();
 
-const Toast = ({ message, type = "info", onClose }: ToastProps) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 3000);
-
+    if (!visible) return;
+    const timer = setTimeout(() => dispatch(hideToast()), 3000);
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [visible, dispatch]);
+
+  if (!visible) return null;
 
   const alertTypeClass = {
     info: "alert-info",

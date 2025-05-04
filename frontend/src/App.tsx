@@ -6,10 +6,12 @@ import ProductPage from "./pages/ProductPage";
 import CartPage from "./pages/CartPage";
 import AboutPage from "./pages/AboutPage";
 import ScrollToTop from "./components/ScrollToTop";
+import Toast from "./components/Toast";
 
 function App() {
   return (
     <>
+      <Toast />
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
