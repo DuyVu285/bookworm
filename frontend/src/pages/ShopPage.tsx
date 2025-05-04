@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BooksGrid from "../sections/ShopSection/BooksGrid";
 import Filters from "../sections/ShopSection/Filters";
-import MainLayout from "../components/layout/MainLayout";
+import MainLayout from "../layout/MainLayout";
 import { FILTER_KEYS, useQueryFilters } from "../hooks/useQueryFilters";
 import categoryService from "../services/api/categoryService";
 import authorService from "../services/api/authorService";
@@ -69,12 +69,12 @@ const ShopPage = () => {
     <MainLayout type="Books" value={displayString}>
       <div className="flex flex-col lg:flex-row mx-18">
         {/* Aside Filters */}
-        <aside className="w-full lg:w-1/6">
+        <aside className="w-full lg:w-1/6 m-2">
           <Filters />
         </aside>
 
         {/* Book Grid */}
-        <div className="w-full lg:w-5/6">
+        <div className="w-full lg:w-5/6 m-2 mx-4">
           <BooksGrid />
         </div>
       </div>

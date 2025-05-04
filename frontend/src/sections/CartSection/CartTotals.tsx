@@ -3,7 +3,7 @@ import { RootState } from "../../store";
 import orderService from "../../services/api/orderService";
 import { clearCart, updateItemPrice } from "../../store/cartSlice";
 import { useState } from "react";
-import Login from "../../components/layout/Login";
+import Login from "../../layout/Login";
 import { showToast } from "../../store/toastSlice";
 
 const CartTotals = () => {

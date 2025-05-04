@@ -104,8 +104,8 @@ const GridToolbar = ({
   );
 
   return (
-    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 py-4">
-      <h3 className="mt-2">
+    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+      <h3 className="text-2xl">
         Showing {startItem}-{endItem} of {totalItems} {itemType}
       </h3>
 

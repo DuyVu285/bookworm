@@ -93,25 +93,26 @@ const BooksGrid = () => {
 
   return (
     <>
-      <div className="px-4">
-        {/* Grid toolbar */}
-        <GridToolbar
-          sortOptions={sortOptions}
-          startItem={pageInfo.start_item}
-          endItem={pageInfo.end_item}
-          totalItems={pageInfo.total_items}
-          itemType="books"
-          initialItemsPerPage={pageInfo.limit}
-          initialSortOption={sortOptions[0].key}
-        />
-        {/* Book grid display */}
+      {/* Grid toolbar */}
+      <GridToolbar
+        sortOptions={sortOptions}
+        startItem={pageInfo.start_item}
+        endItem={pageInfo.end_item}
+        totalItems={pageInfo.total_items}
+        itemType="books"
+        initialItemsPerPage={pageInfo.limit}
+        initialSortOption={sortOptions[0].key}
+      />
+      {/* Book grid display */}
+      <div className="my-8">
         <BookGridDisplay
           books={books}
           loading={loading}
           emptyMessage={emptyMessage}
         />
-
-        {/* Pagination */}
+      </div>
+      {/* Pagination */}
+      <div className="my-8">
         {pageInfo.total_pages > 0 && (
           <Pagination
             currentPage={pageInfo.page}

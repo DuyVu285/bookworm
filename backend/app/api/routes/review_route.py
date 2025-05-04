@@ -83,5 +83,6 @@ async def get_book_reviews_star_distribution(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_review(review: ReviewCreate, session: Session = Depends(get_session)):
+    print("Receiving review...", review)
     service = ReviewService(session)
     return service.create_review(review)

@@ -1,5 +1,5 @@
 import FeaturedBooks from "../sections/HomeSection/FeaturedBooks";
-import MainLayout from "../components/layout/MainLayout";
+import MainLayout from "../layout/MainLayout";
 import OnSale from "../sections/HomeSection/OnSale";
 
 const HomePage = () => {

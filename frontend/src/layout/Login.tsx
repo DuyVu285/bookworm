@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import authService from "../../services/auth/authService"; // Import authService for handling login
-import { showToast } from "../../store/toastSlice";
+import authService from "../services/auth/authService"; // Import authService for handling login
+import { showToast } from "../store/toastSlice";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store";
+import { AppDispatch } from "../store";
 import { useNavigate } from "react-router-dom";
 
 interface LoginProps {

@@ -11,7 +11,7 @@ const Breadcrumbs = ({
       <div className="breadcrumbs text-4xl border-b border-gray-300 py-6 mb-4">
         <span className="font-semibold">{type}</span>
         {value !== undefined && value && (
-          <span className="ml-2 text-gray-400 font-light">
+          <span className="ml-2 text-gray-500 font-light">
             (Filtered by {value})
           </span>
         )}

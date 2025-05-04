@@ -1,9 +1,9 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, Link } from "react-router-dom";
-import { RootState } from "../../store";
-import authService from "../../services/auth/authService";
-import { clearUser } from "../../store/userSlice";
-import { showToast } from "../../store/toastSlice";
+import { RootState } from "../store";
+import authService from "../services/auth/authService";
+import { clearUser } from "../store/userSlice";
+import { showToast } from "../store/toastSlice";
 
 type NavProps = {
   onLoginClick: () => void;

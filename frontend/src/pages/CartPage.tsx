@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import MainLayout from "../components/layout/MainLayout";
+import MainLayout from "../layout/MainLayout";
 import CartTable from "../sections/CartSection/CartTable";
 import CartTotals from "../sections/CartSection/CartTotals";
 import { RootState } from "../store";

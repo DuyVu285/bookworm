@@ -60,7 +60,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
     <>
       {/* Add to Cart Section */}
       <div className="rounded-box border border-gray-300">
-        <div className="bg-gray-100 text-2xl font-medium p-4">
+        <div className="bg-gray-100 text-2xl font-medium p-4 ">
           {bookCart.book_price === bookCart.sub_price ? (
             <span className="text-3xl font-bold pl-4">
               ${bookCart.book_price}
@@ -79,7 +79,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
           <h3 className="w-[80%] text-left">Quantity</h3>
           <div className="join w-[80%]">
             <button
-              className="btn join-item w-[20%]"
+              className="btn join-item w-[20%] bg-gray-200"
               onClick={decrease}
               disabled={quantity <= 1}
             >
@@ -87,7 +87,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
             </button>
             <input
               type="text"
-              className="input input-bordered w-full text-center join-item"
+              className="input border-0 w-full text-center join-item bg-gray-200"
               value={quantity}
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
@@ -104,7 +104,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
               }}
             />
             <button
-              className="btn join-item w-[20%]"
+              className="btn join-item w-[20%] bg-gray-200"
               onClick={increase}
               disabled={quantity >= maxQuantity}
             >
@@ -112,7 +112,7 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
             </button>
           </div>
           <button
-            className="btn btn-primary w-[80%] mt-8 text-2xl font-semibold"
+            className="btn bg-gray-200 w-[80%] mt-8 text-2xl font-bold"
             onClick={handleAddToCart}
           >
             Add to cart

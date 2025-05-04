@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import Breadcrumbs from "../../components/layout/Breadcrumbs";
+import Breadcrumbs from "../../layout/Breadcrumbs";
 import reviewService from "../../services/api/reviewService";
 import GridToolbar from "../../components/GridToolbar";
 import { FILTER_KEYS, useQueryFilters } from "../../hooks/useQueryFilters";
 import Pagination from "../../components/Pagination";
+import ReviewList from "../../components/ReviewsList";
 
 type Review = {
   review_title: string;
-  review_details: string;
+  review_details?: string;
   review_date: string;
   rating_star: number;
 };
@@ -111,108 +112,76 @@ const CustomerReviews = ({ book_id, refreshTrigger }: Props) => {
 
   return (
     <>
-      <div className="rounded-box border border-gray-300 p-8">
+      <div className="rounded-box border border-gray-300 bg-gray-100 p-8">
         <Breadcrumbs type="Customer Reviews" value={displayString} />
+
+        {/* Customer Ratings */}
+        <div className="my-4">
+          <span className="text-5xl font-bold">
+            {averageRating ? averageRating.toFixed(1) : "0.0"} Star
+          </span>
+        </div>
         <div>
-          {/* Customer Ratings */}
-          <div className="py-8">
-            <span className="text-5xl font-bold">
-              {averageRating ? averageRating.toFixed(1) : "0.0"} Star
+          <div className="flex flex-row pt-2 cursor-pointer text-xl gap-2">
+            <span
+              className="font-semibold text-decoration-line: underline hover:text-blue-800 hover:underline pr-4"
+              onClick={() => setSelectedRating(0)}
+            >
+              ({totalReviews})
             </span>
-            <div className="flex flex-row pt-2 cursor-pointer text-xl gap-2">
-              <span
-                className="font-semibold text-decoration-line: underline hover:text-blue-800 hover:underline"
-                onClick={() => setSelectedRating(0)}
-              >
-                ({totalReviews})
-              </span>
-              {/* Total Number of Reviews */}
-              <div className="pl-4">
-                {[5, 4, 3, 2, 1].map((rating, index) => {
-                  const count =
-                    starDistribution?.find((r) => r.rating_star === rating)
-                      ?.count ?? 0;
-                  const isSelected = selectedRating === rating;
 
-                  return (
-                    <span
-                      key={rating}
-                      className={`cursor-pointer ${
-                        isSelected ? "btn-active text-blue-600" : ""
-                      }`}
-                      onClick={() => {
-                        setSelectedRating(isSelected ? 0 : rating);
-                      }}
-                    >
-                      <span className="underline">
-                        {rating} star ({count})
-                      </span>
-                      {index !== 4 ? " | " : ""}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
+            {/* Total Number of Reviews */}
 
-            {/* Grid Tool Bar For Reviews */}
-            <GridToolbar
-              sortOptions={sortOptions}
-              startItem={pageInfo.start_item}
-              endItem={pageInfo.end_item}
-              totalItems={pageInfo.total_items}
-              itemType="reviews"
-              initialItemsPerPage={pageInfo.limit}
-              initialSortOption={sortOptions[0].key}
-            />
+            {[5, 4, 3, 2, 1].map((rating, index) => {
+              const count =
+                starDistribution?.find((r) => r.rating_star === rating)
+                  ?.count ?? 0;
+              const isSelected = selectedRating === rating;
 
-            {/* Reviews List */}
-            <div>
-              {reviews.length === 0 ? (
-                <p className="text-xl italic text-gray-600">
-                  No reviews found.
-                </p>
-              ) : (
-                <ul className="list bg-base-100 rounded-box gap-4">
-                  {reviews.map((review) => (
-                    <li
-                      key={review.review_title}
-                      className="list-row-wrap min-h-[8rem]"
-                    >
-                      <div className="text-3xl font-semibold pb-4">
-                        {review.review_title}
-                        <span className="text-xl font-light">
-                          {" "}
-                          | {review.rating_star} stars
-                        </span>
-                      </div>
-                      <p className="text-xl pb-4">{review.review_details}</p>
-                      <span className="text-xl">
-                        {new Date(review.review_date).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
-                      </span>
-                      <div className="border-b border-gray-300 mt-4"></div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Pagination */}
-            {pageInfo.total_pages > 0 && (
-              <Pagination
-                currentPage={pageInfo.page}
-                totalPages={pageInfo.total_pages}
-                onPageChange={handlePageChange}
-              />
-            )}
+              return (
+                <span
+                  key={rating}
+                  className={`cursor-pointer ${
+                    isSelected ? "btn-active text-blue-600" : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedRating(isSelected ? 0 : rating);
+                  }}
+                >
+                  <span className="underline">
+                    {rating} star ({count})
+                  </span>
+                  {index !== 4 ? " | " : ""}
+                </span>
+              );
+            })}
           </div>
         </div>
+
+        {/* Grid Tool Bar For Reviews */}
+        <div className="my-4">
+          <GridToolbar
+            sortOptions={sortOptions}
+            startItem={pageInfo.start_item}
+            endItem={pageInfo.end_item}
+            totalItems={pageInfo.total_items}
+            itemType="reviews"
+            initialItemsPerPage={pageInfo.limit}
+            initialSortOption={sortOptions[0].key}
+          />
+        </div>
+        {/* Reviews List */}
+        <div className="my-4">
+          <ReviewList reviews={reviews} />
+        </div>
+        {/* Pagination */}
+        {pageInfo.total_pages > 0 && (
+          <Pagination
+            currentPage={pageInfo.page}
+            totalPages={pageInfo.total_pages}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
     </>
   );

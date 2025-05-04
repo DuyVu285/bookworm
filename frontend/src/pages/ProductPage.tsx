@@ -1,7 +1,7 @@
 import AddtoCart from "../sections/ProductSection/AddToCart";
 import BookDetails from "../sections/ProductSection/BookDetails";
 import CustomerReviews from "../sections/ProductSection/CustomerReviews";
-import MainLayout from "../components/layout/MainLayout";
+import MainLayout from "../layout/MainLayout";
 import WriteAReview from "../sections/ProductSection/WriteAReview";
 import bookService from "../services/api/bookService";
 import { useEffect, useState } from "react";

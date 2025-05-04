@@ -75,7 +75,7 @@ const Filters = () => {
     ));
 
   return (
-    <div className="p-2">
+    <>
       <h2 className="text-2xl font-semibold pb-2">Filters By</h2>
 
       <div className="flex flex-col gap-2">
@@ -111,7 +111,7 @@ const Filters = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

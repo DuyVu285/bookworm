@@ -25,24 +25,7 @@ const WriteAReview = ({ book_id, onReviewSubmitted }: Props) => {
       return;
     }
 
-    if (!details.trim()) {
-      dispatch(
-        showToast({
-          message: "Details cannot be empty.",
-          type: "error",
-        })
-      );
-      return;
-    }
-
     try {
-      console.log("Submitting review:", {
-        book_id,
-        review_title: title,
-        review_details: details,
-        rating_star: rating,
-      });
-
       await reviewService.createReview({
         book_id,
         review_title: title,
