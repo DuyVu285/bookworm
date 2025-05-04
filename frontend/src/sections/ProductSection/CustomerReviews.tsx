@@ -107,10 +107,12 @@ const CustomerReviews = ({ book_id, refreshTrigger }: Props) => {
     });
   };
 
+  const displayString = selectedRating + " star";
+
   return (
     <>
       <div className="rounded-box border border-gray-300 p-8">
-        <Breadcrumbs type="Customer Reviews" />
+        <Breadcrumbs type="Customer Reviews" value={displayString} />
         <div>
           {/* Customer Ratings */}
           <div className="py-8">
