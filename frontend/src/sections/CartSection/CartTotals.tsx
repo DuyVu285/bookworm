@@ -1,7 +1,11 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
 import orderService from "../../services/api/orderService";
-import { clearCart, updateItemPrice } from "../../store/cartSlice";
+import {
+  clearCart,
+  updateItemPrice,
+  removeFromCart,
+} from "../../store/cartSlice";
 import { useState } from "react";
 import Login from "../../components/Login";
 import { showToast } from "../../store/toastSlice";
@@ -72,6 +76,18 @@ const CartTotals = () => {
         dispatch(
           showToast({
             message: errMsg || "Price has changed.",
+            type: "error",
+          })
+        );
+      } else if (
+        error.response?.status === 400 &&
+        error.response?.data?.removed_book
+      ) {
+        const removed = error.response.data.removed_book;
+        dispatch(removeFromCart(removed));
+        dispatch(
+          showToast({
+            message: errMsg || "Book removed from cart.",
             type: "error",
           })
         );

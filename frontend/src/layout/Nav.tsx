@@ -4,6 +4,7 @@ import { RootState } from "../store";
 import authService from "../services/auth/authService";
 import { clearUser } from "../store/userSlice";
 import { showToast } from "../store/toastSlice";
+import { useState } from "react";
 
 type NavProps = {
   onLoginClick: () => void;
@@ -20,6 +21,9 @@ const Nav = ({ onLoginClick }: NavProps) => {
   // User information (first and last name)
   const user = useSelector((state: RootState) => state.user);
 
+  // Mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // Function to determine if the current link is active
   const isActive = (path: string) => {
     const activeClass = "text-gray-400 font-bold";
@@ -35,6 +39,11 @@ const Nav = ({ onLoginClick }: NavProps) => {
     authService.logout();
     dispatch(clearUser());
     dispatch(showToast({ message: "Logout successful!", type: "success" }));
+  };
+
+  // Toggle mobile menu visibility
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
@@ -59,56 +68,134 @@ const Nav = ({ onLoginClick }: NavProps) => {
           <span className="text-xl uppercase">bookworm</span>
         </Link>
       </div>
-      <div className="navbar-end">
-        {/* Desktop Menu */}
-        <div className="hidden lg:flex">
-          <ul className="menu menu-horizontal px-1 mr-18">
+
+      {/* Mobile Hamburger Icon */}
+      <div className="navbar-end lg:hidden">
+        <button onClick={toggleMobileMenu} className="p-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-8 h-8"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Main Navigation */}
+      <div className="navbar-end hidden lg:flex">
+        <ul className="menu menu-horizontal px-1 mr-18">
+          <li>
+            <Link to="/" className={`${isActive("/")}`}>
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link to="/Shop" className={`${isActive("/Shop")}`}>
+              Shop
+            </Link>
+          </li>
+          <li>
+            <Link to="/About" className={`${isActive("/About")}`}>
+              About
+            </Link>
+          </li>
+          <li>
+            <Link to="/Cart" className={`${isActive("/Cart")}`}>
+              Cart {cartCount > 0 && `(${cartCount})`}
+            </Link>
+          </li>
+
+          {/* Conditionally render the login or user dropdown */}
+          {authService.isLoggedIn() && user.first_name && user.last_name ? (
+            <li tabIndex={0} className="dropdown dropdown-end">
+              <a className="text-gray-800">
+                {user.first_name} {user.last_name}
+                <svg
+                  className="fill-current w-4 h-4 ml-2"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </a>
+              <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li>
+                  <a onClick={handleLogout} className="text-red-600">
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </li>
+          ) : (
             <li>
-              <Link to="/" className={`${isActive("/")}`}>
+              <a onClick={onLoginClick} className={`${isActive("/Login")}`}>
+                Sign In
+              </a>
+            </li>
+          )}
+        </ul>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden absolute top-16 left-0 right-0 bg-base-100 shadow-md">
+          <ul className="menu p-2">
+            <li>
+              <Link
+                to="/"
+                className={`${isActive("/")}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/Shop" className={`${isActive("/Shop")}`}>
+              <Link
+                to="/Shop"
+                className={`${isActive("/Shop")}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 Shop
               </Link>
             </li>
             <li>
-              <Link to="/About" className={`${isActive("/About")}`}>
+              <Link
+                to="/About"
+                className={`${isActive("/About")}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 About
               </Link>
             </li>
             <li>
-              <Link to="/Cart" className={`${isActive("/Cart")}`}>
+              <Link
+                to="/Cart"
+                className={`${isActive("/Cart")}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 Cart {cartCount > 0 && `(${cartCount})`}
               </Link>
             </li>
 
-            {/* Conditionally render the login or user dropdown */}
+            {/* Conditionally render login or user dropdown in mobile */}
             {authService.isLoggedIn() && user.first_name && user.last_name ? (
-              <li tabIndex={0} className="dropdown dropdown-end">
-                <a className="text-gray-800">
-                  {user.first_name} {user.last_name}
-                  <svg
-                    className="fill-current w-4 h-4 ml-2"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+              <li>
+                <a onClick={handleLogout} className="text-red-600">
+                  Logout
                 </a>
-                <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                  <li>
-                    <a onClick={handleLogout} className="text-red-600">
-                      Logout
-                    </a>
-                  </li>
-                </ul>
               </li>
             ) : (
               <li>
@@ -119,7 +206,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
             )}
           </ul>
         </div>
-      </div>
+      )}
     </div>
   );
 };
