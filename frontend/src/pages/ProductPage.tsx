@@ -85,7 +85,7 @@ const ProductPage = () => {
           {bookCart && <AddtoCart bookCart={bookCart} />}
         </aside>
       </div>
-      <div className="flex flex-col lg:flex-row mx-18 gap-8 mt-8">
+      <div className="flex flex-col lg:flex-row mx-18 gap-8 my-8 ">
         {/* Customer Reviews */}
         <div className="w-full lg:w-7/10 mb-6">
           <CustomerReviews

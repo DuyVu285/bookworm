@@ -16,7 +16,7 @@ const BookDetails = ({ book }: { book: BookDetails }) => {
           <img
             src={book.book_cover_photo || "https://placehold.co/480x640"} // Use the dynamic image
             alt={book.book_title}
-            className="h-60 w-full object-cover"
+            className="rounded-box h-60 w-full object-cover"
           />
           <span className="flex justify-end p-2">By {book.author_name}</span>
         </aside>

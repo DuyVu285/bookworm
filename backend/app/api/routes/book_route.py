@@ -3,7 +3,6 @@ from sqlmodel import Session
 
 from app.db.db import get_session
 from app.schemas.book_schema import (
-    BookRead,
     TopBooksRead,
     BooksRead,
     BookDetailsRead,

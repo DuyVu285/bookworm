@@ -11,7 +11,6 @@ const Pagination = ({
   onPageChange,
   visiblePageCount = 5,
 }: PaginationProps) => {
-  // Calculate the start and end page for the visible range
   const halfVisible = Math.floor(visiblePageCount / 2);
   let startPage = Math.max(currentPage - halfVisible, 1);
   let endPage = Math.min(currentPage + halfVisible, totalPages);
@@ -35,9 +34,9 @@ const Pagination = ({
   return (
     <div className="flex flex-col items-center p-8 gap-2">
       {/* Desktop pagination buttons */}
-      <div className="join flex flex-wrap justify-center gap-1 sm:gap-0 hidden sm:flex">
+      <div className="join flex flex-wrap justify-center hidden sm:flex">
         <button
-          className="join-item btn btn-outline"
+          className="join-item btn btn-outline border-gray-300"
           disabled={currentPage === 1}
           onClick={() => onPageChange(1)}
         >
@@ -45,7 +44,7 @@ const Pagination = ({
         </button>
 
         <button
-          className="join-item btn btn-outline"
+          className="join-item btn btn-outline border-gray-300"
           disabled={currentPage === 1}
           onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
         >
@@ -53,31 +52,39 @@ const Pagination = ({
         </button>
 
         {showEllipsisBefore && (
-          <button className="join-item btn btn-outline" disabled>
+          <button
+            className="join-item btn btn-outline border-gray-300"
+            disabled
+          >
             ...
           </button>
         )}
 
         {pageNumbers.map((page) => (
-          <input
+          <button
             key={page}
-            className="join-item btn btn-square"
-            type="radio"
-            name="page-options"
-            aria-label={`${page}`}
-            checked={currentPage === page}
-            onChange={() => onPageChange(page)}
-          />
+            className={`join-item btn btn-outline border-gray-300 ${
+              currentPage === page
+                ? "text-white bg-gray-500 border-gray-500"
+                : ""
+            }`}
+            onClick={() => onPageChange(page)}
+          >
+            {page}
+          </button>
         ))}
 
         {showEllipsisAfter && (
-          <button className="join-item btn btn-outline" disabled>
+          <button
+            className="join-item btn btn-outline border-gray-300"
+            disabled
+          >
             ...
           </button>
         )}
 
         <button
-          className="join-item btn btn-outline"
+          className="join-item btn btn-outline border-gray-300"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
         >
@@ -85,7 +92,7 @@ const Pagination = ({
         </button>
 
         <button
-          className="join-item btn btn-outline"
+          className="join-item btn btn-outline border-gray-300"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(totalPages)}
         >
@@ -96,7 +103,7 @@ const Pagination = ({
       {/* Mobile dropdown pagination */}
       <div className="block sm:hidden w-full max-w-xs">
         <select
-          className="select select-bordered w-full"
+          className="select select-bordered w-full text-white bg-gray-500"
           value={currentPage}
           onChange={(e) => onPageChange(Number(e.target.value))}
         >

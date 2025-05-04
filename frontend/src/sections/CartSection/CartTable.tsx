@@ -3,6 +3,7 @@ import { removeFromCart, updateQuantity } from "../../store/cartSlice";
 import { Link } from "react-router-dom";
 import Toast from "../../components/Toast";
 import { useState } from "react";
+import { showToast } from "../../store/toastSlice";
 
 type CartItem = {
   id: number;
@@ -20,20 +21,17 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
   );
   const dispatch = useDispatch();
 
-  const showToast = (
-    message: string,
-    type: "info" | "success" | "error" | "warning" = "info"
-  ) => {
-    setToast({ message, type });
-  };
-
   const handleDecrease = (id: number, currentQty: number) => {
     if (currentQty <= 1) {
       dispatch(removeFromCart(id));
-      showToast("Book removed from cart!", "success");
+      dispatch(
+        showToast({ message: "Book removed from cart!", type: "success" })
+      );
     } else {
       dispatch(updateQuantity({ id, quantity: currentQty - 1 }));
-      showToast("Book quantity decreased!", "success");
+      dispatch(
+        showToast({ message: "Book quantity decreased!", type: "success" })
+      );
     }
   };
 
@@ -41,7 +39,9 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
     if (currentQty < 8) {
       dispatch(updateQuantity({ id, quantity: currentQty + 1 }));
     }
-    showToast("Book quantity increased!", "success");
+    dispatch(
+      showToast({ message: "Book quantity increased!", type: "success" })
+    );
   };
 
   return cartItems.length === 0 ? (
@@ -50,20 +50,11 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
     </div>
   ) : (
     <>
-      {/* Toast */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type as any}
-          onClose={() => setToast(null)}
-        />
-      )}
-
       {/* Cart Table */}
-      <div className="overflow-x-auto rounded-box border border-gray-400 bg-base-300">
+      <div className="overflow-x-auto rounded-box border border-gray-300 bg-base-300">
         <table className="table table-zebra w-full">
           <thead>
-            <tr className="border-b border-gray-400 text-xl sm:text-base">
+            <tr className="border-b border-gray-300 text-xl sm:text-base">
               <th>Product</th>
               <th>Price</th>
               <th>Quantity</th>
@@ -75,7 +66,7 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
               const price = item.sub_price || item.book_price;
 
               return (
-                <tr key={item.id} className="border-b border-gray-400">
+                <tr key={item.id} className="border-b border-gray-300">
                   <td>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                       <img

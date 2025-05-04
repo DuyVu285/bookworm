@@ -111,13 +111,13 @@ const GridToolbar = ({
 
       <div className="flex flex-wrap md:flex-nowrap md:justify-end gap-4">
         <div
-          className="dropdown w-full md:w-[15rem]
+          className="dropdown w-full md:max-w-[16rem]
 "
         >
           <div
             tabIndex={0}
             role="button"
-            className="btn w-full justify-between text-left truncate"
+            className="btn w-full justify-between text-left truncate text-white bg-gray-500"
           >
             Sort by{" "}
             {sortOptions.find((opt) => opt.key === selectedOption)?.label ??
@@ -143,11 +143,11 @@ const GridToolbar = ({
           />
         </div>
 
-        <div className="dropdown w-full md:w-[110px]">
+        <div className="dropdown w-full md:max-w-[7rem]">
           <div
             tabIndex={0}
             role="button"
-            className="btn w-full justify-between text-left truncate"
+            className="btn w-full justify-between text-left truncate text-white bg-gray-500"
           >
             Show {selectedItems}
             <svg

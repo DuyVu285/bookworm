@@ -22,7 +22,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
 
   // Function to determine if the current link is active
   const isActive = (path: string) => {
-    const activeClass = "text-primary font-bold";
+    const activeClass = "text-gray-400 font-bold";
 
     if (location.pathname.startsWith("/Book/")) {
       return path === "/Shop" ? activeClass : "";

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import reviewService from "../../services/api/reviewService";
-import Toast from "../../components/Toast";
+import { useDispatch } from "react-redux";
+import { showToast } from "../../store/toastSlice";
 
 type Props = {
   book_id: number;
@@ -11,26 +12,26 @@ const WriteAReview = ({ book_id, onReviewSubmitted }: Props) => {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [rating, setRating] = useState(1);
-  const [toast, setToast] = useState<{ message: string; type?: string } | null>(
-    null
-  );
-
-  const showToast = (
-    message: string,
-    type: "info" | "success" | "error" | "warning" = "info"
-  ) => {
-    setToast({ message, type });
-  };
-
+  const dispatch = useDispatch();
   const handleSubmit = async () => {
     // Validate that title and details are not empty
     if (!title.trim()) {
-      showToast("Title cannot be empty.", "error");
+      dispatch(
+        showToast({
+          message: "Title cannot be empty.",
+          type: "error",
+        })
+      );
       return;
     }
 
     if (!details.trim()) {
-      showToast("Details cannot be empty.", "error");
+      dispatch(
+        showToast({
+          message: "Details cannot be empty.",
+          type: "error",
+        })
+      );
       return;
     }
 
@@ -54,23 +55,25 @@ const WriteAReview = ({ book_id, onReviewSubmitted }: Props) => {
       setTitle("");
       setDetails("");
       setRating(1);
-      showToast("Review submitted successfully!", "success");
+      dispatch(
+        showToast({
+          message: "Review submitted successfully!",
+          type: "success",
+        })
+      );
       onReviewSubmitted();
     } catch (error) {
-      showToast("Failed to submit review. Please try again.", "error");
+      dispatch(
+        showToast({
+          message: "Failed to submit review. Please try again.",
+          type: "error",
+        })
+      );
     }
   };
 
   return (
     <>
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type as any}
-          onClose={() => setToast(null)}
-        />
-      )}
-
       <div className="rounded-box border border-gray-300">
         <div className="border-b border-gray-300 text-2xl font-medium p-4">
           Write a Review

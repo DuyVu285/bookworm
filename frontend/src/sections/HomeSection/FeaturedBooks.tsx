@@ -42,7 +42,7 @@ const FeaturedBooks = () => {
 
   return (
     <>
-      <div className="flex flex-col justify-between items-center pb-2 px-2">
+      <div className="flex flex-col justify-between items-center pb-8 px-2">
         <h2 className="text-3xl font-semibold">Featured Books</h2>
         <div className="pt-4 w-full flex justify-center">
           <div className="flex gap-4">
@@ -70,7 +70,7 @@ const FeaturedBooks = () => {
         </div>
       </div>
 
-      <div className="rounded-box border border-gray-400 p-8 relative flex justify-center items-center min-h-[300px] w-full">
+      <div className="rounded-box border border-gray-300 p-8 relative flex justify-center items-center min-h-[300px] w-full">
         <BookGridDisplay books={books} loading={loading} />
       </div>
     </>
