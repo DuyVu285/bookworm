@@ -46,6 +46,7 @@ async def place_order(
                 content={
                     "detail": f"Price for '{book.book_title}' has changed.",
                     "updated_book": {
+                        "book_id": item.book_id,
                         "title": book.book_title,
                         "book_price": book.book_price,
                         "sub_price": book.sub_price,

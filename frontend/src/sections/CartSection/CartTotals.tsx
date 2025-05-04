@@ -58,10 +58,12 @@ const CartTotals = () => {
       ) {
         const updated = error.response.data.updated_book;
 
+        console.log("Updated book info:", updated);
+
         dispatch({
           type: "cart/updateItemPrice",
           payload: {
-            id: updated.id,
+            id: updated.book_id,
             book_price: updated.book_price,
             sub_price: updated.sub_price,
           },

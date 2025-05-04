@@ -55,11 +55,16 @@ const cartSlice = createSlice({
     },
     updateItemPrice: (
       state,
-      action: PayloadAction<{ id: number; price: number }>
+      action: PayloadAction<{
+        id: number;
+        book_price: number;
+        sub_price: number;
+      }>
     ) => {
       const item = state.items.find((i) => i.id === action.payload.id);
       if (item) {
-        item.sub_price = action.payload.price;
+        item.book_price = action.payload.book_price;
+        item.sub_price = action.payload.sub_price;
       }
     },
   },
