@@ -15,22 +15,13 @@ interface CartState {
 }
 
 interface updateCartItem {
-  id: number;
+  book_id: number;
   book_price: number;
   sub_price: number;
 }
 
-const loadCartFromStorage = (): CartItem[] => {
-  try {
-    const stored = localStorage.getItem("cart");
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
-
 const initialState: CartState = {
-  items: loadCartFromStorage(),
+  items: [],
 };
 
 const cartSlice = createSlice({
@@ -60,7 +51,7 @@ const cartSlice = createSlice({
       state.items = [];
     },
     updateItemPrice: (state, action: PayloadAction<updateCartItem>) => {
-      const item = state.items.find((i) => i.id === action.payload.id);
+      const item = state.items.find((i) => i.id === action.payload.book_id);
       if (item) {
         item.book_price = action.payload.book_price;
         item.sub_price = action.payload.sub_price;

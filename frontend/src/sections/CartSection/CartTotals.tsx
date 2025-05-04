@@ -53,7 +53,11 @@ const CartTotals = () => {
     try {
       await orderService.placeOrder(orderData);
       dispatch(
-        showToast({ message: "Order placed successfully!", type: "success" })
+        showToast({
+          message: "Order placed successfully!",
+          type: "success",
+          duration: 10000,
+        })
       );
       dispatch(clearCart());
     } catch (error: any) {

@@ -33,7 +33,7 @@ class ReviewsStarsDistributionRead(BaseModel):
 
 class ReviewCreate(BaseModel):
     book_id: int
-    review_title: str = Field(..., min_length=1, max_length=100)
+    review_title: str = Field(..., min_length=1, max_length=120)
     review_details: Optional[str] = None
     review_date: datetime
     rating_star: int

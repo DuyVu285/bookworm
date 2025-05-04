@@ -85,7 +85,6 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
           </thead>
           <tbody className="bg-gray-100">
             {cartItems.map((item) => {
-              const price = item.sub_price || item.book_price;
               return (
                 <tr key={item.id} className="border-b border-gray-300">
                   <td>
@@ -112,9 +111,9 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
                   <td>
                     <div className="flex flex-col">
                       <span className="text-2xl font-bold">
-                        ${price.toFixed(2)}
+                        ${item.sub_price.toFixed(2)}
                       </span>
-                      {item.sub_price && (
+                      {item.sub_price !== item.book_price && (
                         <span className="text-xl line-through font-light">
                           ${item.book_price.toFixed(2)}
                         </span>
@@ -149,7 +148,7 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
                   </td>
                   <td>
                     <span className="text-2xl font-bold">
-                      ${(price * item.quantity).toFixed(2)}
+                      ${(item.sub_price * item.quantity).toFixed(2)}
                     </span>
                   </td>
                 </tr>

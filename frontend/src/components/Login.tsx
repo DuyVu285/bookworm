@@ -65,7 +65,6 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
         showToast({
           message: "Login successful!",
           type: "success",
-          duration: 10000,
         })
       );
       navigate("/");

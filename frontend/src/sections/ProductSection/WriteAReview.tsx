@@ -67,6 +67,7 @@ const WriteAReview = ({ book_id, onReviewSubmitted }: Props) => {
             type="text"
             className="input input-bordered w-full"
             value={title}
+            maxLength={120}
             onChange={(e) => setTitle(e.target.value)}
           />
           <legend className="fieldset-legend text-lg">

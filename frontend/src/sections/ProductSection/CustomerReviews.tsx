@@ -109,7 +109,7 @@ const CustomerReviews = ({ book_id, refreshTrigger }: Props) => {
     });
   };
 
-  const displayString = selectedRating + " star";
+  const displayString = selectedRating > 0 ? `${selectedRating} star` : "";
 
   return (
     <>
