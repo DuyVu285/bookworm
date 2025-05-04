@@ -80,7 +80,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
     <>
       <dialog ref={modalRef} className="modal flex justify-center items-center">
         <div
-          className="modal-box flex flex-col justify-center items-center gap-6 w-full max-w-md"
+          className="modal-box flex flex-col justify-center items-center gap-6 w-full max-w-md sm:max-w-sm"
           onClick={(e) => e.stopPropagation()}
         >
           <form
@@ -101,7 +101,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full"
+                  className="w-full px-4 py-2 border-gray-300 rounded-md"
                 />
               </label>
             </div>
@@ -116,7 +116,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full"
+                  className="w-full px-4 py-2 border-gray-300 rounded-md"
                 />
               </label>
             </div>
@@ -127,7 +127,10 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
             )}
 
             {/* Submit Button */}
-            <button type="submit" className="btn bg-gray-200 w-full mx-auto">
+            <button
+              type="submit"
+              className="btn bg-gray-200 w-full mx-auto py-2 rounded-md text-white transition-colors duration-300 hover:bg-gray-300"
+            >
               Login
             </button>
           </form>

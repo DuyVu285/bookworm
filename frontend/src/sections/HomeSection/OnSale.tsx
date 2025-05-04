@@ -36,11 +36,11 @@ const OnSale = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center pb-2 px-2 ">
+      <div className="flex justify-between items-center pb-2 px-2">
         <h2 className="text-3xl font-semibold">On Sale</h2>
         <a
           href="/Shop?page=1&sort=on+sale&limit=20"
-          className="btn btn-lg text-white text-xl bg-gray-500 rounded-lg "
+          className="btn btn-lg text-white text-xl bg-gray-500 rounded-lg"
         >
           View All
           <svg
@@ -48,7 +48,7 @@ const OnSale = () => {
             width="16"
             height="16"
             fill="currentColor"
-            className="bi bi-caret-right-fill "
+            className="bi bi-caret-right-fill"
             viewBox="0 0 16 16"
           >
             <path d="M6 12.796V3.204L11.481 8zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753" />
@@ -64,7 +64,7 @@ const OnSale = () => {
           </div>
         ) : (
           <>
-            {/* Left Button */}
+            {/* Left Button (Visible only on larger screens) */}
             <div className="cursor-pointer custom-prev-button p-1 hidden sm:block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -89,19 +89,19 @@ const OnSale = () => {
               spaceBetween={8}
               slidesPerView={"auto"}
               breakpoints={{
-                320: { slidesPerView: 1, spaceBetween: 30 },
-                640: { slidesPerView: 2, spaceBetween: 30 },
+                320: { slidesPerView: 1, spaceBetween: 15 },
+                640: { slidesPerView: 2, spaceBetween: 20 },
                 1024: { slidesPerView: 4, spaceBetween: 30 },
               }}
             >
               {books.map((book) => (
-                <SwiperSlide>
-                  <BookCard key={book.id} {...book} />
+                <SwiperSlide key={book.id}>
+                  <BookCard {...book} />
                 </SwiperSlide>
               ))}
             </Swiper>
 
-            {/* Right Button */}
+            {/* Right Button (Visible only on larger screens) */}
             <div className="cursor-pointer custom-next-button p-1 hidden sm:block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
