@@ -66,8 +66,8 @@ const BooksGrid = () => {
 
         if (response.books.length === 0) {
           setEmptyMessage(
-            <p className="text-center text-gray-500">
-              No books found matching your filters.
+            <p className="text-center text-gray-500 text-2xl">
+              No books found matching your filters
             </p>
           );
         } else {

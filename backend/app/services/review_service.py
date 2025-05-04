@@ -20,7 +20,9 @@ class ReviewService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Review not found"
             )
+
         review = ReviewRead(
+            id=review.id,
             book_id=review.book_id,
             review_title=review.review_title,
             review_details=review.review_details,
@@ -41,8 +43,14 @@ class ReviewService:
             book_id, page, limit, sort, rating
         )
         if not reviews:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Reviews not found"
+            return ReviewsByIdRead(
+                reviews=[],
+                page=0,
+                limit=0,
+                total_pages=0,
+                total_items=0,
+                start_item=0,
+                end_item=0,
             )
 
         reviews_with_sort_and_filters = [

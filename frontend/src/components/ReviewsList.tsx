@@ -14,9 +14,9 @@ const ReviewList = ({ reviews }: ReviewListProps) => {
   return (
     <div>
       {reviews.length === 0 ? (
-        <p className="text-xl italic text-gray-600 bg-gray-100 rounded">
-          No reviews found.
-        </p>
+        <div className="flex justify-center items-center h-full">
+          <p className="text-center text-gray-500 text-2xl">No reviews found</p>
+        </div>
       ) : (
         <ul className="list bg-base-100 rounded-box gap-4 bg-gray-100">
           {reviews.map((review) => (

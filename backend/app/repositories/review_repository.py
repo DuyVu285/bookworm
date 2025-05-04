@@ -50,6 +50,8 @@ class ReviewRepository:
         # Total count
         count_query = select(func.count()).select_from(base_query.subquery())
         total_items = self.session.exec(count_query).one()
+        if total_items == 0:
+            return []
 
         # Final paginated query
         final_query = (
@@ -60,7 +62,7 @@ class ReviewRepository:
         )
 
         results = self.session.exec(final_query).all()
-        return results
+        return results if results else []
 
     def get_book_reviews_avg_rating(self, book_id: int) -> float:
         query = select(

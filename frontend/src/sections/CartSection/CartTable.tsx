@@ -41,23 +41,30 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
   };
 
   return cartItems.length === 0 ? (
-    <div className="text-center text-2xl font-bold py-10">
-      Your cart is empty.
+    <div className="flex justify-center items-center h-full">
+      <span className="text-center text-gray-500 text-2xl">
+        Your cart is empty
+      </span>
     </div>
   ) : (
     <>
       {/* Cart Table */}
-      <div className="overflow-x-auto rounded-box border border-gray-300 bg-base-300">
-        <table className="table table-zebra w-full">
+      <div className="overflow-x-auto rounded-box border border-gray-300">
+        <table className="table table-zebra w-full bg-gray-100">
           <thead>
-            <tr className="border-b border-gray-300 text-xl sm:text-base">
-              <th>Product</th>
-              <th>Price</th>
-              <th>Quantity</th>
-              <th>Total</th>
+            <tr className="border-b border-gray-300">
+              <th className="text-xl font-semibold text-base-content">
+                Product
+              </th>
+              <th className="text-xl font-semibold text-base-content">Price</th>
+              <th className="text-xl font-semibold text-base-content">
+                Quantity
+              </th>
+              <th className="text-xl font-semibold text-base-content">Total</th>
             </tr>
           </thead>
-          <tbody>
+
+          <tbody className="bg-gray-100">
             {cartItems.map((item) => {
               const price = item.sub_price || item.book_price;
 
