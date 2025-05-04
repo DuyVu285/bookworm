@@ -41,16 +41,6 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
   };
 
   const handleAddToCart = () => {
-    if (currentQty >= maxQuantity) {
-      dispatch(
-        showToast({
-          message: "You've reached the maximum quantity for this book (8).",
-          type: "warning",
-        })
-      );
-      return;
-    }
-
     if (currentQty + quantity > maxQuantity) {
       const allowed = maxQuantity - currentQty;
       dispatch(
@@ -88,7 +78,11 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
         <div className="p-2 rounded-b-lg flex flex-col items-center justify-center h-64 gap-2">
           <h3 className="w-[80%] text-left">Quantity</h3>
           <div className="join w-[80%]">
-            <button className="btn join-item w-[20%]" onClick={decrease}>
+            <button
+              className="btn join-item w-[20%]"
+              onClick={decrease}
+              disabled={quantity <= 1}
+            >
               -
             </button>
             <input
@@ -109,7 +103,11 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
                 }
               }}
             />
-            <button className="btn join-item w-[20%]" onClick={increase}>
+            <button
+              className="btn join-item w-[20%]"
+              onClick={increase}
+              disabled={quantity >= maxQuantity}
+            >
               +
             </button>
           </div>

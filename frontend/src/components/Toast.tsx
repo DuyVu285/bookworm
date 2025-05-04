@@ -1,19 +1,24 @@
+// components/Toast.tsx
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
 import { hideToast } from "../store/toastSlice";
 
 const Toast = () => {
-  const { message, type, visible } = useSelector(
+  const dispatch = useDispatch();
+  const { message, type, visible, duration } = useSelector(
     (state: RootState) => state.toast
   );
-  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!visible) return;
-    const timer = setTimeout(() => dispatch(hideToast()), 3000);
-    return () => clearTimeout(timer);
-  }, [visible, dispatch]);
+    if (visible) {
+      const timer = setTimeout(() => {
+        dispatch(hideToast());
+      }, duration || 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [visible, duration, dispatch]);
 
   if (!visible) return null;
 
