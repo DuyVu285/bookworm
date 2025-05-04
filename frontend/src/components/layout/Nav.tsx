@@ -3,6 +3,7 @@ import { useLocation, Link } from "react-router-dom";
 import { RootState } from "../../store";
 import authService from "../../services/auth/authService";
 import { clearUser } from "../../store/userSlice";
+import { showToast } from "../../store/toastSlice";
 
 type NavProps = {
   onLoginClick: () => void;
@@ -33,10 +34,12 @@ const Nav = ({ onLoginClick }: NavProps) => {
   const handleLogout = () => {
     authService.logout();
     dispatch(clearUser());
+    dispatch(showToast({ message: "Logout successful!", type: "success" }));
   };
 
   return (
     <div className="navbar bg-base-100 shadow-sm fixed top-0 left-0 w-full z-50">
+      {/* Left section */}
       <div className="navbar-start">
         <Link to="/" className="btn btn-ghost">
           <svg
@@ -80,6 +83,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
                 Cart {cartCount > 0 && `(${cartCount})`}
               </Link>
             </li>
+
             {/* Conditionally render the login or user dropdown */}
             {authService.isLoggedIn() && user.first_name && user.last_name ? (
               <li tabIndex={0} className="dropdown dropdown-end">

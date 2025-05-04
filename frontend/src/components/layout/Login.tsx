@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import authService from "../../services/auth/authService"; // Import authService for handling login
-import Toast from "../Toast";
+import { showToast } from "../../store/toastSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { useNavigate } from "react-router-dom";
 
 interface LoginProps {
   isOpen: boolean;
@@ -13,16 +16,8 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ message: string; type?: string } | null>(
-    null
-  );
-
-  const showToast = (
-    message: string,
-    type: "info" | "success" | "error" | "warning" = "info"
-  ) => {
-    setToast({ message, type });
-  };
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const modal = modalRef.current;
@@ -60,24 +55,24 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
     try {
       await authService.login({ username: email, password });
       onClose();
-      showToast("Login successful!", "success");
+      dispatch(
+        showToast({
+          message: "Login successful!",
+          type: "success",
+          duration: 10000,
+        })
+      );
+      navigate("/");
     } catch (error) {
-      showToast("Login failed. Please try again.", "error");
+      dispatch(
+        showToast({ message: "Login failed. Please try again.", type: "error" })
+      );
       setErrorMessage("Invalid email or password.");
     }
   };
 
   return (
     <>
-      {/* Toast */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type as any}
-          onClose={() => setToast(null)}
-        />
-      )}
-
       <dialog ref={modalRef} className="modal flex justify-center items-center">
         <div
           className="modal-box flex flex-col justify-center items-center gap-6 w-full max-w-md"

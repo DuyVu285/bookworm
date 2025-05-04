@@ -1,23 +1,18 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
 import orderService from "../../services/api/orderService";
-import { clearCart } from "../../store/cartSlice";
-import authService from "../../services/auth/authService";
-import { useEffect, useState } from "react";
+import { clearCart, updateItemPrice } from "../../store/cartSlice";
+import { useState } from "react";
 import Login from "../../components/layout/Login";
+import { showToast } from "../../store/toastSlice";
 
 const CartTotals = () => {
   const cart = useSelector((state: RootState) => state.cart.items);
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoginOpen, setLoginOpen] = useState(false); // State to control login dialog
-
-  useEffect(() => {
-    // Check if user is logged in when component mounts
-    setIsLoggedIn(authService.isLoggedIn());
-  }, []);
+  const [isLoginOpen, setLoginOpen] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const isLoggedIn = !!user.id;
 
   const totalPrice = cart.reduce(
     (sum, item) => sum + (item.sub_price ?? item.book_price) * item.quantity,
@@ -25,8 +20,17 @@ const CartTotals = () => {
   );
 
   const handlePlaceOrder = async () => {
+    if (cart.length === 0) {
+      dispatch(
+        showToast({
+          message: "Your cart is empty. Add items before placing an order.",
+          type: "error",
+        })
+      );
+      return;
+    }
+
     if (!isLoggedIn || user.id === null) {
-      // Open login dialog if not logged in
       setLoginOpen(true);
       return;
     }
@@ -44,41 +48,43 @@ const CartTotals = () => {
       items: orderItems,
     };
 
+    setIsPlacingOrder(true);
+
     try {
       await orderService.placeOrder(orderData);
-      alert("Order placed successfully!");
+      dispatch(
+        showToast({ message: "Order placed successfully!", type: "success" })
+      );
       dispatch(clearCart());
     } catch (error: any) {
-      const errMsg = error.response?.data?.detail;
+      const errMsg = error?.response?.data?.detail;
 
-      // Check for price mismatch and updated book info
       if (
         error.response?.status === 400 &&
         error.response?.data?.updated_book
       ) {
         const updated = error.response.data.updated_book;
-
-        console.log("Updated book info:", updated);
-
-        dispatch({
-          type: "cart/updateItemPrice",
-          payload: {
-            id: updated.book_id,
-            book_price: updated.book_price,
-            sub_price: updated.sub_price,
-          },
-        });
-
-        alert(errMsg || "Item price has changed. Cart updated.");
-        return;
+        dispatch(updateItemPrice(updated));
+        dispatch(
+          showToast({
+            message: errMsg || "Price has changed.",
+            type: "error",
+          })
+        );
+      } else {
+        dispatch(
+          showToast({
+            message: errMsg || "Failed to place order. Please try again.",
+            type: "error",
+          })
+        );
       }
-
-      alert(errMsg || "Error placing order.");
-      console.error(error);
+    } finally {
+      setIsPlacingOrder(false);
     }
   };
 
-  const handleLoginClose = () => setLoginOpen(false); // Close login dialog
+  const handleLoginClose = () => setLoginOpen(false);
 
   return (
     <>
@@ -86,15 +92,20 @@ const CartTotals = () => {
 
       <div className="rounded-box border border-gray-300 bg-base-200">
         <div className="text-xl border-b p-1 border-gray-300 flex items-center justify-center">
-          <span className="text-gray-500 p-2">Cart Totals</span>
+          <span className="p-2">Cart Totals</span>
         </div>
-        <div className="p-2 rounded-b-lg flex flex-col items-center justify-center h-64 gap-2">
+        <div className="p-2 rounded-b-lg flex flex-col items-center justify-center min-h-64 gap-2">
           <span className="text-3xl font-bold">${totalPrice.toFixed(2)}</span>
           <button
             className="btn w-[80%] mt-8 text-2xl font-bold bg-base-300"
             onClick={handlePlaceOrder}
+            disabled={isPlacingOrder}
           >
-            Place Order
+            {isPlacingOrder ? (
+              <span className="loading loading-spinner loading-xl"></span>
+            ) : (
+              "Place Order"
+            )}
           </button>
         </div>
       </div>
