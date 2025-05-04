@@ -37,13 +37,19 @@ class BookService:
         category_id: Optional[int] = None,
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
-    ) -> BooksRead:
+    ) -> Optional[BooksRead]:
         books = self.book_repository.get_books(
             page, limit, sort, category_id, author_id, min_rating
         )
         if not books:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
+            return BooksRead(
+                books=[],
+                page=page,
+                limit=limit,
+                total_pages=0,
+                total_items=0,
+                start_item=0,
+                end_item=0,
             )
 
         books_with_sort_and_filters = [

@@ -63,9 +63,10 @@ class BookRepository:
         category_id: Optional[int] = None,
         author_id: Optional[int] = None,
         min_rating: Optional[float] = None,
-    ) -> list[dict]:
+    ) -> Optional[list[dict]]:
         max_discount_subq = self._max_discount_subquery()
         ReviewAlias = aliased(Review)
+
         sub_price = label(
             "sub_price",
             func.coalesce(
@@ -76,7 +77,7 @@ class BookRepository:
             "is_discounted",
             case((max_discount_subq.c.max_discount.isnot(None), 1), else_=0),
         )
-        review_count = label("review_count", func.count(Review.id))
+        review_count = label("review_count", func.count(ReviewAlias.id))
 
         # Mapping for sort options
         sort_column_map = {
@@ -110,9 +111,10 @@ class BookRepository:
                 )
             )
 
-        # --- Total items ---
         total_items_query = select(func.count()).select_from(filter_query.subquery())
         total_items = self.session.exec(total_items_query).one()
+        if total_items == 0:
+            return []
 
         # --- Main base query for results ---
         base_query = (
@@ -142,9 +144,7 @@ class BookRepository:
             base_query = base_query.outerjoin(
                 ReviewAlias, ReviewAlias.book_id == Book.id
             )
-            review_count = label("review_count", func.count(ReviewAlias.id))
 
-        # --- Final paginated query ---
         final_query = (
             base_query.group_by(
                 Book.id, Author.id, is_discounted, max_discount_subq.c.max_discount
@@ -160,11 +160,10 @@ class BookRepository:
             .limit(limit)
         )
 
-        # Add total_items to the result columns (optional)
         final_query = final_query.add_columns(literal(total_items).label("total_items"))
 
         results = self.session.exec(final_query).all()
-        return results
+        return results if results else []
 
     def get_top_10_most_discounted_books(self) -> list[dict]:
         sub_price = label(

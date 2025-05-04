@@ -74,20 +74,8 @@ const BooksGrid = () => {
           setEmptyMessage(undefined);
         }
       } catch (error: any) {
-        if (error?.response?.status === 404) {
-          setBooks([]);
-          setEmptyMessage(
-            <p className="text-center text-gray-500">
-              No books found matching your filters.
-            </p>
-          );
-        } else {
-          setEmptyMessage(
-            <p className="text-center text-gray-500">
-              Something went wrong. Please try again later.
-            </p>
-          );
-        }
+        // Handle empty result specifically
+        throw error;
       } finally {
         setLoading(false);
       }
