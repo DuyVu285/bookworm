@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.responses import JSONResponse
 from sqlmodel import Session
 from app.db.db import get_session
 
@@ -7,7 +8,7 @@ from app.services.order_item_service import OrderItemService
 from app.schemas.order_with_items_schema import OrderWithItemsCreate, OrderWithItemsRead
 from app.schemas.order_item_schema import OrderItemCreate
 from app.schemas.order_schema import OrderCreate
-from app.models.order_model import Order
+from app.services.book_service import BookService
 
 router = APIRouter(
     prefix="/place-order",
@@ -27,6 +28,30 @@ async def place_order(
 ):
     order_service = OrderService(session)
     order_item_service = OrderItemService(session)
+    book_service = BookService(session)
+
+    for item in order_data.items:
+        book = book_service.get_book_by_id(item.book_id)
+        if book is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Book with ID {item.book_id} not found.",
+            )
+
+        sub_price = book.sub_price
+
+        if item.price != sub_price:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={
+                    "detail": f"Price for '{book.book_title}' has changed.",
+                    "updated_book": {
+                        "title": book.book_title,
+                        "book_price": book.book_price,
+                        "sub_price": book.sub_price,
+                    },
+                },
+            )
 
     order = OrderCreate(
         user_id=order_data.user_id,

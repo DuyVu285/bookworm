@@ -34,7 +34,7 @@ const CartTotals = () => {
     const orderItems = cart.map((item) => ({
       book_id: item.id,
       quantity: item.quantity,
-      price: item.sub_price ?? item.book_price,
+      price: item.sub_price,
     }));
 
     const orderData = {
@@ -47,11 +47,31 @@ const CartTotals = () => {
     try {
       await orderService.placeOrder(orderData);
       alert("Order placed successfully!");
-
-      // Optionally clear cart after placing order
       dispatch(clearCart());
-    } catch (error) {
-      alert("Error placing order.");
+    } catch (error: any) {
+      const errMsg = error.response?.data?.detail;
+
+      // Check for price mismatch and updated book info
+      if (
+        error.response?.status === 400 &&
+        error.response?.data?.updated_book
+      ) {
+        const updated = error.response.data.updated_book;
+
+        dispatch({
+          type: "cart/updateItemPrice",
+          payload: {
+            id: updated.id,
+            book_price: updated.book_price,
+            sub_price: updated.sub_price,
+          },
+        });
+
+        alert(errMsg || "Item price has changed. Cart updated.");
+        return;
+      }
+
+      alert(errMsg || "Error placing order.");
       console.error(error);
     }
   };

@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { clear } from "console";
 
 interface CartItem {
   id: number;
@@ -53,6 +52,15 @@ const cartSlice = createSlice({
     },
     clearCart: (state) => {
       state.items = [];
+    },
+    updateItemPrice: (
+      state,
+      action: PayloadAction<{ id: number; price: number }>
+    ) => {
+      const item = state.items.find((i) => i.id === action.payload.id);
+      if (item) {
+        item.sub_price = action.payload.price;
+      }
     },
   },
 });
