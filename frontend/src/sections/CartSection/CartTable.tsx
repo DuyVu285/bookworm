@@ -1,8 +1,7 @@
 import { useDispatch } from "react-redux";
 import { removeFromCart, updateQuantity } from "../../store/cartSlice";
 import { Link } from "react-router-dom";
-import Toast from "../../components/Toast";
-import { useState } from "react";
+
 import { showToast } from "../../store/toastSlice";
 
 type CartItem = {
@@ -16,9 +15,6 @@ type CartItem = {
 };
 
 const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
-  const [toast, setToast] = useState<{ message: string; type?: string } | null>(
-    null
-  );
   const dispatch = useDispatch();
 
   const handleDecrease = (id: number, currentQty: number) => {

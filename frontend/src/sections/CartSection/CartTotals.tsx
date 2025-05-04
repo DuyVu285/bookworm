@@ -92,7 +92,7 @@ const CartTotals = () => {
 
       <div className="rounded-box border border-gray-300 bg-base-200">
         <div className="text-xl border-b p-1 border-gray-300 flex items-center justify-center">
-          <span className="p-2">Cart Totals</span>
+          <span className="text-semibold p-2">Cart Totals</span>
         </div>
         <div className="p-2 rounded-b-lg flex flex-col items-center justify-center min-h-64 gap-2">
           <span className="text-3xl font-bold">${totalPrice.toFixed(2)}</span>

@@ -85,16 +85,16 @@ const WriteAReview = ({ book_id, onReviewSubmitted }: Props) => {
             value={rating}
             onChange={(e) => setRating(Number(e.target.value))}
           >
-            <option value={1}>1 Star</option>
-            <option value={2}>2 Stars</option>
-            <option value={3}>3 Stars</option>
-            <option value={4}>4 Stars</option>
-            <option value={5}>5 Stars</option>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <option key={star} value={star}>
+                {star} Star{star > 1 ? "s" : ""}
+              </option>
+            ))}
           </select>
         </fieldset>
         <div className="text-2xl font-medium p-4 flex justify-center">
           <button
-            className="btn btn-primary w-[80%] text-2xl font-semibold"
+            className="btn bg-gray-200 w-[80%] text-2xl font-semibold"
             onClick={handleSubmit}
           >
             Submit Review

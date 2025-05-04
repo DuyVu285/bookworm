@@ -28,6 +28,7 @@ class ReviewRepository:
 
         # Base query
         base_query = select(
+            Review.id,
             Review.book_id,
             Review.review_title,
             Review.review_details,

@@ -3,26 +3,28 @@ type ReviewListProps = {
 };
 
 type Review = {
+  id: number;
   review_title: string;
   review_details?: string;
   review_date: string;
   rating_star: number;
 };
+
 const ReviewList = ({ reviews }: ReviewListProps) => {
   return (
     <div>
       {reviews.length === 0 ? (
-        <p className="text-xl italic text-gray-600 bg-gray-100">
+        <p className="text-xl italic text-gray-600 bg-gray-100 rounded">
           No reviews found.
         </p>
       ) : (
         <ul className="list bg-base-100 rounded-box gap-4 bg-gray-100">
           {reviews.map((review) => (
             <li
-              key={review.review_title}
-              className="list-row-wrap min-h-[8rem]"
+              key={review.id}
+              className="list-row-wrap min-h-[8rem] rounded-lg"
             >
-              <div className="text-3xl font-semibold pb-4">
+              <div className="text-3xl font-semibold">
                 {review.review_title}
                 <span className="text-xl font-light">
                   {" "}

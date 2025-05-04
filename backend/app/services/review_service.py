@@ -47,11 +47,12 @@ class ReviewService:
 
         reviews_with_sort_and_filters = [
             ReviewRead(
-                book_id=review[0],  # book_id
-                review_title=review[1],  # review_title
-                review_details=review[2],  # review_details
-                review_date=review[3],  # review_date
-                rating_star=review[4],  # rating_star
+                id=review[0],
+                book_id=review[1],  # book_id
+                review_title=review[2],  # review_title
+                review_details=review[3],  # review_details
+                review_date=review[4],  # review_date
+                rating_star=review[5],  # rating_star
             )
             for review in reviews
         ]

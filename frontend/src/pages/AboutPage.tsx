@@ -3,14 +3,14 @@ import MainLayout from "../layout/MainLayout";
 const AboutPage = () => {
   return (
     <MainLayout type="About">
-      <div className="flex flex-col text-2xl justify-center items-center mx-60 p-8">
+      <div className="flex flex-col text-2xl justify-center items-center mx-4 sm:mx-12 lg:mx-50 p-4">
         <h1 className="text-3xl font-bold pb-5">Welcome to Bookworm</h1>
-        <p className="leading-relaxed">
+        <p className="leading-relaxed max-w-3xl">
           "Bookworm is an independent New York bookstore and language school
           with locations in Manhattan and Brooklyn. We specialize in travel
           books and language classes."
         </p>
-        <div className="grid grid-cols-2 py-6 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 py-6 gap-10">
           <div>
             <h1 className="text-3xl font-bold pb-5">Our Story</h1>
             <p className="leading-relaxed">

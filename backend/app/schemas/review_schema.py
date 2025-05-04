@@ -4,6 +4,7 @@ from datetime import datetime
 
 
 class ReviewRead(BaseModel):
+    id: int
     book_id: Optional[int]
     review_title: str
     review_details: str

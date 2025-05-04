@@ -26,7 +26,9 @@ const MainLayout = ({
         <Breadcrumbs type={type} value={value} />
       </div>
       <main className="flex-grow">{children}</main>
-      <Footer />
+      <div>
+        <Footer />
+      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export interface Review {
+  id: number;
   book_id: number;
   review_title: string;
   review_details?: string;
