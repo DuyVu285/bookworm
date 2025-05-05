@@ -11,14 +11,14 @@ from app.schemas.order_schema import OrderCreate
 from app.services.book_service import BookService
 
 router = APIRouter(
-    prefix="/place-order",
+    prefix="/orders",
     tags=["orders"],
     responses={404: {"description": "Not found"}},
 )
 
 
 @router.post(
-    "/",
+    "/place-order",
     response_model=OrderWithItemsRead,
     status_code=status.HTTP_201_CREATED,
 )

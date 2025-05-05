@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, Request, Response, status, Depends
+from fastapi.responses import JSONResponse
 from sqlmodel import Session, select
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -49,11 +50,12 @@ async def login_for_access_token(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,
+        secure=True,
+        samesite="none",
         max_age=7 * 24 * 60 * 60,
     )
 
-    return Token(access_token=access_token, token_type="bearer", expires_in=3600)
+    return Token(access_token=access_token, token_type="bearer", expires_in=1800)
 
 
 @router.post("/refresh", response_model=Token)
@@ -61,13 +63,12 @@ def refresh_token(
     request: Request,
     session: Session = Depends(get_session),
 ):
-    refresh_token = request.cookies.get("refresh_token")
-    print(f"Refresh Token: {refresh_token}")
-    if not refresh_token:
+    refresh_token_from_cookie = request.cookies.get("refresh_token")
+    if not refresh_token_from_cookie:
         raise HTTPException(status_code=401, detail="Missing refresh token")
 
     try:
-        payload = AuthHandler().verify_token(refresh_token)
+        payload = AuthHandler().verify_token(refresh_token_from_cookie)
         email = payload.get("sub")
         if email is None:
             raise HTTPException(status_code=401, detail="Invalid token")
@@ -80,18 +81,19 @@ def refresh_token(
 
     access_token = AuthHandler().create_access_token(data={"sub": user.email})
 
-    return Token(access_token=access_token, token_type="bearer", expires_in=3600)
+    return Token(access_token=access_token, token_type="bearer", expires_in=1800)
 
 
 @router.get("/me", response_model=UserRead, status_code=status.HTTP_200_OK)
 async def read_users_me(current_user: User = Depends(AuthBearer().get_current_user)):
+
     return current_user
 
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie("refresh_token")
-    return {"msg": "Logged out"}
+    response.delete_cookie(key="refresh_token")
+    return {"message": "Logout successful"}
 
 
 # Create a new user for testing

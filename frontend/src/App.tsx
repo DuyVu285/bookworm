@@ -15,8 +15,6 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("initUser");
-
     const initUser = async () => {
       try {
         const user = await authService.getUser();
@@ -26,12 +24,13 @@ function App() {
       }
     };
 
+    console.log(authService.isLoggedIn());
+
     if (authService.isLoggedIn()) {
       initUser();
-    } else {
-      console.log("No token found in cookies");
     }
   }, []);
+
   return (
     <>
       <ScrollToTop />

@@ -1,19 +1,19 @@
 import axios from "axios";
 
-export interface OrderItemInput {
+interface OrderItemInput {
   book_id: number;
   quantity: number;
   price: number;
 }
 
-export interface OrderWithItemsCreate {
+interface OrderWithItemsCreate {
   user_id: number;
   order_date: string;
   order_amount: number;
   items: OrderItemInput[];
 }
 
-export interface OrderItem {
+interface OrderItem {
   id: number;
   order_id: number;
   book_id: number;
@@ -21,7 +21,7 @@ export interface OrderItem {
   price: number;
 }
 
-export interface OrderWithItemsResponse {
+interface OrderWithItemsResponse {
   id: number;
   user_id: number;
   order_date: string;
@@ -29,7 +29,7 @@ export interface OrderWithItemsResponse {
   items: OrderItem[];
 }
 
-const baseURL = import.meta.env.VITE_SERVER_API_URL + "/place-order";
+const baseURL = import.meta.env.VITE_SERVER_API_URL + "/orders";
 
 const api = axios.create({ baseURL });
 
@@ -38,7 +38,10 @@ const orderService = {
     orderData: OrderWithItemsCreate
   ): Promise<OrderWithItemsResponse> {
     try {
-      const response = await api.post<OrderWithItemsResponse>("/", orderData);
+      const response = await api.post<OrderWithItemsResponse>(
+        "/place-order",
+        orderData
+      );
       return response.data;
     } catch (error) {
       throw error;

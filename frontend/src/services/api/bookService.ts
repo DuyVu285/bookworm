@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export interface Book {
+interface Book {
   id: number;
   book_title: string;
   book_price: number;
@@ -11,7 +11,7 @@ export interface Book {
   category_name?: string;
 }
 
-export interface BooksResponse {
+interface BooksResponse {
   books: Book[];
   total_items: number;
   total_pages: number;
