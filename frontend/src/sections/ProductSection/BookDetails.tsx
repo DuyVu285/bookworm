@@ -30,7 +30,9 @@ const BookDetails = ({ book }: { book: BookDetails }) => {
           <h2 className="text-4xl font-semibold">{book.book_title}</h2>
           <br />
           <span className="text-2xl">Book Description</span>
-          <p className="text-2xl">{book.book_summary}</p>
+          <p className="text-2xl max-h-64 overflow-y-auto whitespace-pre-line">
+            {book.book_summary || "No summary available."}
+          </p>
         </div>
       </div>
     </>

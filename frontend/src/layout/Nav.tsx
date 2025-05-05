@@ -67,7 +67,12 @@ const Nav = ({ onLoginClick }: NavProps) => {
       </div>
 
       {/* Mobile Hamburger Icon */}
-      <div className="navbar-end lg:hidden">
+      <div className="navbar-end lg:hidden flex items-center space-x-2 pr-4">
+        {authService.isLoggedIn() && user.first_name && user.last_name && (
+          <span className="text-sm font-medium text-gray-700 truncate max-w-[100px]">
+            {user.first_name} {user.last_name}
+          </span>
+        )}
         <button onClick={toggleMobileMenu} className="p-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"

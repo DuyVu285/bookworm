@@ -98,7 +98,7 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
                         <Link
                           to={`/Book/${item.id}`}
                           target="_blank"
-                          className="text-2xl font-bold hover:underline"
+                          className="text-2xl font-bold hover:underline line-clamp-2 max-w-xs"
                         >
                           {item.book_title}
                         </Link>
@@ -130,7 +130,7 @@ const CartTable = ({ cartItems }: { cartItems: CartItem[] }) => {
                       </button>
                       <input
                         type="text"
-                        className="input border-0 text-center join-item input-sm w-12 bg-gray-200"
+                        className="input border-0 text-center join-item input-sm w-10 bg-gray-200"
                         value={item.quantity}
                         onChange={(e) => {
                           const value = parseInt(e.target.value, 10);
