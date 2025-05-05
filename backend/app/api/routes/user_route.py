@@ -43,28 +43,20 @@ async def login_for_access_token(
 
     access_token = AuthHandler().create_access_token(data={"sub": user.email})
     refresh_token = AuthHandler().create_refresh_token(data={"sub": user.email})
-
-    # Set access token in HTTP-only cookie
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=False,  
-        samesite="none",
-        max_age=60,  
-    )
+    
+    
 
     # Set refresh token in HTTP-only cookie
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False, 
-        samesite="none",
-        max_age=7 * 24 * 60 * 60,  # 7 days
+        secure=False,
+        samesite="None",
+        max_age=7 * 24 * 60 * 60,
     )
 
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type="bearer", expires_in=3600)
 
 
 @router.post("/refresh", response_model=Token)
@@ -73,6 +65,7 @@ def refresh_token(
     session: Session = Depends(get_session),
 ):
     refresh_token = request.cookies.get("refresh_token")
+    print(f"Refresh Token: {refresh_token}")
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Missing refresh token")
 
@@ -89,6 +82,7 @@ def refresh_token(
         raise HTTPException(status_code=404, detail="User not found")
 
     access_token = AuthHandler().create_access_token(data={"sub": user.email})
+
     return Token(access_token=access_token, token_type="bearer")
 
 

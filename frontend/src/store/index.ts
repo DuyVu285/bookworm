@@ -19,7 +19,7 @@ import toastReducer from "./toastSlice";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["cart", "user", "auth"],
+  whitelist: ["cart", "user", "toast"],
 };
 
 const rootReducer = combineReducers({
