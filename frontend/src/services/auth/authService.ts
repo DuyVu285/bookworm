@@ -87,7 +87,6 @@ const authService = {
 
   async tryRefreshToken(): Promise<boolean> {
     try {
-      console.log("Trying to refresh token");
       const response = await api.post("/users/refresh");
 
       const expiresInSeconds = response.data.expires_in;
