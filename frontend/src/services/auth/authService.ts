@@ -1,5 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { store } from "../../store";
+import { setUser } from "../../store/userSlice";
 
 const baseURL = import.meta.env.VITE_SERVER_API_URL;
 const api = axios.create({
@@ -71,8 +73,7 @@ const authService = {
           headers: { Authorization: `Bearer ${response.data.access_token}` },
         });
 
-        // Set user in cookies
-        Cookies.set("user", JSON.stringify(userResponse.data));
+        store.dispatch(setUser(userResponse.data));
         Cookies.set("access_token", response.data.access_token, {
           expires: response.data.expires_in / 86400,
         });
@@ -99,7 +100,6 @@ const authService = {
         {},
         { headers: authService.getAuthHeader() }
       );
-      Cookies.remove("user");
       Cookies.remove("access_token");
       Cookies.remove("token_expiry");
       return "Logout successful";

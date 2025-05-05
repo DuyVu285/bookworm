@@ -12,17 +12,19 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import storage from "redux-persist/lib/storage";
 import cartReducer from "./cartSlice";
 import toastReducer from "./toastSlice";
+import userReducer from "./userSlice";
 
 // Redux Persist configuration
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["cart", "toast"],
+  whitelist: ["cart", "toast", "user"],
 };
 
 const rootReducer = combineReducers({
   cart: cartReducer,
   toast: toastReducer,
+  user: userReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

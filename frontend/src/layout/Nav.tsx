@@ -211,7 +211,10 @@ const Nav = ({ onLoginClick }: NavProps) => {
             </li>
 
             {/* Conditionally render login or user dropdown in mobile */}
-            {authService.isLoggedIn() && user && user.first_name && user.last_name ? (
+            {authService.isLoggedIn() &&
+            user &&
+            user.first_name &&
+            user.last_name ? (
               <li>
                 <a onClick={handleLogout} className="text-red-600">
                   Logout
