@@ -101,6 +101,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
                   className="w-full px-4 py-2 border-gray-300 rounded-md"
                 />
               </label>
@@ -116,6 +117,7 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                   className="w-full px-4 py-2 border-gray-300 rounded-md"
                 />
               </label>
