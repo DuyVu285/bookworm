@@ -6,17 +6,12 @@ import {
   updateItemPrice,
   removeFromCart,
 } from "../../store/cartSlice";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Login from "../../components/Login";
 import { showToast } from "../../store/toastSlice";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
+import authService from "../../services/auth/authService";
 
-type User = {
-  first_name: string;
-  last_name: string;
-  id: number;
-};
 const CartTotals = () => {
   const cart = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
@@ -29,21 +24,8 @@ const CartTotals = () => {
   );
 
   // User information (first and last name)
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const userCookie = Cookies.get("user");
-    if (userCookie) {
-      try {
-        const parsedUser = JSON.parse(userCookie);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error("Failed to parse user cookie", error);
-        setUser(null);
-      }
-    }
-  }, []);
-  const isLoggedIn = !!user?.id;
+  const user = useSelector((state: RootState) => state.user);
+  const isLoggedIn = authService.isLoggedIn();
 
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {

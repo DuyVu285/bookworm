@@ -43,8 +43,6 @@ async def login_for_access_token(
 
     access_token = AuthHandler().create_access_token(data={"sub": user.email})
     refresh_token = AuthHandler().create_refresh_token(data={"sub": user.email})
-    
-    
 
     # Set refresh token in HTTP-only cookie
     response.set_cookie(
@@ -52,7 +50,6 @@ async def login_for_access_token(
         value=refresh_token,
         httponly=True,
         secure=False,
-        samesite="None",
         max_age=7 * 24 * 60 * 60,
     )
 
@@ -83,7 +80,7 @@ def refresh_token(
 
     access_token = AuthHandler().create_access_token(data={"sub": user.email})
 
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type="bearer", expires_in=3600)
 
 
 @router.get("/me", response_model=UserRead, status_code=status.HTTP_200_OK)

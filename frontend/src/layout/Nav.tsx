@@ -3,42 +3,21 @@ import { useLocation, Link } from "react-router-dom";
 import { RootState } from "../store";
 import authService from "../services/auth/authService";
 import { showToast } from "../store/toastSlice";
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import { useState } from "react";
+import { clearUser } from "../store/userSlice";
 
 type NavProps = {
   onLoginClick: () => void;
-};
-
-type User = {
-  first_name: string;
-  last_name: string;
-  id: number;
 };
 
 const Nav = ({ onLoginClick }: NavProps) => {
   const cartCount = useSelector((state: RootState) =>
     state.cart.items.reduce((acc, item) => acc + item.quantity, 0)
   );
-
+  const user = useSelector((state: RootState) => state.user);
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // User information (first and last name)
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const userCookie = Cookies.get("user");
-    if (userCookie) {
-      try {
-        const parsedUser = JSON.parse(userCookie);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error("Failed to parse user cookie", error);
-        setUser(null);
-      }
-    }
-  }, []);
   // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -55,6 +34,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
 
   const handleLogout = () => {
     authService.logout();
+    dispatch(clearUser());
     dispatch(showToast({ message: "Logout successful!", type: "success" }));
   };
 
@@ -211,10 +191,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
             </li>
 
             {/* Conditionally render login or user dropdown in mobile */}
-            {authService.isLoggedIn() &&
-            user &&
-            user.first_name &&
-            user.last_name ? (
+            {authService.isLoggedIn() && user.first_name && user.last_name ? (
               <li>
                 <a onClick={handleLogout} className="text-red-600">
                   Logout

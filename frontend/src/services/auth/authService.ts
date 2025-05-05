@@ -1,9 +1,10 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { store } from "../../store";
-import { setUser } from "../../store/userSlice";
+import { clearUser, setUser } from "../../store/userSlice";
 
 const baseURL = import.meta.env.VITE_SERVER_API_URL;
+
 const api = axios.create({
   baseURL,
   withCredentials: true,
@@ -26,19 +27,16 @@ export interface User {
   id: number;
 }
 
-// Attach Authorization header to each request if access token is available
+// --- REQUEST INTERCEPTOR ---
 api.interceptors.request.use((config) => {
   const token = Cookies.get("access_token");
   const tokenExpiry = Cookies.get("token_expiry");
 
-  // Check if the token is expired
   if (token && tokenExpiry && Date.now() > Number(tokenExpiry)) {
-    // Token has expired, refresh the token
+    // Expired token - just clear for now, retry will happen in response interceptor
     Cookies.remove("access_token");
     Cookies.remove("token_expiry");
-    // Trigger refresh logic
-    authService.tryRefreshToken(); // This will trigger token refresh
-    return Promise.reject("Token expired");
+    store.dispatch(clearUser());
   }
 
   if (token) {
@@ -48,10 +46,73 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// --- RESPONSE INTERCEPTOR WITH REFRESH + QUEUE ---
 let isRefreshing = false;
+let failedQueue: any[] = [];
 
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      Cookies.get("refresh_token")
+    ) {
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(api(originalRequest));
+            },
+            reject: (err: any) => reject(err),
+          });
+        });
+      }
+
+      isRefreshing = true;
+
+      try {
+        const refreshed = await authService.tryRefreshToken();
+        const newToken = Cookies.get("access_token");
+
+        if (!refreshed || !newToken) {
+          throw new Error("Refresh failed");
+        }
+
+        processQueue(null, newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        store.dispatch(clearUser());
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// --- AUTH SERVICE OBJECT ---
 const authService = {
-  // Login and get access token
   async login(payload: LoginPayload): Promise<string> {
     try {
       const form = new URLSearchParams();
@@ -63,9 +124,7 @@ const authService = {
       form.append("client_secret", "string");
 
       const response = await api.post<TokenResponse>("/users/token", form, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
       if (response.status === 200 && response.data.access_token) {
@@ -85,7 +144,7 @@ const authService = {
 
         return "Login successful";
       } else {
-        return "Login failed: unexpected response from server";
+        return "Login failed: unexpected response";
       }
     } catch (error: any) {
       const message = error.response?.data?.detail || "Login failed";
@@ -95,11 +154,7 @@ const authService = {
 
   async logout(): Promise<string> {
     try {
-      await api.post(
-        "/users/logout",
-        {},
-        { headers: authService.getAuthHeader() }
-      );
+      await api.post("/users/logout", {}, { headers: this.getAuthHeader() });
       Cookies.remove("access_token");
       Cookies.remove("token_expiry");
       return "Logout successful";
@@ -111,15 +166,13 @@ const authService = {
 
   async getUser(): Promise<User> {
     const tokenExpiry = Cookies.get("token_expiry");
-
-    // Check if the token has expired before making the request
     if (tokenExpiry && Date.now() > Number(tokenExpiry)) {
-      throw new Error("Token has expired. Please log in again.");
+      throw new Error("Token expired");
     }
 
     try {
       const response = await api.get("/users/me", {
-        headers: authService.getAuthHeader(),
+        headers: this.getAuthHeader(),
       });
       return response.data;
     } catch (error) {
@@ -127,49 +180,35 @@ const authService = {
     }
   },
 
-  // Try to refresh the access token
-  async tryRefreshToken() {
-    console.log("tryRefreshToken", isRefreshing);
-    if (isRefreshing) return false;
-
+  async tryRefreshToken(): Promise<boolean> {
     try {
-      isRefreshing = true;
-      console.log("tryRefreshToken");
       const response = await api.post("/users/refresh");
       const { access_token, expires_in } = response.data;
-      console.log("Refresh token", access_token);
 
-      // Store the new token and its expiration
       Cookies.set("access_token", access_token, {
-        expires: expires_in / 1800,
+        expires: expires_in / 86400,
       });
       Cookies.set("token_expiry", (Date.now() + expires_in * 1000).toString(), {
-        expires: expires_in / 1800,
+        expires: expires_in / 86400,
       });
 
-      isRefreshing = false;
       return true;
-    } catch (err: any) {
-      isRefreshing = false;
+    } catch (err) {
       Cookies.remove("access_token");
       Cookies.remove("token_expiry");
       return false;
-    } finally {
-      isRefreshing = false;
     }
   },
 
-  // Check if the user is logged in based on the presence of the access token in cookies
   isLoggedIn(): boolean {
-    console.log("isLoggedIn", !!Cookies.get("access_token"));
     return !!Cookies.get("access_token");
   },
 
-  // Get the Authorization header with the current access token
   getAuthHeader(): { Authorization: string } | {} {
     const token = Cookies.get("access_token");
     return token ? { Authorization: `Bearer ${token}` } : {};
   },
 };
 
+export { api }; // if needed for general API access
 export default authService;
