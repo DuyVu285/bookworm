@@ -24,8 +24,6 @@ function App() {
       }
     };
 
-    console.log(authService.isLoggedIn());
-
     if (authService.isLoggedIn()) {
       initUser();
     }
