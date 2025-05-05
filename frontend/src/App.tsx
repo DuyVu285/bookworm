@@ -28,6 +28,7 @@ function App() {
     const tokenExpiry = Cookies.get("token_expiry");
     const access_token = Cookies.get("access_token");
     if (!tokenExpiry || !access_token) {
+      dispatch(clearUser());
       initUser();
     }
   }, []);

@@ -105,6 +105,28 @@ const authService = {
         }
       );
 
+      if (response.status === 200 && response.data.access_token) {
+        const userResponse = await api.get<User>("/users/me", {
+          headers: { Authorization: `Bearer ${response.data.access_token}` },
+        });
+
+        store.dispatch(setUser(userResponse.data));
+        const expiresInSeconds = response.data.expires_in;
+        const now = new Date();
+        const expiryDate = new Date(now.getTime() + expiresInSeconds * 1000);
+
+        Cookies.set("access_token", response.data.access_token, {
+          expires: expiryDate,
+        });
+        Cookies.set(
+          "token_expiry",
+          (Date.now() + expiresInSeconds * 1000).toString(),
+          {
+            expires: expiryDate,
+          }
+        );
+      }
+
       return true;
     } catch (err) {
       Cookies.remove("access_token");
