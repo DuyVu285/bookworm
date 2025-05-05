@@ -2,12 +2,18 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation, Link } from "react-router-dom";
 import { RootState } from "../store";
 import authService from "../services/auth/authService";
-import { clearUser } from "../store/userSlice";
 import { showToast } from "../store/toastSlice";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 type NavProps = {
   onLoginClick: () => void;
+};
+
+type User = {
+  first_name: string;
+  last_name: string;
+  id: number;
 };
 
 const Nav = ({ onLoginClick }: NavProps) => {
@@ -19,8 +25,20 @@ const Nav = ({ onLoginClick }: NavProps) => {
   const dispatch = useDispatch();
 
   // User information (first and last name)
-  const user = useSelector((state: RootState) => state.user);
+  const [user, setUser] = useState<User | null>(null);
 
+  useEffect(() => {
+    const userCookie = Cookies.get("user");
+    if (userCookie) {
+      try {
+        const parsedUser = JSON.parse(userCookie);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Failed to parse user cookie", error);
+        setUser(null);
+      }
+    }
+  }, []);
   // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -37,7 +55,6 @@ const Nav = ({ onLoginClick }: NavProps) => {
 
   const handleLogout = () => {
     authService.logout();
-    dispatch(clearUser());
     dispatch(showToast({ message: "Logout successful!", type: "success" }));
   };
 
@@ -114,7 +131,10 @@ const Nav = ({ onLoginClick }: NavProps) => {
           </li>
 
           {/* Conditionally render the login or user dropdown */}
-          {authService.isLoggedIn() && user.first_name && user.last_name ? (
+          {authService.isLoggedIn() &&
+          user &&
+          user.first_name &&
+          user.last_name ? (
             <li tabIndex={0} className="dropdown dropdown-end">
               <a className="text-gray-800">
                 {user.first_name} {user.last_name}
@@ -191,7 +211,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
             </li>
 
             {/* Conditionally render login or user dropdown in mobile */}
-            {authService.isLoggedIn() && user.first_name && user.last_name ? (
+            {authService.isLoggedIn() && user && user.first_name && user.last_name ? (
               <li>
                 <a onClick={handleLogout} className="text-red-600">
                   Logout

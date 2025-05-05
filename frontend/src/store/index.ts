@@ -11,21 +11,17 @@ import {
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import storage from "redux-persist/lib/storage";
 import cartReducer from "./cartSlice";
-import userReducer from "./userSlice";
-import authReducer from "./authSlice";
 import toastReducer from "./toastSlice";
 
 // Redux Persist configuration
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["cart", "user", "toast"],
+  whitelist: ["cart", "toast"],
 };
 
 const rootReducer = combineReducers({
   cart: cartReducer,
-  user: userReducer,
-  auth: authReducer,
   toast: toastReducer,
 });
 
