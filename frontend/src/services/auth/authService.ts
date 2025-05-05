@@ -78,6 +78,7 @@ const authService = {
       await api.post("/users/logout", {}, { headers: this.getAuthHeader() });
       Cookies.remove("access_token");
       Cookies.remove("token_expiry");
+      Cookies.remove("refresh_token");
       return "Logout successful";
     } catch (error: any) {
       const message = error.response?.data?.detail || "Logout failed";
@@ -115,7 +116,7 @@ const authService = {
   async getUser(): Promise<User> {
     const tokenExpiry = Cookies.get("token_expiry");
 
-    if (tokenExpiry && Date.now() > Number(tokenExpiry)) {
+    if (!tokenExpiry) {
       const refreshed = await this.tryRefreshToken();
       if (!refreshed) {
         throw new Error("Token expired and refresh failed");

@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import authService from "./services/auth/authService";
 import { clearUser, setUser } from "./store/userSlice";
+import Cookies from "js-cookie";
 
 function App() {
   const dispatch = useDispatch();
@@ -24,7 +25,9 @@ function App() {
       }
     };
 
-    if (authService.isLoggedIn()) {
+    const tokenExpiry = Cookies.get("token_expiry");
+    const access_token = Cookies.get("access_token");
+    if (!tokenExpiry || !access_token) {
       initUser();
     }
   }, []);

@@ -49,6 +49,7 @@ async def login_for_access_token(
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
+        path="/",
         httponly=True,
         secure=True,
         samesite="none",
@@ -92,7 +93,9 @@ async def read_users_me(current_user: User = Depends(AuthBearer().get_current_us
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie(key="refresh_token")
+    response.delete_cookie(
+        key="refresh_token", path="/", httponly=True, secure=True, samesite="none"
+    )
     return {"message": "Logout successful"}
 
 

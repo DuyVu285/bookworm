@@ -92,27 +92,8 @@ class BookRepository:
         }
         sort_expression = sort_column_map.get(sort)
 
-        # --- Filtering query (for total count) ---
-        filter_query = select(Book.id).join(Author)
-
-        if category_id is not None:
-            filter_query = filter_query.where(Book.category_id == category_id)
-        if author_id is not None:
-            filter_query = filter_query.where(Book.author_id == author_id)
-        if min_rating is not None:
-            filter_query = (
-                filter_query.outerjoin(Review, Review.book_id == Book.id)
-                .group_by(Book.id, Author.id)
-                .having(
-                    func.round(
-                        cast(func.avg(cast(Review.rating_star, Float)), Numeric), 1
-                    )
-                    >= min_rating
-                )
-            )
-
-        total_items_query = select(func.count()).select_from(filter_query.subquery())
-        total_items = self.session.exec(total_items_query).one()
+        # Get total items
+        total_items = self._get_total_items(category_id, author_id, min_rating)
         if total_items == 0:
             return []
 
@@ -261,3 +242,30 @@ class BookRepository:
             .group_by(Discount.book_id)
             .subquery()
         )
+
+    def _get_total_items(
+        self,
+        category_id: Optional[int] = None,
+        author_id: Optional[int] = None,
+        min_rating: Optional[float] = None,
+    ) -> int:
+        filter_query = select(Book.id).join(Author)
+
+        if category_id is not None:
+            filter_query = filter_query.where(Book.category_id == category_id)
+        if author_id is not None:
+            filter_query = filter_query.where(Book.author_id == author_id)
+        if min_rating is not None:
+            filter_query = (
+                filter_query.outerjoin(Review, Review.book_id == Book.id)
+                .group_by(Book.id, Author.id)
+                .having(
+                    func.round(
+                        cast(func.avg(cast(Review.rating_star, Float)), Numeric), 1
+                    )
+                    >= min_rating
+                )
+            )
+
+        total_items_query = select(func.count()).select_from(filter_query.subquery())
+        return self.session.exec(total_items_query).one()
