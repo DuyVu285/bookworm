@@ -49,9 +49,9 @@ async def login_for_access_token(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,  # only set this True if using HTTPS
-        samesite="strict",
-        max_age=7 * 24 * 60 * 60,  # 7 days
+        secure=False,  
+        samesite="none",
+        max_age=60,  
     )
 
     # Set refresh token in HTTP-only cookie
@@ -59,8 +59,8 @@ async def login_for_access_token(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,  # only set this True if using HTTPS
-        samesite="strict",
+        secure=False, 
+        samesite="none",
         max_age=7 * 24 * 60 * 60,  # 7 days
     )
 
