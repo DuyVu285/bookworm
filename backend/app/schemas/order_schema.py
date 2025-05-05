@@ -11,10 +11,6 @@ class OrderCreate(OrderBase):
     user_id: int
 
 
-class OrderUpdate(OrderBase):
-    pass
-
-
 class OrderRead(OrderBase):
     id: int
     user_id: int

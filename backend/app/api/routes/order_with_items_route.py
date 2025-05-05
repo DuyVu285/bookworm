@@ -32,19 +32,13 @@ async def place_order(
 
     for item in order_data.items:
         book = book_service.get_book_by_id(item.book_id)
-        if book is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Book with ID {item.book_id} not found.",
-            )
-
         sub_price = book.sub_price
 
         if item.price != sub_price:
-            return JSONResponse(
+            raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "detail": f"Price for '{book.book_title}' has changed.",
+                detail={
+                    "message": f"Price for '{book.book_title}' has changed.",
                     "updated_book": {
                         "book_id": item.book_id,
                         "title": book.book_title,

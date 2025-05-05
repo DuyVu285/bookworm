@@ -44,12 +44,22 @@ async def login_for_access_token(
     access_token = AuthHandler().create_access_token(data={"sub": user.email})
     refresh_token = AuthHandler().create_refresh_token(data={"sub": user.email})
 
+    # Set access token in HTTP-only cookie
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,  # only set this True if using HTTPS
+        samesite="strict",
+        max_age=7 * 24 * 60 * 60,  # 7 days
+    )
+
     # Set refresh token in HTTP-only cookie
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,  # only set this True if using HTTPS
+        secure=False,  # only set this True if using HTTPS
         samesite="strict",
         max_age=7 * 24 * 60 * 60,  # 7 days
     )

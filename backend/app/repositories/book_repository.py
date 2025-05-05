@@ -131,6 +131,7 @@ class BookRepository:
             .join(Author, Author.id == Book.author_id)
         )
 
+        # might be too redundant
         if category_id is not None:
             base_query = base_query.where(Book.category_id == category_id)
         if author_id is not None:
@@ -206,7 +207,6 @@ class BookRepository:
             "popular": func.count(Review.id),
         }
         metric = metrics.get(sort)
-        print("Current metric:", metric)
         subquery = (
             select(
                 label("book_id", Book.id),

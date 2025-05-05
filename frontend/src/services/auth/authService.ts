@@ -124,17 +124,17 @@ const authService = {
 
   // Try to refresh the access token
   async tryRefreshToken() {
-    if (isRefreshing) return false; // Prevent multiple refresh attempts
+    if (isRefreshing) return false; 
 
     try {
-      isRefreshing = true; // Set flag to prevent retrying
+      isRefreshing = true; 
       const response = await api.post("/users/refresh");
       const { access_token } = response.data;
       store.dispatch(setAccessToken(access_token));
-      isRefreshing = false; // Reset flag after refresh
+      isRefreshing = false;
       return true;
     } catch (err: any) {
-      isRefreshing = false; // Reset flag in case of failure
+      isRefreshing = false;
       return false;
     }
   },

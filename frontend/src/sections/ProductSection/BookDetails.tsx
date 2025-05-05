@@ -27,9 +27,10 @@ const BookDetails = ({ book }: { book: BookDetails }) => {
 
         {/* Book Details */}
         <div className="w-full lg:w-2/3 p-4">
-          <h2 className="text-2xl font-semibold">{book.book_title}</h2>
-          <span>Book Description</span>
-          <p>{book.book_summary}</p>
+          <h2 className="text-4xl font-semibold">{book.book_title}</h2>
+          <br />
+          <span className="text-2xl">Book Description</span>
+          <p className="text-2xl">{book.book_summary}</p>
         </div>
       </div>
     </>

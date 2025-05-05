@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import Login from "../../components/Login";
 import { showToast } from "../../store/toastSlice";
+import { useNavigate } from "react-router-dom";
 
 const CartTotals = () => {
   const cart = useSelector((state: RootState) => state.cart.items);
@@ -17,7 +18,7 @@ const CartTotals = () => {
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const isLoggedIn = !!user.id;
-
+  const navigate = useNavigate();
   const totalPrice = cart.reduce(
     (sum, item) => sum + (item.sub_price ?? item.book_price) * item.quantity,
     0
@@ -64,37 +65,35 @@ const CartTotals = () => {
         })
       );
       dispatch(clearCart());
-    } catch (error: any) {
-      const errMsg = error?.response?.data?.detail;
 
-      if (
-        error.response?.status === 400 &&
-        error.response?.data?.updated_book
-      ) {
-        const updated = error.response.data.updated_book;
+      setTimeout(() => {
+        navigate("/");
+      }, 10000);
+    } catch (error: any) {
+      if (error.response?.status === 400 && error) {
+        const updated = error.response.data.detail.updated_book;
         dispatch(updateItemPrice(updated));
         dispatch(
           showToast({
-            message: errMsg || "Price has changed.",
+            message: `Price of '${updated.title}' has changed!`,
             type: "error",
           })
         );
-      } else if (
-        error.response?.status === 400 &&
-        error.response?.data?.removed_book
-      ) {
-        const removed = error.response.data.removed_book;
-        dispatch(removeFromCart(removed));
+      } else if (error.response?.status === 404 && error) {
+        console.log(error.response.data.detail);
+        const removed = error.response.data.detail.removed_book;
+        console.log(removed);
+        dispatch(removeFromCart(removed.book_id));
         dispatch(
           showToast({
-            message: errMsg || "Book removed from cart.",
+            message: `A book is no longer available!`,
             type: "error",
           })
         );
       } else {
         dispatch(
           showToast({
-            message: errMsg || "Failed to place order. Please try again.",
+            message: "Failed to place order. Please try again!",
             type: "error",
           })
         );

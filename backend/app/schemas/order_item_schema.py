@@ -11,10 +11,6 @@ class OrderItemCreate(OrderItemBase):
     book_id: int
 
 
-class OrderItemUpdate(OrderItemBase):
-    pass
-
-
 class OrderItemRead(OrderItemCreate):
     id: int
 

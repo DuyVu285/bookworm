@@ -1,7 +1,6 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.schemas.order_schema import OrderCreate, OrderRead
-from app.models.order_model import Order
 from app.repositories.order_repository import OrderRepository
 
 
