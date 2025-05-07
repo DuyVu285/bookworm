@@ -5,6 +5,7 @@ import bookService from "../../services/api/bookService";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
 import { Navigation } from "swiper/modules";
+import { Link } from "react-router-dom";
 
 type Book = {
   id: number;
@@ -38,8 +39,8 @@ const OnSale = () => {
     <>
       <div className="flex justify-between items-center pb-2 px-2">
         <h2 className="text-3xl font-semibold">On Sale</h2>
-        <a
-          href="/Shop?page=1&sort=on+sale&limit=20"
+        <Link
+          to="/Shop?page=1&sort=on+sale&limit=20"
           className="btn btn-lg text-white text-xl bg-gray-500 rounded-lg"
         >
           View All
@@ -53,10 +54,10 @@ const OnSale = () => {
           >
             <path d="M6 12.796V3.204L11.481 8zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753" />
           </svg>
-        </a>
+        </Link>
       </div>
 
-      <div className="rounded-box border border-gray-300 py-8 relative flex justify-center items-center min-h-[300px] w-full">
+      <div className="rounded-box border border-gray-300 py-8 px-4 relative flex justify-center items-center min-h-[300px] w-full">
         {loading ? (
           <div className="flex justify-center items-center w-full">
             <span className="loading loading-spinner loading-xl"></span>
@@ -65,11 +66,11 @@ const OnSale = () => {
         ) : (
           <>
             {/* Left Button (Visible only on larger screens) */}
-            <div className="cursor-pointer custom-prev-button p-1 hidden sm:block">
+            <div className="cursor-pointer custom-prev-button hidden sm:block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
+                width="48"
+                height="48"
                 fill="currentColor"
                 className="bi bi-caret-left"
                 viewBox="0 0 16 16"
@@ -102,11 +103,11 @@ const OnSale = () => {
             </Swiper>
 
             {/* Right Button (Visible only on larger screens) */}
-            <div className="cursor-pointer custom-next-button p-1 hidden sm:block">
+            <div className="cursor-pointer custom-next-button hidden sm:block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
+                width="48"
+                height="48"
                 fill="currentColor"
                 className="bi bi-caret-right"
                 viewBox="0 0 16 16"

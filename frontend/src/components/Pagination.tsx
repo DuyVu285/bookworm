@@ -34,7 +34,7 @@ const Pagination = ({
   return (
     <div className="flex flex-col items-center gap-2">
       {/* Desktop pagination buttons */}
-      <div className="join flex flex-wrap justify-center hidden sm:flex">
+      <div className="join flex-wrap justify-center hidden sm:flex">
         <button
           className="join-item btn btn-outline border-gray-300"
           disabled={currentPage === 1}

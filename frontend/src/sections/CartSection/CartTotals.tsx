@@ -6,7 +6,7 @@ import {
   updateItemPrice,
   removeFromCart,
 } from "../../store/cartSlice";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Login from "../../components/Login";
 import { showToast } from "../../store/toastSlice";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ const CartTotals = () => {
   const dispatch = useDispatch();
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const hasNavigated = useRef(false);
   const navigate = useNavigate();
   const totalPrice = cart.reduce(
     (sum, item) => sum + (item.sub_price ?? item.book_price) * item.quantity,
@@ -26,6 +27,12 @@ const CartTotals = () => {
   // User information (first and last name)
   const user = useSelector((state: RootState) => state.user);
   const isLoggedIn = authService.isLoggedIn();
+
+  useEffect(() => {
+    return () => {
+      hasNavigated.current = true;
+    };
+  }, []);
 
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
@@ -70,7 +77,9 @@ const CartTotals = () => {
       dispatch(clearCart());
 
       setTimeout(() => {
-        navigate("/");
+        if (!hasNavigated.current) {
+          navigate("/");
+        }
       }, 10000);
     } catch (error: any) {
       if (error.response?.status === 400 && error) {

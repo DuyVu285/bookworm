@@ -3,7 +3,6 @@ import authService from "../services/auth/authService"; // Import authService fo
 import { showToast } from "../store/toastSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store";
-import { useNavigate } from "react-router-dom";
 
 interface LoginProps {
   isOpen: boolean;
@@ -17,7 +16,6 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const modal = modalRef.current;
@@ -67,7 +65,6 @@ const Login = ({ isOpen, onClose }: LoginProps) => {
           type: "success",
         })
       );
-      navigate("/");
     } catch (error) {
       dispatch(
         showToast({ message: "Login failed. Please try again.", type: "error" })
