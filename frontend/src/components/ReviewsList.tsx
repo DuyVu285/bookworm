@@ -24,14 +24,14 @@ const ReviewList = ({ reviews }: ReviewListProps) => {
               key={review.id}
               className="list-row-wrap min-h-[8rem] rounded-lg"
             >
-              <div className="text-3xl font-semibold">
+              <div className="text-3xl font-semibol break-words">
                 {review.review_title}
                 <span className="text-xl font-light">
                   {" "}
                   | {review.rating_star} stars
                 </span>
               </div>
-              <p className="text-xl pb-4">{review.review_details}</p>
+              <p className="text-xl pb-4 break-words">{review.review_details}</p>
               <span className="text-xl">
                 {new Date(review.review_date).toLocaleDateString("en-US", {
                   year: "numeric",
