@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 
 import requests
@@ -164,7 +163,7 @@ def insert_fake_data():
         session.commit()  # Commit users to generate IDs
 
         # Generate books using authors and categories
-        books = [generate_fake_book(categories, authors) for _ in range(200)]
+        books = [generate_fake_book(categories, authors) for _ in range(400)]
         session.add_all(books)
         session.commit()
 
@@ -174,7 +173,7 @@ def insert_fake_data():
         session.commit()  # Commit orders to generate IDs
 
         # Generate reviews and discounts using committed books
-        reviews = [generate_fake_review(books) for _ in range(150)]
+        reviews = [generate_fake_review(books) for _ in range(600)]
 
         # Track existing discounts to ensure each book gets only one discount
         existing_discounts = []
