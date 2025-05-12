@@ -5,6 +5,7 @@ import authService from "../services/auth/authService";
 import { showToast } from "../store/toastSlice";
 import { useState } from "react";
 import { clearUser } from "../store/userSlice";
+import Search from "../components/Search";
 
 type NavProps = {
   onLoginClick: () => void;
@@ -91,8 +92,13 @@ const Nav = ({ onLoginClick }: NavProps) => {
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div className="navbar-center hidden lg:flex">
+        <Search />
+      </div>
+
       {/* Main Navigation */}
-      <div className="navbar-end hidden lg:flex">
+      <div className="navbar-end hidden lg:flex ">
         <ul className="menu menu-horizontal px-1 mr-18">
           <li>
             <Link to="/" className={`${isActive("/")}`}>
@@ -157,6 +163,9 @@ const Nav = ({ onLoginClick }: NavProps) => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute top-16 left-0 right-0 bg-base-100 shadow-md">
+          <div className="p-2">
+            <Search />
+          </div>
           <ul className="menu p-2">
             <li>
               <Link
