@@ -11,6 +11,18 @@ class BookService:
         self.book_repository = BookRepository(session)
         self.server_url = settings.SERVER_URL
 
+    def search_books(self, search_terms: str) -> list[str]:
+        search_books = self.book_repository.search_books(search_terms)
+        if not search_books:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "message": f"Book with search term {search_terms} not found.",
+                    "removed_book": {"search_term": search_terms},
+                },
+            )
+        return search_books
+
     def get_book_by_id(self, book_id: int) -> BookDetailsRead:
         book = self.book_repository.get_book_by_id(book_id)
         if not book:

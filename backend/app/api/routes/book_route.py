@@ -33,6 +33,13 @@ async def get_books(
     return data
 
 
+@router.get("/search", response_model=list[str], status_code=status.HTTP_200_OK)
+async def search_books(search_terms: str, session: Session = Depends(get_session)):
+    service = BookService(session)
+    data = service.search_books(search_terms)
+    return data
+
+
 @router.get(
     "/book/{book_id}", response_model=BookDetailsRead, status_code=status.HTTP_200_OK
 )
