@@ -2,12 +2,12 @@ import axios from "axios";
 
 interface Book {
   id: number;
-  book_title: string;
-  book_price: number;
-  book_summary: string;
-  book_cover_photo: string;
-  sub_price: number;
-  author_name: string;
+  book_title?: string;
+  book_price?: number;
+  book_summary?: string;
+  book_cover_photo?: string;
+  sub_price?: number;
+  author_name?: string;
   category_name?: string;
 }
 
@@ -87,12 +87,12 @@ const bookService = {
     }
   },
 
-  async searchBooks(search_terms: string): Promise<string[]> {
+  async searchBooks(search_terms: string): Promise<Book[]> {
     try {
-      const response = await api.get<string[]>(
+      const response = await api.get<{ books: Book[] }>(
         `/search?search_terms=${search_terms}`
       );
-      return response.data;
+      return response.data.books;
     } catch (error) {
       throw error;
     }

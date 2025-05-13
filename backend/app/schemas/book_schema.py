@@ -53,3 +53,13 @@ class BookQueryParams(BaseModel):
 
 class Top8BooksQueryParams(BaseModel):
     sort: Literal["recommended", "popular"] = "recommended"
+
+
+class BookSearchRead(BaseModel):
+    id: int
+    book_title: str
+    book_cover_photo: str
+
+
+class BooksSearchRead(BaseModel):
+    books: list[BookSearchRead]

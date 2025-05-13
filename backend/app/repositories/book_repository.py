@@ -29,7 +29,7 @@ class BookRepository:
 
     def search_books(self, search_term: str) -> list[str]:
         query = (
-            select(Book.book_title)
+            select(Book.id, Book.book_title, Book.book_cover_photo)
             .where(Book.book_title.ilike(f"%{search_term}%"))
             .limit(5)
         )

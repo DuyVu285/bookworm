@@ -1,20 +1,29 @@
 import { useEffect, useState } from "react";
 import bookService from "../services/api/bookService";
+import { Link } from "react-router-dom";
+
+type Book = {
+  id: number;
+  book_title: string;
+  book_cover_photo: string;
+};
 
 const Search = () => {
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<Book[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (query.trim() === "") return setSuggestions([]);
       try {
-        const response = await bookService.searchBooks(
-          encodeURIComponent(query)
-        );
-        console.log(response);
-        setSuggestions(response);
+        const response = await bookService.searchBooks(query);
+        const mappedSuggestions: Book[] = response.map((item) => ({
+          id: item.id,
+          book_title: item.book_title || "",
+          book_cover_photo: item.book_cover_photo || "",
+        }));
+        setSuggestions(mappedSuggestions);
         setShowDropdown(true);
       } catch (error) {
         console.error("Failed to fetch suggestions", error);
@@ -40,7 +49,6 @@ const Search = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!query.trim()) return;
-    console.log("Search query:", query);
   };
 
   return (
@@ -82,10 +90,19 @@ const Search = () => {
           {suggestions.map((item, idx) => (
             <li
               key={idx}
-              onClick={() => handleSelect(item)}
+              onClick={() => handleSelect(item.book_title)}
               className="px-4 py-2 cursor-pointer hover:bg-gray-100"
             >
-              {item}
+              <Link to={`/Book/${item.id}`}>
+                <div className="flex flex-row items-center">
+                  <img
+                    src={item.book_cover_photo}
+                    alt={item.book_title}
+                    className="w-8 h-8 rounded mr-2"
+                  />
+                  {item.book_title}
+                </div>
+              </Link>
             </li>
           ))}
         </ul>

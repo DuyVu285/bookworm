@@ -4,7 +4,14 @@ from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.config import settings
 from app.repositories.book_repository import BookRepository
-from app.schemas.book_schema import BookRead, TopBooksRead, BooksRead, BookDetailsRead
+from app.schemas.book_schema import (
+    BookRead,
+    TopBooksRead,
+    BooksRead,
+    BookDetailsRead,
+    BooksSearchRead,
+    BookSearchRead,
+)
 from app.db.elastic_search import ElasticService
 
 
@@ -12,34 +19,61 @@ class BookService:
     def __init__(self, session: Session):
         self.book_repository = BookRepository(session)
         self.server_url = settings.SERVER_URL
+        self.elastic = ElasticService(session=self.book_repository.session)
 
-    def search_books(self, query: str) -> list[str]:
+    def search_books(self, query: str) -> BooksSearchRead:
         results = []
 
-        elastic = ElasticService(session=self.book_repository.session)
-        # 1. Try Elasticsearch
-        if elastic.check_connection():
+        # Elasticsearch
+        if self.elastic.check_connection():
             try:
-                es_result = elastic.es.search(
-                    index=elastic.index,
+                es_result = self.elastic.es.search(
+                    index=self.elastic.index,
                     size=5,
-                    query={"match": {"title": {"query": query, "fuzziness": "AUTO"}}},
+                    query={
+                        "match": {
+                            "title": {"query": query, "fuzziness": "AUTO"},
+                        }
+                    },
                 )
 
-                hits = es_result["hits"]["hits"]
-                results = [hit["_source"]["title"] for hit in hits]
+                results = [
+                    {
+                        "id": hit["_id"],
+                        "book_title": hit["_source"]["title"],
+                        "book_cover_photo": hit["_source"]["book_cover_photo"],
+                    }
+                    for hit in es_result["hits"]["hits"]
+                ]
             except NotFoundError:
-                pass  # Index doesn't exist
+                pass
             except Exception as e:
                 print(f"Error querying Elasticsearch: {e}")
 
-        # 2. Fallback to DB if ES fails or returns nothing
         if not results:
             print("Using DB for search...")
             books = self.book_repository.search_books(query)
-            results = books
+            print("Books", books)
+            results = [
+                {
+                    "id": book.id,
+                    "book_title": book.book_title,
+                    "book_cover_photo": book.book_cover_photo,
+                }
+                for book in books
+            ]
 
-        return results
+        search_books = [
+            BookSearchRead(
+                id=book["id"],
+                book_title=book["book_title"],
+                book_cover_photo=self.server_url
+                + f"/static/book_covers/{book['book_cover_photo']}",
+            )
+            for book in results
+        ]
+
+        return BooksSearchRead(books=search_books)
 
     def get_book_by_id(self, book_id: int) -> BookDetailsRead:
         book = self.book_repository.get_book_by_id(book_id)

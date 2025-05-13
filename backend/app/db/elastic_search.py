@@ -33,7 +33,7 @@ class ElasticService:
             logging.info(f"Index already exists: {self.index}")
 
     def sync_books(self):
-        query = select(Book.id, Book.book_title)
+        query = select(Book.id, Book.book_title, Book.book_cover_photo)
         books = self.session.exec(query).all()
         for book in books:
             self.es.index(
@@ -41,6 +41,7 @@ class ElasticService:
                 id=book.id,
                 body={
                     "title": book.book_title,
+                    "book_cover_photo": book.book_cover_photo,
                 },
             )
         logging.info(f"Synchronized {len(books)} books to Elasticsearch.")

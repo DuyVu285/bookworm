@@ -92,9 +92,7 @@ const CartTotals = () => {
           })
         );
       } else if (error.response?.status === 404 && error) {
-        console.log(error.response.data.detail);
         const removed = error.response.data.detail.removed_book;
-        console.log(removed);
         dispatch(removeFromCart(removed.book_id));
         dispatch(
           showToast({

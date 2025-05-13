@@ -45,7 +45,7 @@ const Nav = ({ onLoginClick }: NavProps) => {
   };
 
   return (
-    <div className="navbar bg-base-100 shadow-sm fixed top-0 left-0 w-full z-50">
+    <div className="navbar bg-base-100 shadow-sm fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4">
       {/* Left section */}
       <div className="navbar-start">
         <Link to="/" className="btn btn-ghost">
@@ -93,12 +93,14 @@ const Nav = ({ onLoginClick }: NavProps) => {
       </div>
 
       {/* Search Bar */}
-      <div className="navbar-center hidden lg:flex">
-        <Search />
+      <div className="navbar-center hidden lg:flex flex-1 justify-center">
+        <div className="max-w-md w-full">
+          <Search />
+        </div>
       </div>
 
       {/* Main Navigation */}
-      <div className="navbar-end hidden lg:flex ">
+      <div className="navbar-end hidden lg:flex items-center">
         <ul className="menu menu-horizontal px-1 mr-18">
           <li>
             <Link to="/" className={`${isActive("/")}`}>

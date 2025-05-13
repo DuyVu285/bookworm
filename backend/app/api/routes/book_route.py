@@ -8,9 +8,9 @@ from app.schemas.book_schema import (
     BookDetailsRead,
     BookQueryParams,
     Top8BooksQueryParams,
+    BooksSearchRead,
 )
 from app.services.book_service import BookService
-from app.db.elastic_search import ElasticService
 
 router = APIRouter(
     prefix="/books", tags=["books"], responses={404: {"description": "Not found"}}
@@ -34,7 +34,7 @@ async def get_books(
     return data
 
 
-@router.get("/search", response_model=list[str], status_code=status.HTTP_200_OK)
+@router.get("/search", response_model=BooksSearchRead, status_code=status.HTTP_200_OK)
 async def search_books(search_terms: str, session: Session = Depends(get_session)):
     service = BookService(session)
     data = service.search_books(search_terms)
