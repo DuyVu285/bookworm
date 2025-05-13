@@ -86,6 +86,17 @@ const bookService = {
       throw error;
     }
   },
+
+  async searchBooks(search_terms: string): Promise<string[]> {
+    try {
+      const response = await api.get<string[]>(
+        `/search?search_terms=${search_terms}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default bookService;

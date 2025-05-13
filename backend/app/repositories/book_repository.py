@@ -28,7 +28,11 @@ class BookRepository:
         self.session = session
 
     def search_books(self, search_term: str) -> list[str]:
-        query = select(Book.book_title).where(Book.book_title.ilike(f"%{search_term}%"))
+        query = (
+            select(Book.book_title)
+            .where(Book.book_title.ilike(f"%{search_term}%"))
+            .limit(5)
+        )
         return self.session.exec(query).all()
 
     def get_book_by_id(self, book_id: int) -> Book:

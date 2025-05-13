@@ -3,8 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlmodel import Session
 
-from app.db.db import init_db
+from app.db.db import init_db, engine
 
 from app.models.user_model import User
 from app.models.order_model import Order
@@ -13,15 +14,33 @@ from app.models.book_model import Book
 from app.models.category_model import Category
 
 from app.api.main_route import router
+from app.db.elastic_search import ElasticService
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Initializing database...")
     init_db()
-    print("Database initialized!")
+    print("✅ Database initialized!")
+
+    session = Session(engine)
+
+    try:
+        elastic = ElasticService(session=session)
+        if elastic.check_connection():
+            print("✅ Elasticsearch is connected")
+            elastic.init_index()
+        else:
+            print("⚠️ Elasticsearch is not available")
+        app.state.elastic = elastic 
+    except Exception as e:
+        print(f"❌ Error connecting to Elasticsearch: {e}")
+        app.state.elastic = None
+
     yield
+
     print("Shutting down...")
+    session.close()
 
 
 app = FastAPI(lifespan=lifespan)

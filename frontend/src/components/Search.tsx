@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import bookService from "../services/api/bookService";
 
 const Search = () => {
   const [query, setQuery] = useState("");
@@ -10,11 +10,12 @@ const Search = () => {
     const fetchSuggestions = async () => {
       if (query.trim() === "") return setSuggestions([]);
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/search?q=${query}`
+        const response = await bookService.searchBooks(
+          encodeURIComponent(query)
         );
-        setSuggestions(response.data);
-        setShowDropdown(true); // Show the dropdown if suggestions are available
+        console.log(response);
+        setSuggestions(response);
+        setShowDropdown(true);
       } catch (error) {
         console.error("Failed to fetch suggestions", error);
       }
@@ -22,7 +23,7 @@ const Search = () => {
 
     const delay = setTimeout(() => {
       fetchSuggestions();
-    }, 300); // Debounce to avoid excessive calls
+    }, 300);
     return () => clearTimeout(delay);
   }, [query]);
 
@@ -34,7 +35,6 @@ const Search = () => {
     setQuery(item);
     setSuggestions([]);
     setShowDropdown(false);
-    // Perform additional logic or navigation after selection if needed
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

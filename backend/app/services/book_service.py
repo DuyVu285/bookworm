@@ -4,24 +4,18 @@ from sqlmodel import Session
 from app.core.config import settings
 from app.repositories.book_repository import BookRepository
 from app.schemas.book_schema import BookRead, TopBooksRead, BooksRead, BookDetailsRead
+from app.db.elastic_search import ElasticService
 
 
 class BookService:
     def __init__(self, session: Session):
         self.book_repository = BookRepository(session)
         self.server_url = settings.SERVER_URL
+        self.es = ElasticService(session)
+        self.index = "book"
 
-    def search_books(self, search_terms: str) -> list[str]:
-        search_books = self.book_repository.search_books(search_terms)
-        if not search_books:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "message": f"Book with search term {search_terms} not found.",
-                    "removed_book": {"search_term": search_terms},
-                },
-            )
-        return search_books
+    def search_books(self, search_term: str) -> list[str]:
+        pass
 
     def get_book_by_id(self, book_id: int) -> BookDetailsRead:
         book = self.book_repository.get_book_by_id(book_id)
