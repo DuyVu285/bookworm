@@ -10,6 +10,7 @@ from app.schemas.book_schema import (
     Top8BooksQueryParams,
 )
 from app.services.book_service import BookService
+from app.db.elastic_search import ElasticService
 
 router = APIRouter(
     prefix="/books", tags=["books"], responses={404: {"description": "Not found"}}

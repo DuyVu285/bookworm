@@ -1,4 +1,5 @@
 from typing import Optional
+from elasticsearch import NotFoundError
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.config import settings
@@ -11,11 +12,34 @@ class BookService:
     def __init__(self, session: Session):
         self.book_repository = BookRepository(session)
         self.server_url = settings.SERVER_URL
-        self.es = ElasticService(session)
-        self.index = "book"
 
-    def search_books(self, search_term: str) -> list[str]:
-        pass
+    def search_books(self, query: str) -> list[str]:
+        results = []
+
+        elastic = ElasticService(session=self.book_repository.session)
+        # 1. Try Elasticsearch
+        if elastic.check_connection():
+            try:
+                es_result = elastic.es.search(
+                    index=elastic.index,
+                    size=5,
+                    query={"match": {"title": {"query": query, "fuzziness": "AUTO"}}},
+                )
+
+                hits = es_result["hits"]["hits"]
+                results = [hit["_source"]["title"] for hit in hits]
+            except NotFoundError:
+                pass  # Index doesn't exist
+            except Exception as e:
+                print(f"Error querying Elasticsearch: {e}")
+
+        # 2. Fallback to DB if ES fails or returns nothing
+        if not results:
+            print("Using DB for search...")
+            books = self.book_repository.search_books(query)
+            results = books
+
+        return results
 
     def get_book_by_id(self, book_id: int) -> BookDetailsRead:
         book = self.book_repository.get_book_by_id(book_id)

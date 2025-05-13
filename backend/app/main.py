@@ -30,9 +30,12 @@ async def lifespan(app: FastAPI):
         if elastic.check_connection():
             print("✅ Elasticsearch is connected")
             elastic.init_index()
+            count = elastic.es.count(index=elastic.index)["count"]
+            if count == 0:
+                print("📥 Elasticsearch index is empty. Syncing books...")
+                elastic.sync_books()
         else:
             print("⚠️ Elasticsearch is not available")
-        app.state.elastic = elastic 
     except Exception as e:
         print(f"❌ Error connecting to Elasticsearch: {e}")
         app.state.elastic = None
