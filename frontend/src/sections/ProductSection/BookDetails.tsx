@@ -1,9 +1,9 @@
 type BookDetails = {
-  book_title: string;
-  book_price: number;
+  book_title?: string;
+  book_price?: number;
   book_summary?: string;
-  book_cover_photo: string;
-  author_name: string;
+  book_cover_photo?: string;
+  author_name?: string;
   category_name?: string;
 };
 

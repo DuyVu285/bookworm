@@ -8,11 +8,11 @@ import { showToast } from "../../store/toastSlice";
 
 type BookCart = {
   id: number;
-  book_title: string;
-  book_price: number;
-  sub_price: number;
-  book_cover_photo: string;
-  author_name: string;
+  book_title?: string;
+  book_price?: number;
+  sub_price?: number;
+  book_cover_photo?: string;
+  author_name?: string;
 };
 
 const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
@@ -52,7 +52,17 @@ const AddtoCart = ({ bookCart }: { bookCart: BookCart }) => {
       return;
     }
 
-    dispatch(addToCart({ ...bookCart, quantity }));
+    dispatch(
+      addToCart({
+        ...bookCart,
+        book_title: bookCart.book_title || "",
+        book_price: bookCart.book_price || 0,
+        sub_price: bookCart.sub_price || 0,
+        book_cover_photo: bookCart.book_cover_photo || "",
+        author_name: bookCart.author_name || "",
+        quantity,
+      })
+    );
     dispatch(showToast({ message: "Book added to cart!", type: "success" }));
   };
 

@@ -8,21 +8,21 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 type Book = {
-  book_title: string;
-  book_price: number;
+  book_title?: string;
+  book_price?: number;
   book_summary?: string;
-  book_cover_photo: string;
-  author_name: string;
+  book_cover_photo?: string;
+  author_name?: string;
   category_name?: string;
 };
 
 type BookCart = {
   id: number;
-  book_title: string;
-  book_price: number;
-  sub_price: number;
-  book_cover_photo: string;
-  author_name: string;
+  book_title?: string;
+  book_price?: number;
+  sub_price?: number;
+  book_cover_photo?: string;
+  author_name?: string;
 };
 
 const ProductPage = () => {
