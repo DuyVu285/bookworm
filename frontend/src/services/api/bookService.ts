@@ -21,6 +21,16 @@ interface BooksResponse {
   page: number;
 }
 
+interface BooksSearchResponse {
+  books: BookSearchResponse[];
+}
+
+interface BookSearchResponse {
+  id: number;
+  book_title: string;
+  book_cover_photo: string;
+}
+
 const baseURL = import.meta.env.VITE_SERVER_API_URL + "/books";
 
 const api = axios.create({ baseURL });
@@ -87,9 +97,9 @@ const bookService = {
     }
   },
 
-  async searchBooks(search_terms: string): Promise<Book[]> {
+  async searchBooks(search_terms: string): Promise<BooksSearchResponse[]> {
     try {
-      const response = await api.get<{ books: Book[] }>(
+      const response = await api.get<{ books: BooksSearchResponse[] }>(
         `/search?search_terms=${search_terms}`
       );
       return response.data.books;
